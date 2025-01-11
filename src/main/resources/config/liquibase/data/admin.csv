@@ -1,0 +1,2 @@
+id;username;email;password;role;is_active;created_by;last_modified_by
+3481888888888888;admin;admin@localhost;$2a$12$rs8yazjLX2DoAVI9.yRj4uRzc/4k.vHGm3ObumbcyYj//Ji7sqn3e;SYSTEM_ADMIN;true;0;0
