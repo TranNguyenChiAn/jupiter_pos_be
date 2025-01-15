@@ -7,12 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
-    @Query(value = "SELECT * FROM product_variants p WHERE productId = :productId and p.price = :price and p.quantity = :quantity and p.color = :color and p.sizeId = :sizeId", nativeQuery = true)
-    ProductVariant findByVariant(@Param("productId") Long productId,@Param("price") int price,@Param("quantity") Integer quantity,@Param("color") String color,@Param("sizeId") Long sizeId);
-
-    @Query(value = "SELECT * FROM product_variants p WHERE productId = :productId", nativeQuery = true)
+    @Query(value = "SELECT * FROM product_variants p WHERE p.product_id = :productId", nativeQuery = true)
     List<ProductVariant> findByProductId(@Param("productId") Long productId);
+
+    @Query(value = "SELECT * FROM product_variants p WHERE p.id = :productVariantId", nativeQuery = true)
+    Optional<ProductVariant> findByVariantId(@Param("productVariantId") Long productVariantId);
 }

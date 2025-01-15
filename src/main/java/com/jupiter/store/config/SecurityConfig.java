@@ -46,4 +46,9 @@ public class SecurityConfig {
 //    public AuthenticationSuccessHandler authenticationSuccessHandler() {
 //        return new AuthenticationHandler();
 //    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }

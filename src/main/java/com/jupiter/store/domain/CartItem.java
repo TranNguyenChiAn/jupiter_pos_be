@@ -31,4 +31,10 @@ public class CartItem extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "quantity")
     private int quantity;
+
+    @Column(name = "total_amount")
+    private int totalAmount;
+
+    @Column(name = "is_selected")
+    private boolean isSelected;
 }

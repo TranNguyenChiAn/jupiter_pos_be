@@ -22,14 +22,9 @@ public class Cart extends AbstractAuditingEntity implements Serializable {
             strategy = "com.jupiter.store.utils.MyGenerator")
     @Column(name = "id")
     private Long id;
-    @Column(name = "product_id")
-    private Long productId;
 
     @Column(name = "customer_id")
     private Long customerId;
-
-    @Column(name = "total_products")
-    private int totalProducts;
 
     @Column(name = "total_amount")
     private Long totalAmount;
