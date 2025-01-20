@@ -1,9 +1,5 @@
-package com.jupiter.store.dto;
+package com.jupiter.store.dto.product;
 
-import com.jupiter.store.domain.Category;
-import com.jupiter.store.domain.ProductCategory;
-import com.jupiter.store.domain.ProductImage;
-import com.jupiter.store.domain.ProductVariant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -25,15 +25,18 @@ public class Discount extends AbstractAuditingEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "product_id")
-    private Long productId;
-
     @Column(name = "name")
     private String name;
 
     @Column(name = "percentage")
     private double percentage;
 
-    @Column(name = "expired_at")
-    private LocalDateTime expiredAt;
+    @Column(name = "start_at")
+    private LocalDateTime startAt;
+
+    @Column(name = "end_at")
+    private LocalDateTime endAt;
+
+    @Column(name = "is_active")
+    private boolean isActive;
 }

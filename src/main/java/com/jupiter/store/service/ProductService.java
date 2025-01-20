@@ -1,21 +1,22 @@
 package com.jupiter.store.service;
 
 import com.jupiter.store.domain.*;
-import com.jupiter.store.dto.CreateProductDTO;
-import com.jupiter.store.dto.ProductVariantDTO;
-import com.jupiter.store.dto.UpdateProductDTO;
+import com.jupiter.store.dto.product.*;
 import com.jupiter.store.repository.ProductCategoryRepository;
 import com.jupiter.store.repository.ProductImageRepository;
 import com.jupiter.store.repository.ProductRepository;
 import com.jupiter.store.repository.ProductVariantRepository;
 import jakarta.transaction.Transactional;
+import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -31,12 +32,16 @@ public class ProductService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
 
-    public void search() {
-        productRepository.findAll();
+    public List<Product> search() {
+        return productRepository.findAll();
     }
 
-    public void searchById(Long id) {
-        productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+    public ResponseEntity<ProductDTO> searchById(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found"));
+        List<ProductCategory> productCategory = productCategoryRepository.findByProductId(productId);
+        List<ProductVariant> productVariants = productVariantRepository.findByProductId(productId);
+        List<ProductImage> productImages = productImageRepository.findByProductId(productId);
+        return ResponseEntity.ok().body(new ProductDTO(product, productCategory, productVariants, productImages));
     }
 
     public void addProduct(CreateProductDTO createProductDTO) {
@@ -87,6 +92,11 @@ public class ProductService {
     }
 
     public void deleteProduct(Long id) {
+        List<ProductVariant> productVariants = productVariantRepository.findByProductId(id);
+        List<ProductImage> productImages = productImageRepository.findByProductId(id);
+
+        productVariantRepository.deleteAll(productVariants);
+        productImageRepository.deleteAll(productImages);
         productRepository.deleteById(id);
     }
 
@@ -140,7 +150,7 @@ public class ProductService {
         List<Long> productCategories = updateProductDTO.getCategoryId();
         if (productCategories != null && !productCategories.isEmpty()) {
             // Lấy danh sách các productCategory cũ
-            List<ProductCategory> existingCategories = productCategoryRepository.findByProductId(productId);
+            List<ProductCategory> existingCategories = productCategoryRepository.findByAllProductId(productId);
 
             // Tạo Set các categoryId mới từ request
             Set<Long> newCategoryIds = new HashSet<>(productCategories);
@@ -169,47 +179,32 @@ public class ProductService {
         }
 
         // Cập nhật ProductVariants
-        List<ProductVariantDTO> variants = updateProductDTO.getVariants();
+        List<UpdateProductVariantDTO> variants = updateProductDTO.getVariants();
         if (variants != null && !variants.isEmpty()) {
-            // Lấy danh sách các productVariants cũ
-            List<ProductVariant> existingVariants = productVariantRepository.findByProductId(productId);
+            for (UpdateProductVariantDTO updateVariantDTO : variants) {
+                Long variantId = updateVariantDTO.getId();
+                Optional<ProductVariant> existingVariant = productVariantRepository.findByVariantId(variantId); ;
 
-            // Tạo Set các variant mới từ request
-            Set<String> newVariantKeys = new HashSet<>();
-            for (ProductVariantDTO variantDTO : variants) {
-                newVariantKeys.add(variantDTO.getColor() + "_" + variantDTO.getSizeId());
-            }
-
-            // Xóa các variant cũ không có trong request (bị xóa)
-            for (ProductVariant existingVariant : existingVariants) {
-                String variantKey = existingVariant.getColor() + "_" + existingVariant.getSizeId();
-                if (!newVariantKeys.contains(variantKey)) {
-                    productVariantRepository.delete(existingVariant);
-                }
-            }
-
-            // Thêm variant mới hoặc cập nhật
-            for (ProductVariantDTO variantDTO : variants) {
-                String variantKey = variantDTO.getColor() + "_" + variantDTO.getSizeId();
-
-                Optional<ProductVariant> existingVariant = existingVariants.stream()
-                        .filter(variant -> variant.getColor().equals(variantDTO.getColor()) &&
-                                variant.getSizeId().equals(variantDTO.getSizeId()))
-                        .findFirst();
-
-                if (existingVariant.isEmpty()) {  // Nếu variant mới không có trong DB, thêm mới
+                if (!existingVariant.isPresent()) {  // Nếu variant mới không có trong DB, thêm mới
                     ProductVariant variant = new ProductVariant();
                     variant.setProductId(product.getId());
-                    variant.setPrice(variantDTO.getPrice());
-                    variant.setQuantity(variantDTO.getQuantity());
-                    variant.setColor(variantDTO.getColor());
-                    variant.setSizeId(variantDTO.getSizeId());
-                    variant.setImagePath(variantDTO.getImagePath());
+                    variant.setPrice(updateVariantDTO.getPrice());
+                    variant.setQuantity(updateVariantDTO.getQuantity());
+                    variant.setColor(updateVariantDTO.getColor());
+                    variant.setSizeId(updateVariantDTO.getSizeId());
+                    variant.setImagePath(updateVariantDTO.getImagePath());
                     variant.setCreatedBy(3481888888888888L);
+                    productVariantRepository.save(variant);
+                }else {
+                    ProductVariant variant = existingVariant.get();
+                    variant.setPrice(updateVariantDTO.getPrice());
+                    variant.setQuantity(updateVariantDTO.getQuantity());
+                    variant.setColor(updateVariantDTO.getColor());
+                    variant.setSizeId(updateVariantDTO.getSizeId());
+                    variant.setImagePath(updateVariantDTO.getImagePath());
                     productVariantRepository.save(variant);
                 }
             }
         }
-//
     }
 }

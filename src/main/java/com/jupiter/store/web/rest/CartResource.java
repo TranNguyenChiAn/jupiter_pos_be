@@ -24,9 +24,20 @@ public class CartResource {
         return ResponseEntity.ok(cart);
     }
 
-    @PostMapping("/add-cart-items")
-    public ResponseEntity<CartItem> addProductToCart(Long cartId, @RequestBody AddToCartDTO addToCartDTO) {
+    @PostMapping("/add-cart-items/{cartId}")
+    public ResponseEntity<CartItem> addProductToCart(@RequestParam Long cartId, @RequestBody AddToCartDTO addToCartDTO) {
         CartItem cartItem = cartItemService.addProductToCart(cartId, addToCartDTO);
         return ResponseEntity.ok(cartItem);
+    }
+
+    @PutMapping("/update-cart-item/{cartItemId}")
+    public ResponseEntity<CartItem> updateCartItem(@RequestParam Long cartItemId, @RequestParam int quantity) {
+        CartItem updatedCartItem = cartItemService.updateCartItem(cartItemId, quantity);
+        return ResponseEntity.ok(updatedCartItem);
+    }
+
+    @DeleteMapping("/delete-cart-item/{cartId}")
+    public void deleteCartItem(@RequestParam Long cartId) {
+        cartItemService.deleteCartItem(cartId);
     }
 }

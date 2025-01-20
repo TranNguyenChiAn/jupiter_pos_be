@@ -32,9 +32,9 @@ public class CategoryResource {
         return categoryService.searchById(id);
     }
 
-    @PutMapping
-    public void updateCategory(String name) {
-        categoryService.updateCategory(name);
+    @PutMapping("/update")
+    public void updateCategory(@RequestParam Long categoryId, @RequestParam String name) {
+        categoryService.updateCategory(categoryId, name);
     }
 
     @DeleteMapping("/delete")

@@ -46,7 +46,7 @@ public class AdminResource {
     }
 
     @Operation(summary = "Update admin")
-    @PutMapping("/update")
+    @PutMapping("/update/{adminId}")
     public void updateAdmin(@RequestBody AdminDTO adminDTO) {
         adminService.updateAdmin(adminDTO);
     }

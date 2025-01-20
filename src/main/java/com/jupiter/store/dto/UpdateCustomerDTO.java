@@ -9,12 +9,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterCustomer {
+public class UpdateCustomerDTO {
     private String username;
     private String firstname;
     private String lastname;
-    private String email;
-    private String password;
     private String address;
     private String phone;
 }

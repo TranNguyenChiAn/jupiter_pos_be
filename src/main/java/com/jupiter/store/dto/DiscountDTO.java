@@ -1,19 +1,23 @@
 package com.jupiter.store.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class CreateDiscountDTO {
+@AllArgsConstructor
+public class DiscountDTO {
+    private List<Long> productId;
     private String name;
-    private Long productId;
     private double percentage;
-    private LocalDateTime expiredDate;
+    private LocalDateTime startAt;
+    private LocalDateTime endAt;
+    private boolean isActive = true;
 }

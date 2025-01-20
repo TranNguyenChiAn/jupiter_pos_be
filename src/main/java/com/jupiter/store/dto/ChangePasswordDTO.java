@@ -1,18 +1,17 @@
 package com.jupiter.store.dto;
 
-import com.jupiter.store.domain.ProductVariant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import javax.persistence.NamedAttributeNode;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddToCartDTO {
-    private Long productVariantId;
-    private int quantity;
+public class ChangePasswordDTO {
+    private String oldPassword;
+    private String newPassword;
 }

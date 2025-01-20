@@ -25,17 +25,17 @@ public class SizeResource {
     }
 
     @GetMapping("/search/{id}")
-    public Size searchById(Long id) {
+    public Size searchById(@RequestParam Long id) {
         return sizeService.searchById(id);
     }
 
-    @PutMapping
+    @PutMapping("/update/{sizeId}")
     public void updateCategory(@RequestBody UpdateSizeDTO updateSizeDTO) {
         sizeService.updateSize(updateSizeDTO);
     }
 
-    @DeleteMapping("/delete")
-    public void deleteCategory(Long id) {
+    @DeleteMapping("/delete/{sizeId}")
+    public void deleteCategory(@RequestParam Long id) {
         sizeService.deleteSize(id);
     }
 }

@@ -1,4 +1,4 @@
-package com.jupiter.store.dto;
+package com.jupiter.store.dto.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,5 +17,5 @@ public class UpdateProductDTO {
     private String material;
     private List<Long> categoryId;
     private List<String> imagePath;
-    private List<ProductVariantDTO> variants;
+    private List<UpdateProductVariantDTO> variants;
 }

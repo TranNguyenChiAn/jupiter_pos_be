@@ -1,10 +1,15 @@
 package com.jupiter.store.web.rest;
 
-import com.jupiter.store.dto.CreateProductDTO;
-import com.jupiter.store.dto.UpdateProductDTO;
+import com.jupiter.store.domain.Product;
+import com.jupiter.store.dto.product.CreateProductDTO;
+import com.jupiter.store.dto.product.ProductDTO;
+import com.jupiter.store.dto.product.UpdateProductDTO;
 import com.jupiter.store.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -18,24 +23,22 @@ public class ProductResource {
     }
 
     @GetMapping("/search")
-    public void search() {
-        productService.search();
+    public List<Product> search() {
+        return productService.search();
     }
 
-    @GetMapping("/search/{id}")
-    public void searchById(Long id) {
-        productService.searchById(id);
+    @GetMapping("/search/{productId}")
+    public ResponseEntity<ProductDTO> searchById(@RequestParam Long productId) {
+        return productService.searchById(productId);
     }
 
-    @PutMapping("/update")
-    public void updateProduct(@PathVariable Long id, @RequestBody UpdateProductDTO updateProductDTO) {
-        productService.updateProduct(id, updateProductDTO);
+    @PutMapping("/update/{id}")
+    public void updateProduct(@RequestParam Long productId, @RequestBody UpdateProductDTO updateProductDTO) {
+        productService.updateProduct(productId, updateProductDTO);
     }
 
     @DeleteMapping("/delete/{id}")
     public void deleteProduct(Long id) {
         productService.deleteProduct(id);
     }
-
-
 }

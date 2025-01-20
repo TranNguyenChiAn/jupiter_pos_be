@@ -33,4 +33,20 @@ public class CartItemService {
             return null;
         }
     }
+
+    public CartItem updateCartItem(Long cartItemId, int quantity) {
+        Optional<CartItem> cartItem = cartItemRepository.findById(cartItemId);
+        Optional<ProductVariant> productVariant = productVariantRepository.findByVariantId(cartItem.get().getProductVariantId());
+        if(cartItem.isPresent()) {
+            cartItem.get().setQuantity(quantity);
+            cartItem.get().setTotalAmount(productVariant.get().getPrice() * quantity);
+            return cartItemRepository.save(cartItem.get());
+        }else {
+            return null;
+        }
+    }
+
+    public void deleteCartItem(Long cartId) {
+        cartItemRepository.deleteAllByCartId(cartId);
+    }
 }

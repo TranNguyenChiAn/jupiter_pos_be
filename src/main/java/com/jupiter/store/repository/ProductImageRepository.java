@@ -10,9 +10,6 @@ import java.util.List;
 
 @Repository
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
-    @Query(value = "SELECT * FROM product_images p WHERE productId = :producctId and p.imagePath = :image", nativeQuery = true)
-    ProductImage findByImagePath(@Param("productId") Long productId, @Param("image") String image);
-
-    @Query(value = "SELECT * FROM product_images p WHERE productId = :productId", nativeQuery = true)
+    @Query(value = "SELECT * FROM product_images p WHERE product_id = :productId", nativeQuery = true)
     List<ProductImage> findByProductId(@Param("productId") Long productId);
 }

@@ -34,8 +34,8 @@ public class CategoryService {
         return categoryRepository.findById(id).orElse(null);
     }
 
-    public void updateCategory(String name) {
-        Category category = new Category();
+    public void updateCategory(Long categoryId, String name) {
+        Category category = categoryRepository.findById(categoryId).orElse(null);
         category.setName(name);
         categoryRepository.save(category);
     }
