@@ -4,5 +4,5 @@ public class RoleBase {
    public final static String SYSTEM_ADMIN = "SYSTEM_ADMIN";
    public final static String ADMIN = "ADMIN";
    public final static String USER = "USER";
-   public final static String ANONYMOUS = "ANONYMOUS";
+   private RoleBase() {}
 }

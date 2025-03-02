@@ -1,5 +1,6 @@
 package com.jupiter.store.web.rest;
 
+import com.jupiter.store.constant.RoleBase;
 import com.jupiter.store.domain.Category;
 import com.jupiter.store.domain.Product;
 import com.jupiter.store.dto.product.CreateProductDTO;
@@ -10,17 +11,19 @@ import com.jupiter.store.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 public class ProductResource {
     @Autowired
     private ProductService productService;
 
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public void addProduct(@RequestBody CreateProductDTO createProductDTO) {
         productService.addProduct(createProductDTO);
     }
@@ -36,6 +39,7 @@ public class ProductResource {
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> updateProduct(@RequestParam Long productId, @RequestBody UpdateProductDTO updateProductDTO) {
         try {
             productService.updateProduct(productId, updateProductDTO);
@@ -46,6 +50,7 @@ public class ProductResource {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> deleteProduct(Long id) {
         try {
             productService.deleteProduct(id);
@@ -56,12 +61,14 @@ public class ProductResource {
     }
 
     @PostMapping("/add-category-for-product")
+    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public void addCategory(@RequestParam Long productId, @RequestBody List<Category> categories) {
         productService.addCategory(productId, categories);
 
     }
 
     @DeleteMapping("/delete-category-for-product")
+    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public void deleteCategory(@RequestParam Long productId, @RequestBody List<Category> categories) {
         productService.deleteCategory(productId, categories);
     }

@@ -1,6 +1,6 @@
 package com.jupiter.store.service;
 
-import com.jupiter.store.repository.AdminRepository;
+import com.jupiter.store.repository.UserRepository;
 import com.jupiter.store.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ContextService {
     @Autowired
-    AdminRepository userRepository;
+    UserRepository userRepository;
 
     public Long getCurrentUserId(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

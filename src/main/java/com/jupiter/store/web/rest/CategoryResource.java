@@ -1,8 +1,10 @@
 package com.jupiter.store.web.rest;
 
+import com.jupiter.store.constant.RoleBase;
 import com.jupiter.store.domain.Category;
 import com.jupiter.store.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +20,7 @@ public class CategoryResource {
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public void addCategory(String name) {
         categoryService.addCategory(name);
     }

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/discounts")
+@RequestMapping("/api/discounts")
 public class DiscountResource {
     @Autowired
     private DiscountService discountService;

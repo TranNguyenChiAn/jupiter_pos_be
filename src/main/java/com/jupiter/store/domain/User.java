@@ -7,14 +7,14 @@ import org.hibernate.annotations.GenericGenerator;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "users")
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Customer extends AbstractAuditingEntity implements Serializable {
+public class User extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(generator = "prod-generator")
@@ -23,7 +23,7 @@ public class Customer extends AbstractAuditingEntity implements Serializable {
     @Column(name = "id")
     private Long id;
     @Column(name = "username")
-    private  String userName;
+    private  String username;
     @Column(name = "firstname")
     private  String firstname;
     @Column(name = "lastname")
@@ -40,4 +40,6 @@ public class Customer extends AbstractAuditingEntity implements Serializable {
     private String avatar;
     @Column(name = "is_active")
     private boolean isActive;
+    @Column(name = "role")
+    private String role;
 }

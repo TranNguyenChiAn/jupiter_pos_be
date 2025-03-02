@@ -4,17 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.checkerframework.checker.units.qual.A;
 
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterCustomerDTO {
+public class LoginRequest {
     private String username;
-    private String firstname;
-    private String lastname;
-    private String email;
     private String password;
-    private String address;
-    private String phone;
 }

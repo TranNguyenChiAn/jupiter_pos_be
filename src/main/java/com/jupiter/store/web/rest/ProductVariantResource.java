@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/product-variants")
+@RequestMapping("/api/product-variants")
 public class ProductVariantResource {
     @Autowired
     private ProductVariantService productVariantService;

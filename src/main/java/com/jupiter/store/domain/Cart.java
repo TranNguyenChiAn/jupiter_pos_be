@@ -23,8 +23,8 @@ public class Cart extends AbstractAuditingEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "customer_id")
-    private Long customerId;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(name = "total_amount")
     private Long totalAmount;

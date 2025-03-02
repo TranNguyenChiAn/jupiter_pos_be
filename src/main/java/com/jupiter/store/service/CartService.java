@@ -10,10 +10,10 @@ public class CartService {
     @Autowired
     private CartRepository cartRepository;
 
-    public Cart createCart(Long customerId) {
+    public Cart createCart(Long userId) {
         Cart cart = new Cart();
-        cart.setCustomerId(customerId);
-        cart.setCreatedBy(customerId);
+        cart.setUserId(userId);
+        cart.setCreatedBy(userId);
         return cartRepository.save(cart);
     }
 

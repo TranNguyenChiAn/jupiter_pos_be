@@ -19,8 +19,8 @@ public class CartResource {
     private CartItemService cartItemService;
 
     @PostMapping("/create-cart")
-    public ResponseEntity<Cart> createCart(Long customerId) {
-        Cart cart = cartService.createCart(customerId);
+    public ResponseEntity<Cart> createCart(Long userId) {
+        Cart cart = cartService.createCart(userId);
         return ResponseEntity.ok(cart);
     }
 
