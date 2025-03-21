@@ -1,6 +1,6 @@
 package com.jupiter.store.web.rest;
 
-import com.jupiter.store.domain.Discount;
+import com.jupiter.store.model.Discount;
 import com.jupiter.store.dto.DiscountDTO;
 import com.jupiter.store.service.DiscountService;
 import org.springframework.beans.factory.annotation.Autowired;

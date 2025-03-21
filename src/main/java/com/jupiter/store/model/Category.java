@@ -1,4 +1,4 @@
-package com.jupiter.store.domain;
+package com.jupiter.store.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,12 +10,10 @@ import java.io.Serializable;
 @Table(name = "categories")
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class Category extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(generator = "prod-generator")
     @GenericGenerator(name = "prod-generator",
@@ -25,5 +23,4 @@ public class Category extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "name")
     private String name;
-
 }

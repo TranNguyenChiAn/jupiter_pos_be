@@ -14,7 +14,6 @@ import java.util.List;
 public class CreateProductDTO {
     private String name;
     private String description;
-    private String material;
     private List<Long> categoryId;
     private List<String> imagePath;
     private List<ProductVariantDTO> variants;

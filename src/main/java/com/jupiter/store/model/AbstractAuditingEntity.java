@@ -1,4 +1,4 @@
-package com.jupiter.store.domain;
+package com.jupiter.store.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

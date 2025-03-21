@@ -1,8 +1,6 @@
-package com.jupiter.store.domain;
+package com.jupiter.store.model;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class AdminTest {
 

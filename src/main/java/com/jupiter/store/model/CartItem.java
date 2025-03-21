@@ -1,4 +1,4 @@
-package com.jupiter.store.domain;
+package com.jupiter.store.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,14 +7,13 @@ import org.hibernate.annotations.GenericGenerator;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "product_categories")
+@Table(name = "cart_items")
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductCategory extends AbstractAuditingEntity implements Serializable {
+public class CartItem extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(generator = "prod-generator")
@@ -23,9 +22,18 @@ public class ProductCategory extends AbstractAuditingEntity implements Serializa
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "product_id")
-    private Long productId;
+    @Column(name = "cart_id")
+    private Long cartId;
 
-    @Column(name = "category_id")
-    private Long categoryId;
+    @Column(name = "product_variant_id")
+    private Long productVariantId;
+
+    @Column(name = "quantity")
+    private int quantity;
+
+    @Column(name = "total_amount")
+    private int totalAmount;
+
+    @Column(name = "is_selected")
+    private boolean isSelected;
 }

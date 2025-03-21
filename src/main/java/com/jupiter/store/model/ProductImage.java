@@ -1,4 +1,4 @@
-package com.jupiter.store.domain;
+package com.jupiter.store.model;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,14 +7,12 @@ import org.hibernate.annotations.GenericGenerator;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "carts")
+@Table(name = "product_images")
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Cart extends AbstractAuditingEntity implements Serializable {
+public class ProductImage extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(generator = "prod-generator")
@@ -22,10 +20,8 @@ public class Cart extends AbstractAuditingEntity implements Serializable {
             strategy = "com.jupiter.store.utils.MyGenerator")
     @Column(name = "id")
     private Long id;
-
-    @Column(name = "user_id")
-    private Long userId;
-
-    @Column(name = "total_amount")
-    private Long totalAmount;
+    @Column(name = "product_id")
+    private Long productId;
+    @Column(name = "image_path")
+    private String imagePath;
 }

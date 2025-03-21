@@ -1,9 +1,9 @@
 package com.jupiter.store.dto.product;
 
-import com.jupiter.store.domain.Product;
-import com.jupiter.store.domain.ProductCategory;
-import com.jupiter.store.domain.ProductImage;
-import com.jupiter.store.domain.ProductVariant;
+import com.jupiter.store.model.Product;
+import com.jupiter.store.model.ProductCategory;
+import com.jupiter.store.model.ProductImage;
+import com.jupiter.store.model.ProductVariant;
 import com.jupiter.store.dto.AbstractAuditingDTO;
 import lombok.*;
 
@@ -22,8 +22,6 @@ public class ProductDTO extends AbstractAuditingDTO implements Serializable {
 
     private String description;
 
-    private String material;
-
     private List<ProductCategory> categoryId;
 
     private List<ProductImage> imagePath;
@@ -35,7 +33,6 @@ public class ProductDTO extends AbstractAuditingDTO implements Serializable {
         this.id = product.getId();
         this.name = product.getName();
         this.description = product.getDescription();
-        this.material = product.getMaterial();
         this.categoryId = productCategory;
         this.imagePath = productImages;
         this.variants = variants;

@@ -1,10 +1,9 @@
 package com.jupiter.store.service;
 
-import com.jupiter.store.domain.Discount;
-import com.jupiter.store.domain.ProductDiscount;
+import com.jupiter.store.model.Discount;
+import com.jupiter.store.model.ProductDiscount;
 import com.jupiter.store.dto.DiscountDTO;
 import com.jupiter.store.repository.DiscountRepository;
-import com.jupiter.store.repository.ProductRepository;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -20,18 +20,6 @@ import java.util.Properties;
 @EnableJpaRepositories(basePackages = "com.jupiter.store.repository")
 @EnableTransactionManagement
 public class JpaConfig {
-//    @Bean
-//    public OperationCustomizer customize() {
-//        return (Operation operation, HandlerMethod handlerMethod) -> {
-//            Parameter parameter = new Parameter();
-//            parameter.setName("Authorization");
-//            parameter.setIn(ParameterIn.HEADER.toString());
-//            parameter.setSchema(new StringSchema());
-//            operation.addParametersItem(parameter);
-//            return operation;
-//        };
-//    }
-
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);

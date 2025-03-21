@@ -1,11 +1,10 @@
 package com.jupiter.store.web.rest;
 
 import com.jupiter.store.constant.RoleBase;
-import com.jupiter.store.domain.Category;
-import com.jupiter.store.domain.Product;
+import com.jupiter.store.model.Category;
+import com.jupiter.store.model.Product;
 import com.jupiter.store.dto.product.CreateProductDTO;
 import com.jupiter.store.dto.product.GetProductDTO;
-import com.jupiter.store.dto.product.ProductDTO;
 import com.jupiter.store.dto.product.UpdateProductDTO;
 import com.jupiter.store.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +26,14 @@ public class ProductResource {
     public void addProduct(@RequestBody CreateProductDTO createProductDTO) {
         productService.addProduct(createProductDTO);
     }
-
     @GetMapping("/search")
     public List<Product> search() {
         return productService.search();
     }
-
-    @GetMapping("/search/{productId}")
+    @GetMapping("/search-detail/{productId}")
     public ResponseEntity<GetProductDTO> searchById(@RequestParam Long productId) {
         return productService.searchById(productId);
     }
-
     @PutMapping("/update/{id}")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> updateProduct(@RequestParam Long productId, @RequestBody UpdateProductDTO updateProductDTO) {
@@ -48,7 +44,6 @@ public class ProductResource {
             return new ResponseEntity<>("Error updating product: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> deleteProduct(Long id) {
@@ -59,14 +54,11 @@ public class ProductResource {
             return new ResponseEntity<>("Error deleting product: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
     @PostMapping("/add-category-for-product")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public void addCategory(@RequestParam Long productId, @RequestBody List<Category> categories) {
         productService.addCategory(productId, categories);
-
     }
-
     @DeleteMapping("/delete-category-for-product")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public void deleteCategory(@RequestParam Long productId, @RequestBody List<Category> categories) {

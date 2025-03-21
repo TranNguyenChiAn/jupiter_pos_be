@@ -1,6 +1,6 @@
 package com.jupiter.store.web.rest;
 
-import com.jupiter.store.domain.User;
+import com.jupiter.store.model.User;
 import com.jupiter.store.dto.JwtResponse;
 import com.jupiter.store.dto.LoginRequest;
 import com.jupiter.store.repository.UserRepository;
@@ -16,22 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 @RestController
 public class AuthResource {
-
     @Autowired
     private UserRepository userRepository;
     private final JwtUtil jwtUtil;
-
     public AuthResource(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
-
     @PostMapping("/authenticate")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
         User user = userRepository.findByUsername(loginRequest.getUsername());
         if (user != null ) {
             if(user.isActive()){
                 if (user.getRole() != null){
-                    String token = jwtUtil.createToken(loginRequest.getUsername());
+                    String token = jwtUtil.createToken(user.getUsername(), user.getId(), user.getRole());
 
                     return ResponseEntity.ok()
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)

@@ -1,5 +1,6 @@
 package com.jupiter.store.security.jwt;
 
+import com.jupiter.store.constant.RoleBase;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -20,9 +21,7 @@ import java.util.Date;
 public class JwtUtil {
     @Value("${jwt.secret}")
     private String secretKey;
-
-    // Thời gian hết hạn token
-    private long validityInMilliseconds = 3600000; // 1 hour
+    private long validityInMilliseconds = 3600000; // Thời gian hết hạn token1 hour
 
     private Key getSignInKey() {
         String base64Secret = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
@@ -30,11 +29,11 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Tạo JWT token từ username
-    public String createToken(String username) {
-
+    public String createToken(String username, Long userId, String role) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("userId", userId)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + validityInMilliseconds))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256) // Sử dụng SecretKey để ký
@@ -65,4 +64,3 @@ public class JwtUtil {
         return (username.equals(extractUsername(token)) && !isTokenExpired(token));
     }
 }
-

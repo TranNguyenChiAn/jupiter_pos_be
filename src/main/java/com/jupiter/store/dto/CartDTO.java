@@ -1,15 +1,18 @@
 package com.jupiter.store.dto;
 
+import com.jupiter.store.model.CartItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateSizeDTO {
+public class CartDTO {
     private Long id;
-    private String name;
+    private List<CartItem> productVariantId;
 }

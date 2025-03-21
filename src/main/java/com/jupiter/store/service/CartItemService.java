@@ -1,21 +1,19 @@
 package com.jupiter.store.service;
 
-import com.jupiter.store.domain.CartItem;
-import com.jupiter.store.domain.ProductVariant;
+import com.jupiter.store.model.CartItem;
+import com.jupiter.store.model.ProductVariant;
 import com.jupiter.store.dto.AddToCartDTO;
 import com.jupiter.store.repository.CartItemRepository;
 import com.jupiter.store.repository.ProductVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CartItemService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
-
     @Autowired
     private CartItemRepository cartItemRepository;
 
@@ -33,7 +31,6 @@ public class CartItemService {
             return null;
         }
     }
-
     public CartItem updateCartItem(Long cartItemId, int quantity) {
         Optional<CartItem> cartItem = cartItemRepository.findById(cartItemId);
         Optional<ProductVariant> productVariant = productVariantRepository.findByVariantId(cartItem.get().getProductVariantId());
@@ -45,7 +42,6 @@ public class CartItemService {
             return null;
         }
     }
-
     public void deleteCartItem(Long cartId) {
         cartItemRepository.deleteAllByCartId(cartId);
     }

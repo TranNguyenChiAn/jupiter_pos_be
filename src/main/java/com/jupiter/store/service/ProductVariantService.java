@@ -1,9 +1,8 @@
 package com.jupiter.store.service;
 
-import com.jupiter.store.domain.Product;
-import com.jupiter.store.domain.ProductVariant;
+import com.jupiter.store.model.Product;
+import com.jupiter.store.model.ProductVariant;
 import com.jupiter.store.dto.product.ProductVariantDTO;
-import com.jupiter.store.dto.product.UpdateProductVariantDTO;
 import com.jupiter.store.repository.ProductRepository;
 import com.jupiter.store.repository.ProductVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +26,8 @@ public class ProductVariantService {
             variant.setProductId(productId);
             variant.setPrice(productVariant.getPrice());
             variant.setQuantity(productVariant.getQuantity());
-            variant.setColor(productVariant.getColor());
-            variant.setSizeId(productVariant.getSizeId());
+            variant.setAttributeId(productVariant.getAttributeId());
+            variant.setAttributeValue(productVariant.getAttributeValue());
             variant.setImagePath(productVariant.getImagePath());
             variant.setCreatedBy(3481888888888888L);
             return ResponseEntity.ok(productVariantRepository.save(variant));
@@ -41,8 +40,8 @@ public class ProductVariantService {
         ProductVariant variant = productVariantRepository.findById(variantId).orElseThrow(() -> new RuntimeException("Product variant not found"));
         variant.setPrice(productVariant.getPrice() != 0 ? productVariant.getPrice() : variant.getPrice());
         variant.setQuantity(productVariant.getQuantity() != 0 ? productVariant.getQuantity() : variant.getQuantity());
-        variant.setColor(productVariant.getColor() != null ? productVariant.getColor() : variant.getColor());
-        variant.setSizeId(productVariant.getSizeId() != null ? productVariant.getSizeId() : variant.getSizeId());
+        variant.setAttributeId(productVariant.getAttributeId() != null ? productVariant.getAttributeId(): variant.getAttributeId());
+        variant.setAttributeValue(productVariant.getAttributeValue() != null ? productVariant.getAttributeValue() : variant.getAttributeValue());
         variant.setImagePath(productVariant.getImagePath() != null ? productVariant.getImagePath() : variant.getImagePath());
         productVariantRepository.save(variant);
         return ResponseEntity.ok(new ProductVariantDTO(variant));

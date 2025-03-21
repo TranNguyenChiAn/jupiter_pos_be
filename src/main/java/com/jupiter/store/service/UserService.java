@@ -1,7 +1,7 @@
 package com.jupiter.store.service;
 
 import com.jupiter.store.constant.RoleBase;
-import com.jupiter.store.domain.User;
+import com.jupiter.store.model.User;
 import com.jupiter.store.dto.ChangePasswordDTO;
 import com.jupiter.store.dto.RegisterUserDTO;
 import com.jupiter.store.dto.UpdateUserDTO;
@@ -15,18 +15,14 @@ import org.springframework.stereotype.Service;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
     public void register(RegisterUserDTO registerUserDTO) {
         User user = new User();
         String encodedPassword = passwordEncoder.encode(registerUserDTO.getPassword());
-
         user.setUsername(registerUserDTO.getUsername());
         user.setFirstname(registerUserDTO.getFirstname());
         user.setLastname(registerUserDTO.getLastname());
@@ -39,7 +35,6 @@ public class UserService {
         user.setCreatedBy(0L);
         userRepository.save(user);
     }
-
     @Transactional
     public void update(Long userId, UpdateUserDTO updateUserDTO) {
         User user = userRepository.findById(userId).orElseThrow();
@@ -50,12 +45,7 @@ public class UserService {
         user.setAddress(updateUserDTO.getAddress());
         userRepository.save(user);
     }
-
-    @Transactional
-    public void changePassword(Long userId, ChangePasswordDTO changePasswordDTO) {
-        User user = userRepository.findById(userId).orElseThrow();
-        String encodedPassword = passwordEncoder.encode(changePasswordDTO.getNewPassword());
-        user.setPassword(encodedPassword);
-        userRepository.save(user);
+    public User searchByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }

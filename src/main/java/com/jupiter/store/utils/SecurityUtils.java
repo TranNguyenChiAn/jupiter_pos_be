@@ -1,6 +1,11 @@
 package com.jupiter.store.utils;
 
+import com.jupiter.store.model.User;
+import com.jupiter.store.repository.UserRepository;
 import com.jupiter.store.security.CustomUserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;

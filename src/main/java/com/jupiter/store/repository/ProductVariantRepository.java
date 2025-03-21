@@ -1,6 +1,6 @@
 package com.jupiter.store.repository;
 
-import com.jupiter.store.domain.ProductVariant;
+import com.jupiter.store.model.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

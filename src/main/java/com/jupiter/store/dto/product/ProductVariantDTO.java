@@ -1,11 +1,10 @@
 package com.jupiter.store.dto.product;
 
-import com.jupiter.store.domain.ProductVariant;
+import com.jupiter.store.model.ProductVariant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.checkerframework.checker.units.qual.A;
 
 @Getter
 @Setter
@@ -14,15 +13,15 @@ import org.checkerframework.checker.units.qual.A;
 public class ProductVariantDTO {
     private int price;
     private Integer quantity;
-    private String color;
-    private Long sizeId;
+    private Long attributeId;
+    private String attributeValue;
     private String imagePath;
 
     public ProductVariantDTO(ProductVariant productVariant) {
         this.price = productVariant.getPrice();
         this.quantity = productVariant.getQuantity();
-        this.color = productVariant.getColor();
-        this.sizeId = productVariant.getSizeId();
+        this.attributeId = productVariant.getAttributeId();
+        this.attributeValue = productVariant.getAttributeValue();
         this.imagePath = productVariant.getImagePath();
     }
 }

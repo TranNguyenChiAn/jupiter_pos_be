@@ -12,7 +12,7 @@ import lombok.Setter;
 public class UpdateProductVariantDTO {
     private int price;
     private Integer quantity;
-    private String color;
-    private Long sizeId;
+    private Long attributeId;
+    private String attributeValue;
     private String imagePath;
 }
