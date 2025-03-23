@@ -28,8 +28,8 @@ public class JwtUtil {
 
     public String createToken(String username, Long userId, String role) {
         return Jwts.builder()
-                .setSubject(username)
-                .claim("userId", userId)
+                .setSubject(String.valueOf(userId))
+                .claim("username", username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + validityInMilliseconds))

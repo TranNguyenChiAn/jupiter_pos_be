@@ -2,6 +2,7 @@ package com.jupiter.store.service;
 
 import com.jupiter.store.model.Attribute;
 import com.jupiter.store.repository.AttributeRepository;
+import com.jupiter.store.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,15 @@ import java.util.List;
 public class AttributeService {
     @Autowired
     private AttributeRepository attributeRepository;
+    public static Long currentUserId(){
+        return SecurityUtils.getCurrentUserId();
+    }
 
-    public void addAttribute(String name) {
+    public Attribute addAttribute(String name) {
         Attribute attribute = new Attribute();
         attribute.setName(name);
-        attribute.setCreatedBy(3481888888888888L);
-        attributeRepository.save(attribute);
+        attribute.setCreatedBy(currentUserId());
+        return attributeRepository.save(attribute);
     }
 
     public List<Attribute> search() {
@@ -31,7 +35,7 @@ public class AttributeService {
     public void updateAttribute(Long attributeId, String name) {
         Attribute attribute = attributeRepository.findById(attributeId).orElseThrow(() -> new RuntimeException("Size not found"));
         attribute.setName(name);
-        attribute.setLastModifiedBy(3481888888888888L);
+        attribute.setLastModifiedBy(currentUserId());
         attribute.setLastModifiedDate(LocalDateTime.now());
         attributeRepository.save(attribute);
     }

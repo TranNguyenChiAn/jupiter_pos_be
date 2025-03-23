@@ -4,6 +4,7 @@ import com.jupiter.store.model.Discount;
 import com.jupiter.store.model.ProductDiscount;
 import com.jupiter.store.dto.DiscountDTO;
 import com.jupiter.store.repository.DiscountRepository;
+import com.jupiter.store.utils.SecurityUtils;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 public class DiscountService {
     @Autowired
     private DiscountRepository discountRepository;
+    Long createdBy = SecurityUtils.getCurrentUserId();
 
     public DiscountService(DiscountRepository discountRepository) {
         this.discountRepository = discountRepository;
@@ -28,7 +30,7 @@ public class DiscountService {
         discount.setStartAt(discountDTO.getStartAt());
         discount.setEndAt(discountDTO.getEndAt());
         discount.setActive(discountDTO.isActive());
-        discount.setCreatedBy(3481888888888888L);
+        discount.setCreatedBy(createdBy);
         discountRepository.save(discount);
 
         for (Long id : productId) {

@@ -3,6 +3,7 @@ package com.jupiter.store.service;
 import com.jupiter.store.model.*;
 import com.jupiter.store.dto.product.*;
 import com.jupiter.store.repository.*;
+import com.jupiter.store.utils.SecurityUtils;
 import jakarta.transaction.Transactional;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,15 @@ public class ProductService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
 
+    public static Long currentUserId(){
+        return SecurityUtils.getCurrentUserId();
+    }
+
     public void addProduct(CreateProductDTO createProductDTO) {
         Product product = new Product();
         product.setName(createProductDTO.getName());
         product.setDescription(createProductDTO.getDescription());
-        product.setCreatedBy(3481888888888888L);
+        product.setCreatedBy(currentUserId());
         product = productRepository.save(product);
         saveProductImages(createProductDTO.getImagePath(), product.getId());
         saveProductCategories(createProductDTO.getCategoryId(), product.getId());
@@ -43,7 +48,7 @@ public class ProductService {
                 ProductImage productImage = new ProductImage();
                 productImage.setProductId(productId);
                 productImage.setImagePath(imagePath);
-                productImage.setCreatedBy(3481888888888888L);
+                productImage.setCreatedBy(currentUserId());
                 productImageRepository.save(productImage);
             }
         }
@@ -54,7 +59,7 @@ public class ProductService {
                 ProductCategory productCategory = new ProductCategory();
                 productCategory.setProductId(productId);
                 productCategory.setCategoryId(categoryId);
-                productCategory.setCreatedBy(3481888888888888L);
+                productCategory.setCreatedBy(currentUserId());
                 productCategoryRepository.save(productCategory);
             }
         }
@@ -69,7 +74,7 @@ public class ProductService {
                 variant.setAttributeId(variantDTO.getAttributeId());
                 variant.setAttributeValue(variantDTO.getAttributeValue());
                 variant.setImagePath(variantDTO.getImagePath());
-                variant.setCreatedBy(3481888888888888L);
+                variant.setCreatedBy(currentUserId());
                 productVariantRepository.save(variant);
             }
         }
@@ -109,7 +114,7 @@ public class ProductService {
                     ProductImage productImage = new ProductImage();
                     productImage.setProductId(product.getId());
                     productImage.setImagePath(image);
-                    productImage.setCreatedBy(3481888888888888L);
+                    productImage.setCreatedBy(currentUserId());
                     productImageRepository.save(productImage);
                 }
             }
@@ -150,7 +155,7 @@ public class ProductService {
                 ProductCategory productCategory = new ProductCategory();
                 productCategory.setProductId(productId);
                 productCategory.setCategoryId(category.getId());
-                productCategory.setCreatedBy(3481888888888888L);
+                productCategory.setCreatedBy(currentUserId());
                 productCategoryRepository.save(productCategory);
             }
         }else{

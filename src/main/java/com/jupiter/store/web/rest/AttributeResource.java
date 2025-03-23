@@ -17,8 +17,8 @@ public class AttributeResource {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole(RoleBase.ADMIN)")
-    public void addAttribute(String name) {
-        attributeService.addAttribute(name);
+    public Attribute addAttribute(String name) {
+        return attributeService.addAttribute(name);
     }
 
     @GetMapping("/search")

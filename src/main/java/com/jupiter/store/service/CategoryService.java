@@ -2,6 +2,7 @@ package com.jupiter.store.service;
 
 import com.jupiter.store.model.Category;
 import com.jupiter.store.repository.CategoryRepository;
+import com.jupiter.store.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +16,16 @@ public class CategoryService {
     public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
+    public static Long currentUserId(){
+        return SecurityUtils.getCurrentUserId();
+    }
 
-    public void addCategory(String name) {
+    public Category addCategory(String name) {
         Category category = new Category();
         category.setName(name);
-        category.setCreatedBy(3481888888888888L);
+        category.setCreatedBy(currentUserId());
         category.setCreatedDate(LocalDateTime.now());
-        categoryRepository.save(category);
+        return categoryRepository.save(category);
     }
     public List<Category> search() {
         return categoryRepository.findAll();
@@ -32,6 +36,7 @@ public class CategoryService {
     public void updateCategory(Long categoryId, String name) {
         Category category = categoryRepository.findById(categoryId).orElse(null);
         category.setName(name);
+        category.setLastModifiedBy(currentUserId());
         categoryRepository.save(category);
     }
     public void deleteCategory(Long id) {

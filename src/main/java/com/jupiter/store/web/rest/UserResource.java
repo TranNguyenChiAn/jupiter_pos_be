@@ -1,10 +1,9 @@
 package com.jupiter.store.web.rest;
 
-import com.jupiter.store.dto.ChangePasswordDTO;
 import com.jupiter.store.dto.RegisterUserDTO;
-import com.jupiter.store.dto.UpdateUserDTO;
 import com.jupiter.store.model.User;
 import com.jupiter.store.service.UserService;
+import com.jupiter.store.utils.SecurityUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +20,11 @@ public class UserResource {
     @PostMapping("/register")
     public void register(@RequestBody RegisterUserDTO registerUserDTO) {
         userService.register(registerUserDTO);
+    }
+
+    @GetMapping("/current-user-id")
+    public Long getUser() {
+        return SecurityUtils.getCurrentUserId();
     }
 }
 //

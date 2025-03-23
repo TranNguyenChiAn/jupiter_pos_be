@@ -19,8 +19,8 @@ public class CategoryResource {
     }
     @PostMapping("/add")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public void addCategory(String name) {
-        categoryService.addCategory(name);
+    public Category addCategory(String name) {
+        return categoryService.addCategory(name);
     }
     @GetMapping("/search")
     public List<Category> search() {
