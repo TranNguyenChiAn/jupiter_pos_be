@@ -15,21 +15,21 @@ public class ProductVariantResource {
     @Autowired
     private ProductVariantService productVariantService;
     @GetMapping("/search/{productId}")
-    public List<ProductVariant> searchProductVariant(@RequestParam Long productId) {
+    public List<ProductVariant> searchProductVariant(@PathVariable Long productId) {
         return productVariantService.searchProductVariant(productId);
     }
     @PostMapping("/add/{productId}")
-    public ResponseEntity<ProductVariant> addProductVariant(@RequestParam Long productId,
+    public ResponseEntity<ProductVariant> addProductVariant(@PathVariable Long productId,
                                                             @RequestBody ProductVariantDTO productVariant) {
         return productVariantService.addProductVariant(productId, productVariant);
     }
     @PutMapping("/update/{variantId}")
-    public ResponseEntity<ProductVariantDTO> updateProductVariant(@RequestParam Long variantId,
+    public ResponseEntity<ProductVariantDTO> updateProductVariant(@PathVariable Long variantId,
                                                                   @RequestBody ProductVariantDTO productVariant) {
         return productVariantService.updateProductVariant(variantId, productVariant);
     }
     @DeleteMapping("/delete/{variantId}")
-    public void deleteProductVariant(Long variantId) {
+    public void deleteProductVariant(@PathVariable Long variantId) {
         productVariantService.deleteProductVariant(variantId);
     }
 }

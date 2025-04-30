@@ -26,10 +26,6 @@ public class ProductVariant extends AbstractAuditingEntity implements Serializab
     private int price;
     @Column(name = "quantity")
     private int quantity;
-    @Column(name = "attribute_id")
-    private Long attributeId;
-    @Column(name = "attribute_value")
-    private String attributeValue;
     @Column(name = "image_path")
     private String imagePath;
 }

@@ -1,4 +1,4 @@
-package com.jupiter.store.dto;
+package com.jupiter.store.dto.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddToCartDTO {
-    private Long productVariantId;
+public class ProductVariantAttrValueDto {
+    private Long attrId;
+    private String attrValue;
 }

@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.web.bind.annotation.RequestParam;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
-    @Query(value = "SELECT * FROM carts c WHERE c.user_id = :userId", nativeQuery = true)
-    Cart findByUserId(@RequestParam("userId") Long userId);
+    @Query(value = "SELECT * FROM carts c WHERE c.user_id = :currentUserId", nativeQuery = true)
+    Cart findByUserId(@RequestParam("currentUserId") Long currentUserId);
 }

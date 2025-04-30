@@ -31,12 +31,12 @@ public class ProductResource {
         return productService.search();
     }
     @GetMapping("/search-detail/{productId}")
-    public ResponseEntity<GetProductDTO> searchById(@RequestParam Long productId) {
+    public ResponseEntity<GetProductDTO> searchById(@PathVariable Long productId) {
         return productService.searchById(productId);
     }
-    @PutMapping("/update/{id}")
+    @PutMapping("/update/{productId}")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public ResponseEntity<String> updateProduct(@RequestParam Long productId, @RequestBody UpdateProductDTO updateProductDTO) {
+    public ResponseEntity<String> updateProduct(@PathVariable Long productId, @RequestBody UpdateProductDTO updateProductDTO) {
         try {
             productService.updateProduct(productId, updateProductDTO);
             return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
@@ -44,9 +44,9 @@ public class ProductResource {
             return new ResponseEntity<>("Error updating product: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete/{productId}")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public ResponseEntity<String> deleteProduct(Long id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         try {
             productService.deleteProduct(id);
             return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);

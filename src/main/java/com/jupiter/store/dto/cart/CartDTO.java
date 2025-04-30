@@ -1,4 +1,4 @@
-package com.jupiter.store.dto;
+package com.jupiter.store.dto.cart;
 
 import com.jupiter.store.model.CartItem;
 import lombok.AllArgsConstructor;
@@ -14,5 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 public class CartDTO {
     private Long id;
-    private List<CartItem> productVariantId;
+    private List<CartItemDTO> cartItems;
 }

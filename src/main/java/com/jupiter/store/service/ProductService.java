@@ -1,5 +1,6 @@
 package com.jupiter.store.service;
 
+import com.jupiter.store.dto.product.ProductVariantAttrValueDto;
 import com.jupiter.store.model.*;
 import com.jupiter.store.dto.product.*;
 import com.jupiter.store.repository.*;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -27,6 +27,8 @@ public class ProductService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductVariantRepository productVariantRepository;
+    @Autowired
+    private ProductVariantAttrValueRepository productVariantAttrValueRepository;
 
     public static Long currentUserId(){
         return SecurityUtils.getCurrentUserId();
@@ -71,52 +73,79 @@ public class ProductService {
                 variant.setProductId(productId);
                 variant.setPrice(variantDTO.getPrice());
                 variant.setQuantity(variantDTO.getQuantity());
-                variant.setAttributeId(variantDTO.getAttributeId());
-                variant.setAttributeValue(variantDTO.getAttributeValue());
                 variant.setImagePath(variantDTO.getImagePath());
                 variant.setCreatedBy(currentUserId());
                 productVariantRepository.save(variant);
+
+                for (ProductVariantAttrValueDto attrValue : variantDTO.getAttrAndValues()) {
+                    ProductVariantAttrValue productVariantAttrValue = new ProductVariantAttrValue();
+                    productVariantAttrValue.setProductId(productId);
+                    productVariantAttrValue.setProductVariantId(variant.getId());
+                    productVariantAttrValue.setAttrId(attrValue.getAttrId());
+                    productVariantAttrValue.setAttrValue(attrValue.getAttrValue());
+                    productVariantAttrValue.setCreatedBy(currentUserId());
+                    productVariantAttrValueRepository.save(productVariantAttrValue);
+                }
             }
         }
     }
 
     @Transactional
     public void updateProduct(Long productId, UpdateProductDTO updateProductDTO) {
-        Optional<Product> existingProductOptional = productRepository.findById(productId);
-        if (!existingProductOptional.isPresent()) {
-            throw new OpenApiResourceNotFoundException("Product not found with ID: " + productId);
-        }
+        // Validate product exists
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found with ID: " + productId));
 
-        Product product = existingProductOptional.get();
-        product.setName(updateProductDTO.getName() != null ? updateProductDTO.getName() : product.getName());
-        product.setDescription(updateProductDTO.getDescription() != null ? updateProductDTO.getDescription() : product.getDescription());
+        // Update product basic information if provided
+        if (updateProductDTO.getName() != null) {
+            product.setName(updateProductDTO.getName());
+        }
+        if (updateProductDTO.getDescription() != null) {
+            product.setDescription(updateProductDTO.getDescription());
+        }
+        
+        // Set the last modified by field
+        product.setLastModifiedBy(currentUserId());
+        
+        // Save the updated product
         productRepository.save(product);
 
-        List<String> productImages = updateProductDTO.getImagePaths();
-        if (productImages != null && !productImages.isEmpty()) {
-            List<ProductImage> existingImages = productImageRepository.findByProductId(productId);
-            Set<String> newImagePaths = new HashSet<>(productImages);
+        // Update product images if provided
+        updateProductImages(productId, updateProductDTO.getImagePaths());
+    }
 
-            // Xóa những ảnh cũ không có trong request (bị xóa)
-            for (ProductImage existingImage : existingImages) {
-                if (!newImagePaths.contains(existingImage.getImagePath())) {
-                    productImageRepository.delete(existingImage);
-                }
+    /**
+     * Updates product images efficiently by comparing existing and new images
+     * and performing only necessary database operations
+     */
+    private void updateProductImages(Long productId, List<String> newImagePaths) {
+        if (newImagePaths == null || newImagePaths.isEmpty()) {
+            return;
+        }
+
+        // Get existing images
+        List<ProductImage> existingImages = productImageRepository.findByProductId(productId);
+        Set<String> newImagePathsSet = new HashSet<>(newImagePaths);
+        Set<String> existingImagePaths = new HashSet<>();
+        
+        // Track existing image paths and identify images to delete
+        for (ProductImage existingImage : existingImages) {
+            String imagePath = existingImage.getImagePath();
+            existingImagePaths.add(imagePath);
+            
+            if (!newImagePathsSet.contains(imagePath)) {
+                productImageRepository.delete(existingImage);
             }
-
-            // Thêm ảnh mới hoặc cập nhật
-            for (String image : productImages) {
-                Optional<ProductImage> existingImage = existingImages.stream()
-                        .filter(img -> img.getImagePath().equals(image))
-                        .findFirst();
-
-                if (existingImage.isEmpty()) {  // Nếu ảnh mới không có trong DB, thêm mới
-                    ProductImage productImage = new ProductImage();
-                    productImage.setProductId(product.getId());
-                    productImage.setImagePath(image);
-                    productImage.setCreatedBy(currentUserId());
-                    productImageRepository.save(productImage);
-                }
+        }
+        
+        // Add only new images
+        for (String imagePath : newImagePaths) {
+            if (!existingImagePaths.contains(imagePath)) {
+                ProductImage productImage = new ProductImage();
+                productImage.setProductId(productId);
+                productImage.setImagePath(imagePath);
+                productImage.setCreatedBy(currentUserId());
+                productImageRepository.save(productImage);
             }
         }
     }

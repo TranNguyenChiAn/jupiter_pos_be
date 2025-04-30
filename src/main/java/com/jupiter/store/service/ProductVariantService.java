@@ -1,9 +1,12 @@
 package com.jupiter.store.service;
 
+import com.jupiter.store.dto.product.ProductVariantAttrValueDto;
 import com.jupiter.store.model.Product;
 import com.jupiter.store.model.ProductVariant;
 import com.jupiter.store.dto.product.ProductVariantDTO;
+import com.jupiter.store.model.ProductVariantAttrValue;
 import com.jupiter.store.repository.ProductRepository;
+import com.jupiter.store.repository.ProductVariantAttrValueRepository;
 import com.jupiter.store.repository.ProductVariantRepository;
 import com.jupiter.store.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,9 @@ public class ProductVariantService {
     private ProductVariantRepository productVariantRepository;
 
     @Autowired
+    private ProductVariantAttrValueRepository productVariantAttrValueRepository;
+
+    @Autowired
     private ProductRepository productRepository;
     public static Long currentUserId(){
         return SecurityUtils.getCurrentUserId();
@@ -30,11 +36,20 @@ public class ProductVariantService {
             variant.setProductId(productId);
             variant.setPrice(productVariant.getPrice());
             variant.setQuantity(productVariant.getQuantity());
-            variant.setAttributeId(productVariant.getAttributeId());
-            variant.setAttributeValue(productVariant.getAttributeValue());
             variant.setImagePath(productVariant.getImagePath());
             variant.setCreatedBy(currentUserId());
-            return ResponseEntity.ok(productVariantRepository.save(variant));
+            productVariantRepository.save(variant);
+
+            for(ProductVariantAttrValueDto attrValue: productVariant.getAttrAndValues()){
+                ProductVariantAttrValue productVariantAttrValue = new ProductVariantAttrValue();
+                productVariantAttrValue.setProductId(productId);
+                productVariantAttrValue.setProductVariantId(variant.getId());
+                productVariantAttrValue.setAttrId(attrValue.getAttrId());
+                productVariantAttrValue.setAttrValue(attrValue.getAttrValue());
+                productVariantAttrValueRepository.save(productVariantAttrValue);
+            }
+            return ResponseEntity.ok(variant);
+
         }else {
             throw new RuntimeException("Product not found");
         }
@@ -44,12 +59,17 @@ public class ProductVariantService {
         ProductVariant variant = productVariantRepository.findById(variantId).orElseThrow(() -> new RuntimeException("Product variant not found"));
         variant.setPrice(productVariant.getPrice() != 0 ? productVariant.getPrice() : variant.getPrice());
         variant.setQuantity(productVariant.getQuantity() != 0 ? productVariant.getQuantity() : variant.getQuantity());
-        variant.setAttributeId(productVariant.getAttributeId() != null ? productVariant.getAttributeId(): variant.getAttributeId());
-        variant.setAttributeValue(productVariant.getAttributeValue() != null ? productVariant.getAttributeValue() : variant.getAttributeValue());
         variant.setImagePath(productVariant.getImagePath() != null ? productVariant.getImagePath() : variant.getImagePath());
         variant.setLastModifiedBy(currentUserId());
         productVariantRepository.save(variant);
-        return ResponseEntity.ok(new ProductVariantDTO(variant));
+
+        for(ProductVariantAttrValueDto attrValue: productVariant.getAttrAndValues()){
+            ProductVariantAttrValue productVariantAttrValue = productVariantAttrValueRepository.findByProductIdAndAttrId(variantId, attrValue.getAttrId()).orElseThrow(() -> new RuntimeException("Product variant attribute value not found"));
+            productVariantAttrValue.setAttrValue(attrValue.getAttrValue());
+            productVariantAttrValue.setLastModifiedBy(currentUserId());
+            productVariantAttrValueRepository.save(productVariantAttrValue);
+        }
+        return ResponseEntity.ok(productVariant);
     }
     public void deleteProductVariant(Long variantId) {
         productVariantRepository.deleteById(variantId);

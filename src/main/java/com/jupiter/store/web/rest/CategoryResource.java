@@ -26,12 +26,12 @@ public class CategoryResource {
     public List<Category> search() {
         return categoryService.search();
     }
-    @GetMapping("/search/{id}")
-    public Category searchById(Long id) {
-        return categoryService.searchById(id);
+    @GetMapping("/search/{categoryId}")
+    public Category searchById(@PathVariable Long categoryId) {
+        return categoryService.searchById(categoryId);
     }
-    @PutMapping("/update")
-    public void updateCategory(@RequestParam Long categoryId, @RequestParam String name) {
+    @PutMapping("/update/{categoryId}")
+    public void updateCategory(@PathVariable Long categoryId, @RequestParam String name) {
         categoryService.updateCategory(categoryId, name);
     }
     @DeleteMapping("/delete")

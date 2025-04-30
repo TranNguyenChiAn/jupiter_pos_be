@@ -19,12 +19,12 @@ public class DiscountResource {
     }
 
     @PutMapping("/update-voucher/{discountId}")
-    public ResponseEntity<Discount> updateVoucher(@RequestParam Long discountId , @RequestBody DiscountDTO discountDTO) {
+    public ResponseEntity<Discount> updateVoucher(@PathVariable Long discountId , @RequestBody DiscountDTO discountDTO) {
         return discountService.updateVoucher(discountId, discountDTO);
     }
 
     @PutMapping("/update-voucher-by-productId/{productId}")
-    public ResponseEntity<Discount> updateVoucherByProductId(@RequestParam Long productId, @RequestParam double percentage) {
+    public ResponseEntity<Discount> updateVoucherByProductId(@PathVariable Long productId, @RequestParam double percentage) {
         return discountService.updateVoucherByProductId(productId, percentage);
     }
 }
