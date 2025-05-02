@@ -10,10 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/api/categories")
 public class CategoryResource {
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
     public CategoryResource(CategoryService categoryService) {
         this.categoryService = categoryService;

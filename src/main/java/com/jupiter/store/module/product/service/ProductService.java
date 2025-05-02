@@ -18,18 +18,21 @@ import java.util.Set;
 
 @Service
 public class ProductService {
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private ProductImageRepository productImageRepository;
-    @Autowired
-    private ProductCategoryRepository productCategoryRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private ProductVariantRepository productVariantRepository;
-    @Autowired
-    private ProductVariantAttrValueRepository productVariantAttrValueRepository;
+    private final ProductRepository productRepository;
+    private final ProductImageRepository productImageRepository;
+    private final ProductCategoryRepository productCategoryRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProductVariantRepository productVariantRepository;
+    private final ProductVariantAttrValueRepository productVariantAttrValueRepository;
+
+    public ProductService(ProductRepository productRepository, ProductImageRepository productImageRepository, ProductCategoryRepository productCategoryRepository, CategoryRepository categoryRepository, ProductVariantRepository productVariantRepository, ProductVariantAttrValueRepository productVariantAttrValueRepository) {
+        this.productRepository = productRepository;
+        this.productImageRepository = productImageRepository;
+        this.productCategoryRepository = productCategoryRepository;
+        this.categoryRepository = categoryRepository;
+        this.productVariantRepository = productVariantRepository;
+        this.productVariantAttrValueRepository = productVariantAttrValueRepository;
+    }
 
     public static Long currentUserId() {
         return SecurityUtils.getCurrentUserId();

@@ -1,4 +1,4 @@
-package com.jupiter.store.module.category.model;
+package com.jupiter.store.module.customer.model;
 
 import com.jupiter.store.common.model.AbstractAuditingEntity;
 import jakarta.persistence.*;
@@ -8,17 +8,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.io.Serial;
 import java.io.Serializable;
 
-@Entity
-@Table(name = "categories")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Category extends AbstractAuditingEntity implements Serializable {
-    @Serial
+@Entity
+@Table(name = "customers")
+public class Customer extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(generator = "prod-generator")
@@ -27,6 +25,18 @@ public class Category extends AbstractAuditingEntity implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "is_active")
+    private boolean isActive = true;
 }

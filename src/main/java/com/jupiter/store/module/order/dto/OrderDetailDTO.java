@@ -11,8 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConfirmOrderDTO {
+public class OrderDetailDTO {
     PaymentMethod paymentMethod;
     PaymentStatus paymentStatus;
-    ShippingInfoDTO shippingInfo;
 }

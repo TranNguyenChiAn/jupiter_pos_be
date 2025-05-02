@@ -1,26 +1,28 @@
 package com.jupiter.store.common.utils;
 
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.generator.EventType;
+import org.hibernate.generator.Generator;
 import org.hibernate.id.IdentifierGenerator;
-import org.hibernate.service.ServiceRegistry;
-import org.hibernate.type.Type;
 
 import java.io.Serializable;
-import java.util.Properties;
+import java.util.EnumSet;
 
-public class MyGenerator implements IdentifierGenerator {
+public class MyGenerator implements IdentifierGenerator, Generator {
 
-    private String prefix;
     private GenIdService genIdService;
 
+    public MyGenerator() {
+        this.genIdService = new GenIdService();
+    }
+
     @Override
-    public Serializable generate(SharedSessionContractImplementor session, Object obj) {
+    public Serializable generate(SharedSessionContractImplementor session, Object object) {
         return genIdService.nextId();
     }
 
     @Override
-    public void configure(Type type, Properties properties, ServiceRegistry serviceRegistry) {
-        prefix = properties.getProperty("prefix");
-        genIdService = new GenIdService();
+    public EnumSet<EventType> getEventTypes() {
+        return EnumSet.of(EventType.INSERT);
     }
 }

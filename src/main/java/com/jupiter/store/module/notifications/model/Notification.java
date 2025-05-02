@@ -1,5 +1,4 @@
-package com.jupiter.store.module.order.model;
-
+package com.jupiter.store.module.notifications.model;
 
 import com.jupiter.store.common.model.AbstractAuditingEntity;
 import jakarta.persistence.*;
@@ -16,8 +15,8 @@ import java.io.Serializable;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "order_details")
-public class OrderDetail extends AbstractAuditingEntity implements Serializable {
+@Table(name = "notifications")
+public class Notification extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(generator = "prod-generator")
@@ -25,18 +24,15 @@ public class OrderDetail extends AbstractAuditingEntity implements Serializable 
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "order_id")
-    private Long orderId;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @Column(name = "product_variant_id")
-    private Long productVariantId;
+    @Column(name = "title")
+    private String title;
 
-    @Column(name = "sold_quantity")
-    private Integer soldQuantity;
+    @Column(name = "message")
+    private String message;
 
-    @Column(name = "sold_price")
-    private Integer soldPrice;
-
-    @Column(name = "total_amount")
-    private Integer totalAmount;
+    @Column(name = "is_read")
+    private boolean isRead;
 }

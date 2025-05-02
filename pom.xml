@@ -9,7 +9,7 @@
 		<relativePath/>
 	</parent>
 	<groupId>com.jupiter.store</groupId>
-	<artifactId>jupiter_store</artifactId>
+	<artifactId>jupiter_pos_be</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>jupiter_store</name>
 	<description>Demo project for Spring Boot</description>

@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import java.util.Properties;
 
 @Configuration
-@EnableJpaRepositories(basePackages = "com.jupiter.store.repository")
+@EnableJpaRepositories(basePackages = "com.jupiter.store.module")
 @EnableTransactionManagement
 public class JpaConfig {
     @Bean

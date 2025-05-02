@@ -1,17 +1,18 @@
 package com.jupiter.store.module.order.dto;
 
-import com.jupiter.store.module.payment.constant.PaymentMethod;
+import com.jupiter.store.module.order.model.OrderDetail;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateOrderDTO {
-    private Long cartId;
-    private PaymentMethod paymentMethod;
-    private ShippingInfoDTO shippingInfo;
+public class OrderItemsDTO {
+    private Long orderId;
+    private List<OrderDetail> orderItems;
 } 

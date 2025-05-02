@@ -1,9 +1,10 @@
 package com.jupiter.store.module.category.service;
 
+import com.jupiter.store.common.exception.CustomException;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,8 +12,7 @@ import java.util.List;
 
 @Service
 public class CategoryService {
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
 
     public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
@@ -39,7 +39,8 @@ public class CategoryService {
     }
 
     public void updateCategory(Long categoryId, String name) {
-        Category category = categoryRepository.findById(categoryId).orElse(null);
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CustomException("Category not found", HttpStatus.NOT_FOUND));
         category.setName(name);
         category.setLastModifiedBy(currentUserId());
         categoryRepository.save(category);

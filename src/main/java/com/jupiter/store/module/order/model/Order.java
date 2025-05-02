@@ -23,6 +23,9 @@ public class Order extends AbstractAuditingEntity implements Serializable {
     @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "customer_id")
+    private Long customerId;
+
     @Column(name = "order_date")
     private LocalDateTime orderDate;
 
@@ -30,6 +33,9 @@ public class Order extends AbstractAuditingEntity implements Serializable {
     @Column(name = "order_status")
     private OrderStatus orderStatus;
 
+    @Column(name = "payment_status")
+    private String paymentStatus;
+
     @Column(name = "total_amount")
-    private Integer totalAmount;
+    private Integer totalAmount = 0;
 }
