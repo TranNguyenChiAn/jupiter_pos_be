@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 
@@ -17,7 +16,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "product_attribute_values")
 public class ProductAttributeValue extends AbstractAuditingEntity implements Serializable {
-//    private static final long serialVersionUID = 1L;
+    //    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

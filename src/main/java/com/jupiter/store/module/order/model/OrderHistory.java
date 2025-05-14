@@ -4,10 +4,8 @@ import com.jupiter.store.common.model.AbstractAuditingEntity;
 import com.jupiter.store.module.order.constant.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -29,7 +27,6 @@ public class OrderHistory extends AbstractAuditingEntity implements Serializable
     @Enumerated(EnumType.STRING)
     @Column(name = "new_status")
     private OrderStatus newStatus;
-
 
 
 }

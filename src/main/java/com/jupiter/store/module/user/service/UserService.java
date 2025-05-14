@@ -31,7 +31,24 @@ public class UserService {
         user.setRole(RoleBase.USER);
         user.setGender(registerUserDTO.isGender());
         user.setActive(true);
+        user.setCreatedBy(0);
         userRepository.save(user);
+    }
+
+    public User findById(Integer userId) {
+        return userRepository.findById(userId).orElseThrow();
+    }
+
+    public User findByPhone(String phone) {
+        return userRepository.findByPhone(phone);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public User findByPhoneOrEmail(String phone, String email) {
+        return userRepository.findByPhoneOrEmail(phone, email);
     }
 
     @Transactional
@@ -39,7 +56,7 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow();
         user.setFullName(updateUserDTO.getFullname());
         user.setPhone(updateUserDTO.getPhone());
-        user.setGender(updateUserDTO.isGender() );
+        user.setGender(updateUserDTO.isGender());
         userRepository.save(user);
     }
 

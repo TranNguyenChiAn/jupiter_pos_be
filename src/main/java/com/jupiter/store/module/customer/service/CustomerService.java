@@ -1,6 +1,5 @@
 package com.jupiter.store.module.customer.service;
 
-import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.customer.dto.CreateCustomerDTO;
 import com.jupiter.store.module.customer.model.Customer;
 import com.jupiter.store.module.customer.repository.CustomerRepository;

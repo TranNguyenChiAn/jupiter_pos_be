@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "product_variants")
 public class ProductVariant extends AbstractAuditingEntity implements Serializable {
-//    private static final long serialVersionUID = 1L;
+    //    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

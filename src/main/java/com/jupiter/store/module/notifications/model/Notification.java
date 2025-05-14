@@ -1,12 +1,13 @@
 package com.jupiter.store.module.notifications.model;
 
-import com.jupiter.store.common.model.AbstractAuditingEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 
@@ -17,7 +18,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "notifications")
 public class Notification implements Serializable {
-//    private static final long serialVersionUID = 1L;
+    //    private static final long serialVersionUID = 1L;
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

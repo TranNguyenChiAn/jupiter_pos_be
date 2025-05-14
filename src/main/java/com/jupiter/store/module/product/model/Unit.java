@@ -1,9 +1,7 @@
 package com.jupiter.store.module.product.model;
 
-import com.jupiter.store.common.model.AbstractAuditingEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 

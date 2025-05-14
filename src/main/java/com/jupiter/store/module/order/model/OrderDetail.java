@@ -1,13 +1,11 @@
 package com.jupiter.store.module.order.model;
 
 
-import com.jupiter.store.common.model.AbstractAuditingEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 

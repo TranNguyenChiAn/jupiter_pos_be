@@ -16,9 +16,9 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+    private final long validityInMilliseconds = 3600000; // Thời gian hết hạn token1 hour
     @Value("${jwt.secret}")
     private String secretKey;
-    private final long validityInMilliseconds = 3600000; // Thời gian hết hạn token1 hour
 
     private Key getSignInKey() {
         String base64Secret = Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));

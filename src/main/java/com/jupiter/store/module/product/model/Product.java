@@ -3,7 +3,6 @@ package com.jupiter.store.module.product.model;
 import com.jupiter.store.common.model.AbstractAuditingEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 
@@ -15,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class Product extends AbstractAuditingEntity implements Serializable {
-//    private static final long serialVersionUID = 1L;
+    //    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

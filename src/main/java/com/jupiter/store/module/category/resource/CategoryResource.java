@@ -3,7 +3,6 @@ package com.jupiter.store.module.category.resource;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.service.CategoryService;
 import com.jupiter.store.module.role.constant.RoleBase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

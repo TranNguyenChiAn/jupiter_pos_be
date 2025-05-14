@@ -4,7 +4,6 @@ import com.jupiter.store.common.model.AbstractAuditingEntity;
 import com.jupiter.store.module.order.constant.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

@@ -4,7 +4,6 @@ import com.jupiter.store.module.order.dto.OrderItemsDTO;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class OrderResource {
         if (customerId == null) {
             return orderService.createOrder(null);
         }
-       return orderService.createOrder(customerId);
+        return orderService.createOrder(customerId);
     }
 
     @PostMapping("/add-product/{orderId}/{productVariantId}")
@@ -47,8 +46,9 @@ public class OrderResource {
     public void updateOrder(@RequestParam Integer orderId) {
         orderService.updateOrderStatus(orderId);
     }
+
     @PostMapping("/confirm-order/{orderId}")
-        public void confirmOrder(@PathVariable Integer orderId) {
+    public void confirmOrder(@PathVariable Integer orderId) {
     }
 
     @DeleteMapping("/delete-order-item/{orderDetailId}")

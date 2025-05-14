@@ -10,15 +10,13 @@ import java.util.List;
 
 @Service
 public class UnitService {
+    Integer currentUserId = SecurityUtils.getCurrentUserId();
     @Autowired
     private UnitRepository unitRepository;
-
-    Integer currentUserId = SecurityUtils.getCurrentUserId();
 
     public Unit createUnit(String name) {
         Unit unit = new Unit();
         unit.setName(name);
-        unit.setCreatedBy(currentUserId);
         return unitRepository.save(unit);
     }
 
@@ -29,7 +27,6 @@ public class UnitService {
     public Unit updateUnit(Integer unitId, String name) {
         Unit unit = unitRepository.findById(unitId).orElseThrow(() -> new RuntimeException("Unit not found"));
         unit.setName(name);
-        unit.setLastModifiedBy(currentUserId);
         return unitRepository.save(unit);
     }
 

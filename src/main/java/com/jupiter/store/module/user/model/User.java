@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class User extends AbstractAuditingEntity implements Serializable {
-//    private static final long serialVersionUID = 1L;
+    //    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -40,4 +40,24 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "gender")
     private boolean gender;
+
+    public static boolean isNotNull(User user) {
+        return user != null;
+    }
+
+    public static boolean isActive(User user) {
+        return isNotNull(user) && user.isActive();
+    }
+
+    public static boolean hasRole(User user) {
+        return isNotNull(user) && user.getRole() != null;
+    }
+
+    public static boolean hasPhone(User user) {
+        return isNotNull(user) && user.getPhone() != null;
+    }
+
+    public static boolean hasEmail(User user) {
+        return isNotNull(user) && user.getEmail() != null;
+    }
 }
