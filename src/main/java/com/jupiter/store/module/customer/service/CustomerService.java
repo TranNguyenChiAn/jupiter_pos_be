@@ -25,7 +25,6 @@ public class CustomerService {
         customer.setPhone(createCustomerDTO.getPhoneNumber());
         customer.setAddress(createCustomerDTO.getAddress());
         customer.setActive(true);
-        customer.setCreatedBy(SecurityUtils.getCurrentUserId());
         return customerRepository.save(customer);
     }
 

@@ -1,6 +1,6 @@
 package com.jupiter.store.module.product.resource;
 
-import com.jupiter.store.module.product.model.ProductAttributeType;
+import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.service.AttributeService;
 import com.jupiter.store.module.role.constant.RoleBase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +17,19 @@ public class AttributeResource {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole(RoleBase.ADMIN)")
-    public ProductAttributeType addAttribute(String name) {
+    public ProductAttribute addAttribute(String name) {
         return attributeService.addAttribute(name);
     }
 
     @GetMapping("/search")
     @PreAuthorize("hasRole(RoleBase.ADMIN)")
-    public List<ProductAttributeType> search() {
+    public List<ProductAttribute> search() {
         return attributeService.search();
     }
 
     @GetMapping("/search/{id}")
     @PreAuthorize("hasAuthority(RoleBase.ADMIN)")
-    public ProductAttributeType searchById(@RequestParam Integer id) {
+    public ProductAttribute searchById(@RequestParam Integer id) {
         return attributeService.searchById(id);
     }
 

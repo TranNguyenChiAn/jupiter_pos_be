@@ -16,11 +16,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "notifications")
-public class Notification extends AbstractAuditingEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Notification implements Serializable {
+//    private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator", strategy = "com.jupiter.store.common.utils.MyGenerator")
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -30,8 +29,8 @@ public class Notification extends AbstractAuditingEntity implements Serializable
     @Column(name = "title")
     private String title;
 
-    @Column(name = "message")
-    private String message;
+    @Column(name = "body")
+    private String body;
 
     @Column(name = "is_read")
     private boolean isRead;

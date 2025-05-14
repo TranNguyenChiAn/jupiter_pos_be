@@ -20,10 +20,7 @@ import java.io.Serializable;
 public class OrderDetail extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator", strategy = "com.jupiter.store.common.utils.MyGenerator")
-    @Column(name = "id")
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 
     @Column(name = "order_id")
     private Integer orderId;
@@ -36,7 +33,4 @@ public class OrderDetail extends AbstractAuditingEntity implements Serializable 
 
     @Column(name = "sold_price")
     private Long soldPrice;
-
-    @Column(name = "total_amount")
-    private Long totalAmount;
 }

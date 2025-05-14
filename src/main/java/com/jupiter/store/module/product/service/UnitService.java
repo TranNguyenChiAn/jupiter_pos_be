@@ -22,7 +22,7 @@ public class UnitService {
         return unitRepository.save(unit);
     }
 
-    public List<Unit> findAllUnit(Integer id, String name) {
+    public List<Unit> findAllUnit() {
         return unitRepository.findAll();
     }
 

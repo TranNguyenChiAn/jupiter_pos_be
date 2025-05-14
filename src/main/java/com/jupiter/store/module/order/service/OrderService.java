@@ -75,7 +75,6 @@ public class OrderService {
             int quantity = orderDetailDTO.getSoldQuantity() + 1;
             orderDetailDTO.setSoldQuantity(quantity);
             orderDetailDTO.setSoldPrice(productVariant.getPrice());
-            orderDetailDTO.setTotalAmount(quantity + productVariant.getPrice());
             orderDetailDTO.setLastModifiedBy(currentUserId());
             orderDetailRepository.save(orderDetailDTO);
         } else {
@@ -84,7 +83,6 @@ public class OrderService {
             orderItem.setProductVariantId(productVariantId);
             orderItem.setSoldQuantity(1);
             orderItem.setSoldPrice(productVariant.getPrice());
-            orderItem.setTotalAmount(productVariant.getPrice());
             orderItem.setCreatedBy(currentUserId());
             orderDetailRepository.save(orderItem);
         }
@@ -102,7 +100,6 @@ public class OrderService {
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Product variant not found"));
 
         orderDetail.setSoldQuantity(quantity);
-        orderDetail.setTotalAmount(productVariant.getPrice() * quantity);
         orderDetail.setLastModifiedBy(currentUserId());
         return ResponseEntity.ok(orderDetailRepository.save(orderDetail));
     }

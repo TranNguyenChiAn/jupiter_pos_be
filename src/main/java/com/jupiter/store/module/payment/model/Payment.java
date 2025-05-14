@@ -30,9 +30,11 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
     private Integer orderId;
 
     @Column(name = "payment_method")
+    @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
     @Column(name = "paid")

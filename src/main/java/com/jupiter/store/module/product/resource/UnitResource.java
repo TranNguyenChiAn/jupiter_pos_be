@@ -19,8 +19,8 @@ public class UnitResource {
     }
 
     @GetMapping("/find-all")
-    public List<Unit> findAllUnit(Integer id, String name) {
-        return unitService.findAllUnit(id, name);
+    public List<Unit> findAllUnit() {
+        return unitService.findAllUnit();
     }
 
     @PutMapping("/update/{unitId}")

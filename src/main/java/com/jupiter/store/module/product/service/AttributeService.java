@@ -1,7 +1,7 @@
 package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.SecurityUtils;
-import com.jupiter.store.module.product.model.ProductAttributeType;
+import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.repository.AttributeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,27 +18,24 @@ public class AttributeService {
         return SecurityUtils.getCurrentUserId();
     }
 
-    public ProductAttributeType addAttribute(String name) {
-        ProductAttributeType productAttributeType = new ProductAttributeType();
-        productAttributeType.setName(name);
-        productAttributeType.setCreatedBy(currentUserId());
-        return attributeRepository.save(productAttributeType);
+    public ProductAttribute addAttribute(String name) {
+        ProductAttribute productAttribute = new ProductAttribute();
+        productAttribute.setAttributeName(name);
+        return attributeRepository.save(productAttribute);
     }
 
-    public List<ProductAttributeType> search() {
+    public List<ProductAttribute> search() {
         return attributeRepository.findAll();
     }
 
-    public ProductAttributeType searchById(Integer id) {
+    public ProductAttribute searchById(Integer id) {
         return attributeRepository.findById(id).orElseThrow(() -> new RuntimeException("Size not found"));
     }
 
     public void updateAttribute(Integer attributeId, String name) {
-        ProductAttributeType productAttributeType = attributeRepository.findById(attributeId).orElseThrow(() -> new RuntimeException("Size not found"));
-        productAttributeType.setName(name);
-        productAttributeType.setLastModifiedBy(currentUserId());
-        productAttributeType.setLastModifiedDate(LocalDateTime.now());
-        attributeRepository.save(productAttributeType);
+        ProductAttribute productAttribute = attributeRepository.findById(attributeId).orElseThrow(() -> new RuntimeException("Size not found"));
+        productAttribute.setAttributeName(name);
+        attributeRepository.save(productAttribute);
     }
 
     public void deleteAttribute(Integer id) {

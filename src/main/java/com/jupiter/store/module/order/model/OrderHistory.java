@@ -15,22 +15,21 @@ import java.time.LocalDateTime;
 public class OrderHistory extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator", strategy = "com.jupiter.store.common.utils.MyGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
     @Column(name = "order_id")
     private Integer orderId;
 
-    @Column(name = "date")
-    private LocalDateTime date;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "old_status")
+    private OrderStatus oldStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private OrderStatus status;
+    @Column(name = "new_status")
+    private OrderStatus newStatus;
 
-    @Column(name = "total_amount")
-    private Long totalAmount;
+
 
 }

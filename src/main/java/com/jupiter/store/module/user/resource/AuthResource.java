@@ -26,7 +26,7 @@ public class AuthResource {
 
     @PostMapping("/authenticate")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername());
+        User user = userRepository.findByPhone(loginRequest.getPhone());
         if (user != null) {
             if (user.isActive()) {
                 if (user.getRole() != null) {
