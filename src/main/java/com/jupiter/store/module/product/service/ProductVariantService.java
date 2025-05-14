@@ -5,7 +5,7 @@ import com.jupiter.store.module.product.dto.ProductVariantAttrValueDto;
 import com.jupiter.store.module.product.dto.ProductVariantDTO;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.model.ProductVariant;
-import com.jupiter.store.module.product.model.ProductVariantAttrValue;
+import com.jupiter.store.module.product.model.ProductAttributeValue;
 import com.jupiter.store.module.product.repository.ProductRepository;
 import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
@@ -26,28 +26,27 @@ public class ProductVariantService {
     @Autowired
     private ProductRepository productRepository;
 
-    public static Long currentUserId() {
+    public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
     }
 
-    public ResponseEntity<ProductVariant> addProductVariant(Long productId, ProductVariantDTO productVariant) {
+    public ResponseEntity<ProductVariant> addProductVariant(Integer productId, ProductVariantDTO productVariant) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
         if (product != null) {
             ProductVariant variant = new ProductVariant();
             variant.setProductId(productId);
             variant.setPrice(productVariant.getPrice());
             variant.setQuantity(productVariant.getQuantity());
-            variant.setImagePath(productVariant.getImagePath());
             variant.setCreatedBy(currentUserId());
             productVariantRepository.save(variant);
 
             for (ProductVariantAttrValueDto attrValue : productVariant.getAttrAndValues()) {
-                ProductVariantAttrValue productVariantAttrValue = new ProductVariantAttrValue();
-                productVariantAttrValue.setProductId(productId);
-                productVariantAttrValue.setProductVariantId(variant.getId());
-                productVariantAttrValue.setAttrId(attrValue.getAttrId());
-                productVariantAttrValue.setAttrValue(attrValue.getAttrValue());
-                productVariantAttrValueRepository.save(productVariantAttrValue);
+                ProductAttributeValue productAttributeValue = new ProductAttributeValue();
+                productAttributeValue.setProductVariantId(productId);
+                productAttributeValue.setProductVariantId(variant.getId());
+                productAttributeValue.setAttrId(attrValue.getAttrId());
+                productAttributeValue.setAttrValue(attrValue.getAttrValue());
+                productVariantAttrValueRepository.save(productAttributeValue);
             }
             return ResponseEntity.ok(variant);
 
@@ -56,28 +55,50 @@ public class ProductVariantService {
         }
     }
 
-    public ResponseEntity<ProductVariantDTO> updateProductVariant(Long variantId, ProductVariantDTO productVariant) {
+    private void saveProductVariants(List<ProductVariantDTO> variants, Integer productId) {
+        if (variants != null && !variants.isEmpty()) {
+            for (ProductVariantDTO variantDTO : variants) {
+                ProductVariant variant = new ProductVariant();
+                variant.setProductId(productId);
+                variant.setPrice(variantDTO.getPrice());
+                variant.setQuantity(variantDTO.getQuantity());
+                variant.setCreatedBy(currentUserId());
+                productVariantRepository.save(variant);
+
+                for (ProductVariantAttrValueDto attrValue : variantDTO.getAttrAndValues()) {
+                    ProductAttributeValue productAttributeValue = new ProductAttributeValue();
+                    productAttributeValue.setProductVariantId(variant.getId());
+                    productAttributeValue.setAttrId(attrValue.getAttrId());
+                    productAttributeValue.setAttrValue(attrValue.getAttrValue());
+                    productAttributeValue.setCreatedBy(currentUserId());
+                    productVariantAttrValueRepository.save(productAttributeValue);
+                }
+            }
+        }
+    }
+
+    public ResponseEntity<ProductVariantDTO> updateProductVariant(Integer variantId, ProductVariantDTO productVariant) {
         ProductVariant variant = productVariantRepository.findById(variantId).orElseThrow(() -> new RuntimeException("Product variant not found"));
         variant.setPrice(productVariant.getPrice() != 0 ? productVariant.getPrice() : variant.getPrice());
         variant.setQuantity(productVariant.getQuantity() != 0 ? productVariant.getQuantity() : variant.getQuantity());
-        variant.setImagePath(productVariant.getImagePath() != null ? productVariant.getImagePath() : variant.getImagePath());
+        //TODO: update product image
         variant.setLastModifiedBy(currentUserId());
         productVariantRepository.save(variant);
 
         for (ProductVariantAttrValueDto attrValue : productVariant.getAttrAndValues()) {
-            ProductVariantAttrValue productVariantAttrValue = productVariantAttrValueRepository.findByProductIdAndAttrId(variantId, attrValue.getAttrId()).orElseThrow(() -> new RuntimeException("Product variant attribute value not found"));
-            productVariantAttrValue.setAttrValue(attrValue.getAttrValue());
-            productVariantAttrValue.setLastModifiedBy(currentUserId());
-            productVariantAttrValueRepository.save(productVariantAttrValue);
+            ProductAttributeValue productAttributeValue = productVariantAttrValueRepository.findByProductIdAndAttrId(variantId, attrValue.getAttrId()).orElseThrow(() -> new RuntimeException("Product variant attribute value not found"));
+            productAttributeValue.setAttrValue(attrValue.getAttrValue());
+            productAttributeValue.setLastModifiedBy(currentUserId());
+            productVariantAttrValueRepository.save(productAttributeValue);
         }
         return ResponseEntity.ok(productVariant);
     }
 
-    public void deleteProductVariant(Long variantId) {
+    public void deleteProductVariant(Integer variantId) {
         productVariantRepository.deleteById(variantId);
     }
 
-    public List<ProductVariant> searchProductVariant(Long productId) {
+    public List<ProductVariant> searchProductVariant(Integer productId) {
         return productVariantRepository.findByProductId(productId);
     }
 }

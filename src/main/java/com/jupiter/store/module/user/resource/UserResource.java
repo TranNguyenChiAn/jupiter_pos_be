@@ -24,7 +24,7 @@ public class UserResource {
     }
 
     @GetMapping("/current-user-id")
-    public Long getUser() {
+    public Integer getUser() {
         return SecurityUtils.getCurrentUserId();
     }
 }

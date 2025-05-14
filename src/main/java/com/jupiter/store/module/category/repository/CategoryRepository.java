@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Query(value = "SELECT * FROM categories c INNER JOIN product_categories pc ON c.id = pc.category_id WHERE pc.product_id = :productId", nativeQuery = true)
-    List<Category> findByProductId(@Param("productId") Long productId);
+    List<Category> findByProductId(@Param("productId") Integer productId);
 }

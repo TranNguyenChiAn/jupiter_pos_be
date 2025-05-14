@@ -9,10 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
+public interface ProductVariantRepository extends JpaRepository<ProductVariant, Integer> {
     @Query(value = "SELECT * FROM product_variants pv WHERE pv.product_id = :productId", nativeQuery = true)
-    List<ProductVariant> findByProductId(@Param("productId") Long productId);
+    List<ProductVariant> findByProductId(@Param("productId") Integer productId);
 
     @Query(value = "DELETE FROM product_variants pv WHERE pv.product_id = :productId", nativeQuery = true)
-    void deleteByProductId(@Param("productId") Long productId);
+    void deleteByProductId(@Param("productId") Integer productId);
 }

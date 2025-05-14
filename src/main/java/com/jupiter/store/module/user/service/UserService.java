@@ -24,27 +24,23 @@ public class UserService {
     public void register(RegisterUserDTO registerUserDTO) {
         User user = new User();
         String encodedPassword = passwordEncoder.encode(registerUserDTO.getPassword());
-        user.setUsername(registerUserDTO.getUsername());
-        user.setFirstname(registerUserDTO.getFirstname());
-        user.setLastname(registerUserDTO.getLastname());
+        user.setFullName(registerUserDTO.getFullname());
         user.setEmail(registerUserDTO.getEmail());
         user.setPassword(encodedPassword);
-        user.setPhoneNumber(registerUserDTO.getPhone());
-        user.setAddress(registerUserDTO.getAddress());
+        user.setPhone(registerUserDTO.getPhone());
         user.setRole(RoleBase.USER);
+        user.setGender(registerUserDTO.isGender());
         user.setActive(true);
-        user.setCreatedBy(0L);
+        user.setCreatedBy(0);
         userRepository.save(user);
     }
 
     @Transactional
-    public void update(Long userId, UpdateUserDTO updateUserDTO) {
+    public void update(Integer userId, UpdateUserDTO updateUserDTO) {
         User user = userRepository.findById(userId).orElseThrow();
-        user.setUsername(updateUserDTO.getUsername());
-        user.setFirstname(updateUserDTO.getFirstname());
-        user.setLastname(updateUserDTO.getLastname());
-        user.setPhoneNumber(updateUserDTO.getPhone());
-        user.setAddress(updateUserDTO.getAddress());
+        user.setFullName(updateUserDTO.getFullname());
+        user.setPhone(updateUserDTO.getPhone());
+        user.setGender(updateUserDTO.isGender() );
         userRepository.save(user);
     }
 

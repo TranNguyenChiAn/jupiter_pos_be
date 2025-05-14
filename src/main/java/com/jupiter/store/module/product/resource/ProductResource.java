@@ -33,13 +33,13 @@ public class ProductResource {
     }
 
     @GetMapping("/search-detail/{productId}")
-    public ResponseEntity<GetProductDTO> searchById(@PathVariable Long productId) {
+    public ResponseEntity<GetProductDTO> searchById(@PathVariable Integer productId) {
         return productService.searchById(productId);
     }
 
     @PutMapping("/update/{productId}")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public ResponseEntity<String> updateProduct(@PathVariable Long productId, @RequestBody UpdateProductDTO updateProductDTO) {
+    public ResponseEntity<String> updateProduct(@PathVariable Integer productId, @RequestBody UpdateProductDTO updateProductDTO) {
         try {
             productService.updateProduct(productId, updateProductDTO);
             return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
@@ -50,7 +50,7 @@ public class ProductResource {
 
     @DeleteMapping("/delete/{productId}")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable Integer id) {
         try {
             productService.deleteProduct(id);
             return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
@@ -61,13 +61,13 @@ public class ProductResource {
 
     @PostMapping("/add-category-for-product")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public void addCategory(@RequestParam Long productId, @RequestBody List<Category> categories) {
+    public void addCategory(@RequestParam Integer productId, @RequestBody List<Category> categories) {
         productService.addCategory(productId, categories);
     }
 
     @DeleteMapping("/delete-category-for-product")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public void deleteCategory(@RequestParam Long productId, @RequestBody List<Category> categories) {
+    public void deleteCategory(@RequestParam Integer productId, @RequestBody List<Category> categories) {
         productService.deleteCategory(productId, categories);
     }
 }

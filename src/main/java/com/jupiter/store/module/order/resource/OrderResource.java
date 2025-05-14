@@ -21,12 +21,12 @@ public class OrderResource {
     }
 
     @GetMapping("/detail-search/{orderId}")
-    public OrderItemsDTO getOrderDetail(@PathVariable Long orderId) {
+    public OrderItemsDTO getOrderDetail(@PathVariable Integer orderId) {
         return orderService.getOrderDetailById(orderId);
     }
 
     @PostMapping("/create-order/")
-    public Order createOrder(@RequestParam(required = false) Long customerId) {
+    public Order createOrder(@RequestParam(required = false) Integer customerId) {
         if (customerId == null) {
             return orderService.createOrder(null);
         }
@@ -34,30 +34,30 @@ public class OrderResource {
     }
 
     @PostMapping("/add-product/{orderId}/{productVariantId}")
-    public OrderItemsDTO addProductToOrder(@PathVariable Long orderId, @PathVariable Long productVariantId) {
+    public OrderItemsDTO addProductToOrder(@PathVariable Integer orderId, @PathVariable Integer productVariantId) {
         return orderService.addProductToOrder(orderId, productVariantId);
     }
 
     @PutMapping("/update-quantity-item")
-    public void updateQuantityItem(@RequestParam Long orderDetailId, @RequestParam int quantity) {
+    public void updateQuantityItem(@RequestParam Integer orderDetailId, @RequestParam int quantity) {
         orderService.updateQuantityItem(orderDetailId, quantity);
     }
 
     @PutMapping("/update-status")
-    public void updateOrder(@RequestParam Long orderId) {
+    public void updateOrder(@RequestParam Integer orderId) {
         orderService.updateOrderStatus(orderId);
     }
     @PostMapping("/confirm-order/{orderId}")
-        public void confirmOrder(@PathVariable Long orderId) {
+        public void confirmOrder(@PathVariable Integer orderId) {
     }
 
     @DeleteMapping("/delete-order-item/{orderDetailId}")
-    public void deleteOrderItem(@PathVariable Long orderDetailId) {
+    public void deleteOrderItem(@PathVariable Integer orderDetailId) {
         orderService.deleteOrderItem(orderDetailId);
     }
 
     @PutMapping("/cancel")
-    public void cancelOrder(@RequestParam Long orderId) {
+    public void cancelOrder(@RequestParam Integer orderId) {
         orderService.cancelOrder(orderId);
     }
 }

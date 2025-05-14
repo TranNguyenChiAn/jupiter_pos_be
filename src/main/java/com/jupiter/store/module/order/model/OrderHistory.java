@@ -18,10 +18,10 @@ public class OrderHistory extends AbstractAuditingEntity implements Serializable
     @GeneratedValue(generator = "prod-generator")
     @GenericGenerator(name = "prod-generator", strategy = "com.jupiter.store.common.utils.MyGenerator")
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "order_id")
-    private Long orderId;
+    private Integer orderId;
 
     @Column(name = "date")
     private LocalDateTime date;
@@ -31,6 +31,6 @@ public class OrderHistory extends AbstractAuditingEntity implements Serializable
     private OrderStatus status;
 
     @Column(name = "total_amount")
-    private Integer totalAmount;
+    private Long totalAmount;
 
 }

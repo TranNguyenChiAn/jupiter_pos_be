@@ -17,13 +17,13 @@ public abstract class AbstractAuditingDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @JMap
-    private Long id;
+    private Integer id;
     @JMap
-    private Long createdBy;
+    private Integer createdBy;
     @JMap
     private LocalDateTime createdAt;
     @JMap
-    private Long lastModifiedBy;
+    private Integer lastModifiedBy;
     @JMap
     private LocalDateTime lastModifiedAt;
 }

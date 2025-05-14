@@ -20,8 +20,8 @@ public class CategoryResource {
 
     @PostMapping("/add")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public Category addCategory(String name) {
-        return categoryService.addCategory(name);
+    public Category addCategory(String categoryName) {
+        return categoryService.addCategory(categoryName);
     }
 
     @GetMapping("/search")
@@ -30,17 +30,17 @@ public class CategoryResource {
     }
 
     @GetMapping("/search/{categoryId}")
-    public Category searchById(@PathVariable Long categoryId) {
+    public Category searchById(@PathVariable Integer categoryId) {
         return categoryService.searchById(categoryId);
     }
 
     @PutMapping("/update/{categoryId}")
-    public void updateCategory(@PathVariable Long categoryId, @RequestParam String name) {
+    public void updateCategory(@PathVariable Integer categoryId, @RequestParam String name) {
         categoryService.updateCategory(categoryId, name);
     }
 
     @DeleteMapping("/delete")
-    public void deleteCategory(Long id) {
+    public void deleteCategory(Integer id) {
         categoryService.deleteCategory(id);
     }
 }

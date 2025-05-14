@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ProductDTO extends AbstractAuditingDTO implements Serializable {
-    private Long id;
+    private Integer id;
 
     private String name;
 

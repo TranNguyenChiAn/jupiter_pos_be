@@ -21,7 +21,7 @@ public class Product extends AbstractAuditingEntity implements Serializable {
     @GenericGenerator(name = "prod-generator",
             strategy = "com.jupiter.store.common.utils.MyGenerator")
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
@@ -30,5 +30,5 @@ public class Product extends AbstractAuditingEntity implements Serializable {
     private String description;
 
     @Column(name = "base_price")
-    private int basePrice;
+    private Long basePrice;
 }

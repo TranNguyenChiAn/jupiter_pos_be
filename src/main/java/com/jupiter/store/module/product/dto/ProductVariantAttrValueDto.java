@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductVariantAttrValueDto {
-    private Long attrId;
+    private Integer attrId;
     private String attrValue;
 }

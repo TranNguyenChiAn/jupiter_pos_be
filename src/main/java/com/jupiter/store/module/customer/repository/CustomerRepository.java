@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
+public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     @Query(value = "SELECT * FROM customers c WHERE\n" +
             "       LOWER(c.full_name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR\n" +
             "       LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR\n" +

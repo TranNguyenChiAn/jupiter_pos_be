@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductVariantDTO {
-    private int price;
+    private Long price;
     private Integer quantity;
     private List<ProductVariantAttrValueDto> attrAndValues;
     private String imagePath;

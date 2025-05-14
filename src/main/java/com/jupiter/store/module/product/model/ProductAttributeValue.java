@@ -15,24 +15,24 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "product_variant_attr_value")
-public class ProductVariantAttrValue extends AbstractAuditingEntity implements Serializable {
+@Table(name = "product_attribute_values")
+public class ProductAttributeValue extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(generator = "prod-generator")
     @GenericGenerator(name = "prod-generator", strategy = "com.jupiter.store.common.utils.MyGenerator")
     @Column(name = "id")
-    private Long id;
-
-    @Column(name = "product_id")
-    private Long productId;
+    private Integer id;
 
     @Column(name = "product_variant_id")
-    private Long productVariantId;
+    private Integer productVariantId;
 
     @Column(name = "attr_id")
-    private Long attrId;
+    private Integer attrId;
 
     @Column(name = "attr_value")
     private String attrValue;
+
+    @Column(name = "unit_id")
+    private Integer unitId;
 }

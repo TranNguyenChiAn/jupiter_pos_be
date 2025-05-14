@@ -17,26 +17,23 @@ import java.io.Serializable;
 @Entity
 @Table(name = "customers")
 public class Customer extends AbstractAuditingEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator",
-            strategy = "com.jupiter.store.common.utils.MyGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
-    @Column(name = "full_name")
-    private String fullName;
+    @Column(name = "customer_name")
+    private String customerName;
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "gender")
+    private boolean gender;
 
     @Column(name = "address")
     private String address;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+    @Column(name = "phone", unique = true)
+    private String phone;
 
     @Column(name = "is_active")
-    private boolean isActive = true;
+    private boolean isActive;
 }

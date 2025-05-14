@@ -13,6 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderItemsDTO {
-    private Long orderId;
+    private Integer orderId;
     private List<OrderDetail> orderItems;
 } 

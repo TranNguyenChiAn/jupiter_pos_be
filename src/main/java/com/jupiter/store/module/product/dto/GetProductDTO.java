@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GetProductDTO {
-    private Long productId;
+    private Integer productId;
     private String name;
     private String description;
     private List<Category> category;

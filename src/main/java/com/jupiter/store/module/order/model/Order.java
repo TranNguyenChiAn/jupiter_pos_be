@@ -18,13 +18,10 @@ public class Order extends AbstractAuditingEntity implements Serializable {
     @GeneratedValue(generator = "prod-generator")
     @GenericGenerator(name = "prod-generator", strategy = "com.jupiter.store.common.utils.MyGenerator")
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "user_id")
-    private Long userId;
-
-    @Column(name = "customer_id")
-    private Long customerId;
+    private Integer userId;
 
     @Column(name = "order_date")
     private LocalDateTime orderDate;
@@ -33,9 +30,21 @@ public class Order extends AbstractAuditingEntity implements Serializable {
     @Column(name = "order_status")
     private OrderStatus orderStatus;
 
-    @Column(name = "payment_status")
-    private String paymentStatus;
-
     @Column(name = "total_amount")
-    private Integer totalAmount = 0;
+    private Long totalAmount;
+
+    @Column(name = "customer_id")
+    private Integer customerId;
+
+    @Column(name = "receiver_name")
+    private String receiverName;
+
+    @Column(name = "receiver_phone")
+    private String receiverPhone;
+
+    @Column(name = "receiver_address")
+    private String receiverAddress;
+
+    @Column(name = "note")
+    private String note;
 }

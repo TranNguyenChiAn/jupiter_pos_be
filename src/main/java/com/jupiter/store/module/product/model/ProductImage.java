@@ -23,9 +23,14 @@ public class ProductImage extends AbstractAuditingEntity implements Serializable
     @GenericGenerator(name = "prod-generator",
             strategy = "com.jupiter.store.common.utils.MyGenerator")
     @Column(name = "id")
-    private Long id;
+    private Integer id;
+
     @Column(name = "product_id")
-    private Long productId;
+    private Integer productId;
+
+    @Column(name = "product_variant_id")
+    private Integer productVariantId;
+
     @Column(name = "image_path")
     private String imagePath;
 }

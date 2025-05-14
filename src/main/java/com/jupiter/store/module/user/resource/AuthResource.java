@@ -30,7 +30,7 @@ public class AuthResource {
         if (user != null) {
             if (user.isActive()) {
                 if (user.getRole() != null) {
-                    String token = jwtUtil.createToken(user.getUsername(), user.getId(), user.getRole());
+                    String token = jwtUtil.createToken(user.getPhone(), user.getId(), user.getRole());
 
                     return ResponseEntity.ok()
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)

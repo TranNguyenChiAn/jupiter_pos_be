@@ -18,15 +18,13 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public static Long currentUserId() {
+    public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
     }
 
     public Category addCategory(String name) {
         Category category = new Category();
-        category.setName(name);
-        category.setCreatedBy(currentUserId());
-        category.setCreatedDate(LocalDateTime.now());
+        category.setCategoryName(name);
         return categoryRepository.save(category);
     }
 
@@ -34,19 +32,18 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Category searchById(Long id) {
+    public Category searchById(Integer id) {
         return categoryRepository.findById(id).orElse(null);
     }
 
-    public void updateCategory(Long categoryId, String name) {
+    public void updateCategory(Integer categoryId, String name) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CustomException("Category not found", HttpStatus.NOT_FOUND));
-        category.setName(name);
-        category.setLastModifiedBy(currentUserId());
+        category.setCategoryName(name);
         categoryRepository.save(category);
     }
 
-    public void deleteCategory(Long id) {
+    public void deleteCategory(Integer id) {
         categoryRepository.deleteById(id);
     }
 }

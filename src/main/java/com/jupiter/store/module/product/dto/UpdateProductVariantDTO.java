@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateProductVariantDTO {
-    private int price;
+    private Long price;
     private Integer quantity;
     private Long attributeId;
     private String attributeValue;

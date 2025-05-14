@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -23,13 +24,28 @@ public class ProductVariant extends AbstractAuditingEntity implements Serializab
     @GenericGenerator(name = "prod-generator",
             strategy = "com.jupiter.store.common.utils.MyGenerator")
     @Column(name = "id")
-    private Long id;
+    private Integer id;
     @Column(name = "product_id")
-    private Long productId;
+    private Integer productId;
+
+    @Column(name = "cost_price")
+    private Long costPrice;
+
     @Column(name = "price")
-    private int price;
+    private Long price;
+
     @Column(name = "quantity")
-    private int quantity;
-    @Column(name = "image_path")
-    private String imagePath;
+    private Integer quantity;
+
+    @Column(name = "unit_id")
+    private Integer unitId;
+
+    @Column(name = "sku")
+    private String sku;
+
+    @Column(name = "barcode")
+    private String barcode;
+
+    @Column(name = "expiry_date")
+    private LocalDateTime expiryDate;
 }

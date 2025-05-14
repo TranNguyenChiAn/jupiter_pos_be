@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> {
-    List<OrderDetail> findByOrderId(Long orderId);
+public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
+    List<OrderDetail> findByOrderId(Integer orderId);
 
     @Query(value = "SELECT * FROM order_details od WHERE od.order_id = :orderId AND od.product_variant_id = :productVariantId", nativeQuery = true)
-    OrderDetail findByOrderIdAndProductVariantId(Long orderId, Long productVariantId);
+    OrderDetail findByOrderIdAndProductVariantId(Integer orderId, Integer productVariantId);
 }

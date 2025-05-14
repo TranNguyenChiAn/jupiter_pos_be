@@ -8,7 +8,6 @@ import com.jupiter.store.module.product.model.*;
 import com.jupiter.store.module.product.repository.*;
 import jakarta.transaction.Transactional;
 import org.springdoc.api.OpenApiResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,7 @@ public class ProductService {
         this.productVariantAttrValueRepository = productVariantAttrValueRepository;
     }
 
-    public static Long currentUserId() {
+    public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
     }
 
@@ -46,10 +45,9 @@ public class ProductService {
         product = productRepository.save(product);
         saveProductImages(createProductDTO.getImagePath(), product.getId());
         saveProductCategories(createProductDTO.getCategoryId(), product.getId());
-        saveProductVariants(createProductDTO.getVariants(), product.getId());
     }
 
-    private void saveProductImages(List<String> imagePaths, Long productId) {
+    private void saveProductImages(List<String> imagePaths, Integer productId) {
         if (imagePaths != null && !imagePaths.isEmpty()) {
             for (String imagePath : imagePaths) {
                 ProductImage productImage = new ProductImage();
@@ -61,9 +59,9 @@ public class ProductService {
         }
     }
 
-    private void saveProductCategories(List<Long> categoryIds, Long productId) {
+    private void saveProductCategories(List<Integer> categoryIds, Integer productId) {
         if (categoryIds != null && !categoryIds.isEmpty()) {
-            for (Long categoryId : categoryIds) {
+            for (Integer categoryId : categoryIds) {
                 ProductCategory productCategory = new ProductCategory();
                 productCategory.setProductId(productId);
                 productCategory.setCategoryId(categoryId);
@@ -73,32 +71,8 @@ public class ProductService {
         }
     }
 
-    private void saveProductVariants(List<ProductVariantDTO> variants, Long productId) {
-        if (variants != null && !variants.isEmpty()) {
-            for (ProductVariantDTO variantDTO : variants) {
-                ProductVariant variant = new ProductVariant();
-                variant.setProductId(productId);
-                variant.setPrice(variantDTO.getPrice());
-                variant.setQuantity(variantDTO.getQuantity());
-                variant.setImagePath(variantDTO.getImagePath());
-                variant.setCreatedBy(currentUserId());
-                productVariantRepository.save(variant);
-
-                for (ProductVariantAttrValueDto attrValue : variantDTO.getAttrAndValues()) {
-                    ProductVariantAttrValue productVariantAttrValue = new ProductVariantAttrValue();
-                    productVariantAttrValue.setProductId(productId);
-                    productVariantAttrValue.setProductVariantId(variant.getId());
-                    productVariantAttrValue.setAttrId(attrValue.getAttrId());
-                    productVariantAttrValue.setAttrValue(attrValue.getAttrValue());
-                    productVariantAttrValue.setCreatedBy(currentUserId());
-                    productVariantAttrValueRepository.save(productVariantAttrValue);
-                }
-            }
-        }
-    }
-
     @Transactional
-    public void updateProduct(Long productId, UpdateProductDTO updateProductDTO) {
+    public void updateProduct(Integer productId, UpdateProductDTO updateProductDTO) {
         // Validate product exists
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found with ID: " + productId));
@@ -125,7 +99,7 @@ public class ProductService {
      * Updates product images efficiently by comparing existing and new images
      * and performing only necessary database operations
      */
-    private void updateProductImages(Long productId, List<String> newImagePaths) {
+    private void updateProductImages(Integer productId, List<String> newImagePaths) {
         if (newImagePaths == null || newImagePaths.isEmpty()) {
             return;
         }
@@ -161,7 +135,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public ResponseEntity<GetProductDTO> searchById(Long productId) {
+    public ResponseEntity<GetProductDTO> searchById(Integer productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found"));
         List<Category> productCategory = categoryRepository.findByProductId(productId);
@@ -170,7 +144,7 @@ public class ProductService {
         return ResponseEntity.ok().body(new GetProductDTO(product, productCategory, productVariants, productImages));
     }
 
-    public void deleteProduct(Long productId) {
+    public void deleteProduct(Integer productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found"));
         if (product != null) {
@@ -183,7 +157,7 @@ public class ProductService {
         }
     }
 
-    public void addCategory(Long productId, List<Category> categories) {
+    public void addCategory(Integer productId, List<Category> categories) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found"));
         if (product != null) {
@@ -199,7 +173,7 @@ public class ProductService {
         }
     }
 
-    public void deleteCategory(Long productId, List<Category> categories) {
+    public void deleteCategory(Integer productId, List<Category> categories) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found"));
         if (product != null) {

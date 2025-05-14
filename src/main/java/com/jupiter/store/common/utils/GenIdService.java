@@ -47,7 +47,7 @@ public class GenIdService {
         this.customEpoch = DEFAULT_CUSTOM_EPOCH;
     }
 
-    public synchronized long nextId() {
+    public synchronized Integer nextId() {
         long currentTimestamp = timestamp();
 
         if (currentTimestamp < lastTimestamp) {
@@ -67,7 +67,7 @@ public class GenIdService {
 
         lastTimestamp = currentTimestamp;
 
-        long id = currentTimestamp << (NODE_ID_BITS + SEQUENCE_BITS) | (nodeId << SEQUENCE_BITS) | sequence;
+        Integer id = Math.toIntExact(currentTimestamp << (NODE_ID_BITS + SEQUENCE_BITS) | (nodeId << SEQUENCE_BITS) | sequence);
 
         return id;
     }

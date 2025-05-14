@@ -17,29 +17,21 @@ import java.io.Serializable;
 public class User extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator",
-            strategy = "com.jupiter.store.common.utils.MyGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
-    @Column(name = "username")
-    private String username;
-    @Column(name = "firstname")
-    private String firstname;
-    @Column(name = "lastname")
-    private String lastname;
-    @Column(name = "email")
+    private Integer id;
+    @Column(name = "fullname")
+    private String fullName;
+    @Column(name = "email", unique = true)
     private String email;
     @Column(name = "password")
     private String password;
-    @Column(name = "phone_number")
-    private String phoneNumber;
-    @Column(name = "address")
-    private String address;
-    @Column(name = "avatar")
-    private String avatar;
+    @Column(name = "phone", unique = true)
+    private String phone;
     @Column(name = "is_active")
     private boolean isActive;
     @Column(name = "role")
     private String role;
+    @Column(name = "gender")
+    private boolean gender;
 }

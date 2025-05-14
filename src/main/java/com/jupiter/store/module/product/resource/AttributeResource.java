@@ -1,6 +1,6 @@
 package com.jupiter.store.module.product.resource;
 
-import com.jupiter.store.module.product.model.Attribute;
+import com.jupiter.store.module.product.model.ProductAttributeType;
 import com.jupiter.store.module.product.service.AttributeService;
 import com.jupiter.store.module.role.constant.RoleBase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,31 +17,31 @@ public class AttributeResource {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole(RoleBase.ADMIN)")
-    public Attribute addAttribute(String name) {
+    public ProductAttributeType addAttribute(String name) {
         return attributeService.addAttribute(name);
     }
 
     @GetMapping("/search")
     @PreAuthorize("hasRole(RoleBase.ADMIN)")
-    public List<Attribute> search() {
+    public List<ProductAttributeType> search() {
         return attributeService.search();
     }
 
     @GetMapping("/search/{id}")
     @PreAuthorize("hasAuthority(RoleBase.ADMIN)")
-    public Attribute searchById(@RequestParam Long id) {
+    public ProductAttributeType searchById(@RequestParam Integer id) {
         return attributeService.searchById(id);
     }
 
     @PutMapping("/update/{attributeId}")
     @PreAuthorize("hasAuthority(RoleBase.ADMIN)")
-    public void updateAttribute(@RequestParam Long attributeId, @RequestParam String name) {
+    public void updateAttribute(@RequestParam Integer attributeId, @RequestParam String name) {
         attributeService.updateAttribute(attributeId, name);
     }
 
     @DeleteMapping("/delete/{attributeId}")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public void deleteAttribute(@RequestParam Long id) {
+    public void deleteAttribute(@RequestParam Integer id) {
         attributeService.deleteAttribute(id);
     }
 }

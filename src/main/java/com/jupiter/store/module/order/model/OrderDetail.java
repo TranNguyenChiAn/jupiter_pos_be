@@ -23,20 +23,20 @@ public class OrderDetail extends AbstractAuditingEntity implements Serializable 
     @GeneratedValue(generator = "prod-generator")
     @GenericGenerator(name = "prod-generator", strategy = "com.jupiter.store.common.utils.MyGenerator")
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "order_id")
-    private Long orderId;
+    private Integer orderId;
 
     @Column(name = "product_variant_id")
-    private Long productVariantId;
+    private Integer productVariantId;
 
     @Column(name = "sold_quantity")
     private Integer soldQuantity;
 
     @Column(name = "sold_price")
-    private Integer soldPrice;
+    private Long soldPrice;
 
     @Column(name = "total_amount")
-    private Integer totalAmount;
+    private Long totalAmount;
 }

@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public abstract class AbstractAuditingEntity implements Serializable {
     @CreatedBy
     @Column(name = "created_by", nullable = false)
-    private Long createdBy;
+    private Integer createdBy;
 
     @CreatedDate
     @Column(name = "created_date", updatable = false)
@@ -29,7 +29,7 @@ public abstract class AbstractAuditingEntity implements Serializable {
 
     @LastModifiedBy
     @Column(name = "last_modified_by")
-    private Long lastModifiedBy;
+    private Integer lastModifiedBy;
 
     @LastModifiedDate
     @Column(name = "last_modified_date")

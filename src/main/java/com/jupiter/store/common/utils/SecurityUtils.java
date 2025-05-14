@@ -19,21 +19,21 @@ public final class SecurityUtils {
      *
      * @return the login of the current user.
      */
-    public static Long getCurrentUserId() {
+    public static Integer getCurrentUserId() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         return extractPrincipal(securityContext.getAuthentication());
     }
 
-    public static Long extractPrincipal(Authentication authentication) {
+    public static Integer extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
         } else if (authentication.getPrincipal() instanceof CustomUserDetails springSecurityUser) {
             return springSecurityUser.getUserId();
         }
         if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
-            return Long.valueOf(springSecurityUser.getUsername());
+            return Integer.valueOf(springSecurityUser.getUsername());
         } else if (authentication.getPrincipal() instanceof String) {
-            return Long.valueOf(authentication.getPrincipal().toString());
+            return Integer.valueOf(authentication.getPrincipal().toString());
         }
         return null;
     }

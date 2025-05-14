@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,16 +16,14 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Category extends AbstractAuditingEntity implements Serializable {
+public class Category {
     @Serial
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator",
-            strategy = "com.jupiter.store.common.utils.MyGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "category_name")
+    private String categoryName;
 }

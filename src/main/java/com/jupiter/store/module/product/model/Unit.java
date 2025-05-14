@@ -8,13 +8,13 @@ import org.hibernate.annotations.GenericGenerator;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "product_categories")
+@Table(name = "units")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductCategory extends AbstractAuditingEntity implements Serializable {
+public class Unit extends AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(generator = "prod-generator")
@@ -23,9 +23,6 @@ public class ProductCategory extends AbstractAuditingEntity implements Serializa
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "product_id")
-    private Integer productId;
-
-    @Column(name = "category_id")
-    private Integer categoryId;
+    @Column(name = "name", nullable = false, unique = true)
+    private String name;
 }

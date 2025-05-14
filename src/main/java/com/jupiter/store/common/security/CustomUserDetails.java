@@ -16,7 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CustomUserDetails implements UserDetails {
-    private Long userId;
+    private Integer userId;
     private String username;
     private String password;
     private Set<SimpleGrantedAuthority> authority;

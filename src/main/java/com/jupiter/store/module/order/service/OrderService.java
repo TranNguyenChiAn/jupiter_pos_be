@@ -37,14 +37,14 @@ public class OrderService {
     @Autowired
     private CustomerRepository customerRepository;
 
-    public static Long currentUserId() {
+    public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
     }
 
     /**
      * Get order by ID
      */
-    public OrderItemsDTO getOrderDetailById(Long orderId) {
+    public OrderItemsDTO getOrderDetailById(Integer orderId) {
         orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
@@ -58,7 +58,7 @@ public class OrderService {
        return orderRepository.findByUserId(currentUserId());
     }
 
-    public Order createOrder(Long customerId) {
+    public Order createOrder(Integer customerId) {
         Order order = new Order();
         order.setUserId(currentUserId());
         order.setCustomerId(customerId);
@@ -67,7 +67,7 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public OrderItemsDTO addProductToOrder(Long orderId, Long productVariantId) {
+    public OrderItemsDTO addProductToOrder(Integer orderId, Integer productVariantId) {
         ProductVariant productVariant = productVariantRepository.findById(productVariantId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Product variant not found"));
         OrderDetail orderDetailDTO = orderDetailRepository.findByOrderIdAndProductVariantId(orderId, productVariantId);
@@ -96,7 +96,7 @@ public class OrderService {
         return orderItemsDTO;
     }
 
-    public ResponseEntity<OrderDetail> updateQuantityItem(Long orderDetailId, int quantity) {
+    public ResponseEntity<OrderDetail> updateQuantityItem(Integer orderDetailId, int quantity) {
         OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId).orElseThrow(() -> new OpenApiResourceNotFoundException("Cart item not found"));
         ProductVariant productVariant = productVariantRepository.findById(orderDetail.getProductVariantId())
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Product variant not found"));
@@ -107,7 +107,7 @@ public class OrderService {
         return ResponseEntity.ok(orderDetailRepository.save(orderDetail));
     }
 
-    public void updateOrderStatus(Long orderId) {
+    public void updateOrderStatus(Integer orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
         order.setOrderStatus(OrderStatus.CONFIRMED);
@@ -115,11 +115,11 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public void deleteOrderItem(Long orderDetailId) {
+    public void deleteOrderItem(Integer orderDetailId) {
         orderDetailRepository.deleteById(orderDetailId);
     }
 
-    public void cancelOrder(Long orderId) {
+    public void cancelOrder(Integer orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
         order.setOrderStatus(OrderStatus.CANCELLED);

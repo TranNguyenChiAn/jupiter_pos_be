@@ -20,10 +20,11 @@ public class CustomerService {
 
     public Customer addCustomer(CreateCustomerDTO createCustomerDTO) {
         Customer customer = new Customer();
-        customer.setFullName(createCustomerDTO.getFullName());
-        customer.setEmail(createCustomerDTO.getEmail());
-        customer.setPhoneNumber(createCustomerDTO.getPhoneNumber());
+        customer.setCustomerName(createCustomerDTO.getFullName());
+        customer.setGender(createCustomerDTO.isGender());
+        customer.setPhone(createCustomerDTO.getPhoneNumber());
         customer.setAddress(createCustomerDTO.getAddress());
+        customer.setActive(true);
         customer.setCreatedBy(SecurityUtils.getCurrentUserId());
         return customerRepository.save(customer);
     }
