@@ -5,6 +5,8 @@ import com.jupiter.store.module.order.constant.PaymentStatus;
 import com.jupiter.store.module.payment.constant.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Payment extends AbstractAuditingEntity  {
+public class Payment extends AbstractAuditingEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

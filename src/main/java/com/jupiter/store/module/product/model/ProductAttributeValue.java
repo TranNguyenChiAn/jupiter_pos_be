@@ -16,7 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "product_attribute_values")
-public class ProductAttributeValue implements Serializable {
+public class ProductAttributeValue extends AbstractAuditingEntity implements Serializable {
 //    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
