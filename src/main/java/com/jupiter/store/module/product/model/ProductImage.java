@@ -16,21 +16,17 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductImage extends AbstractAuditingEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class ProductImage implements Serializable {
+//    private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator",
-            strategy = "com.jupiter.store.common.utils.MyGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "product_id")
-    private Integer productId;
 
     @Column(name = "product_variant_id")
     private Integer productVariantId;
 
-    @Column(name = "image_path")
+    @Column(name = "path")
     private String imagePath;
 }

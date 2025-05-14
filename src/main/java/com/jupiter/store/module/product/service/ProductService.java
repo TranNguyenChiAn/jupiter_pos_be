@@ -51,9 +51,8 @@ public class ProductService {
         if (imagePaths != null && !imagePaths.isEmpty()) {
             for (String imagePath : imagePaths) {
                 ProductImage productImage = new ProductImage();
-                productImage.setProductId(productId);
+                productImage.setProductVariantId(productId);
                 productImage.setImagePath(imagePath);
-                productImage.setCreatedBy(currentUserId());
                 productImageRepository.save(productImage);
             }
         }
@@ -65,7 +64,6 @@ public class ProductService {
                 ProductCategory productCategory = new ProductCategory();
                 productCategory.setProductId(productId);
                 productCategory.setCategoryId(categoryId);
-                productCategory.setCreatedBy(currentUserId());
                 productCategoryRepository.save(productCategory);
             }
         }
@@ -123,9 +121,8 @@ public class ProductService {
         for (String imagePath : newImagePaths) {
             if (!existingImagePaths.contains(imagePath)) {
                 ProductImage productImage = new ProductImage();
-                productImage.setProductId(productId);
+                productImage.setProductVariantId(productId);
                 productImage.setImagePath(imagePath);
-                productImage.setCreatedBy(currentUserId());
                 productImageRepository.save(productImage);
             }
         }
@@ -165,7 +162,6 @@ public class ProductService {
                 ProductCategory productCategory = new ProductCategory();
                 productCategory.setProductId(productId);
                 productCategory.setCategoryId(category.getId());
-                productCategory.setCreatedBy(currentUserId());
                 productCategoryRepository.save(productCategory);
             }
         } else {

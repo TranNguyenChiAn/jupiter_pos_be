@@ -31,7 +31,6 @@ public class UserService {
         user.setRole(RoleBase.USER);
         user.setGender(registerUserDTO.isGender());
         user.setActive(true);
-        user.setCreatedBy(0);
         userRepository.save(user);
     }
 

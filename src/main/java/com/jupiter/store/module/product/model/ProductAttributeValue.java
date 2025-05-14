@@ -16,11 +16,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "product_attribute_values")
-public class ProductAttributeValue extends AbstractAuditingEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class ProductAttributeValue implements Serializable {
+//    private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator", strategy = "com.jupiter.store.common.utils.MyGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
@@ -32,7 +31,4 @@ public class ProductAttributeValue extends AbstractAuditingEntity implements Ser
 
     @Column(name = "attr_value")
     private String attrValue;
-
-    @Column(name = "unit_id")
-    private Integer unitId;
 }

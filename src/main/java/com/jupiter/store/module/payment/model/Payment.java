@@ -5,9 +5,6 @@ import com.jupiter.store.module.order.constant.PaymentStatus;
 import com.jupiter.store.module.payment.constant.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,12 +14,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Payment extends AbstractAuditingEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Payment extends AbstractAuditingEntity  {
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator",
-            strategy = "com.jupiter.store.common.utils.MyGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 

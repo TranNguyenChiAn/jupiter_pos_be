@@ -70,7 +70,6 @@ public class ProductVariantService {
                     productAttributeValue.setProductVariantId(variant.getId());
                     productAttributeValue.setAttrId(attrValue.getAttrId());
                     productAttributeValue.setAttrValue(attrValue.getAttrValue());
-                    productAttributeValue.setCreatedBy(currentUserId());
                     productVariantAttrValueRepository.save(productAttributeValue);
                 }
             }
@@ -88,7 +87,6 @@ public class ProductVariantService {
         for (ProductVariantAttrValueDto attrValue : productVariant.getAttrAndValues()) {
             ProductAttributeValue productAttributeValue = productVariantAttrValueRepository.findByProductIdAndAttrId(variantId, attrValue.getAttrId()).orElseThrow(() -> new RuntimeException("Product variant attribute value not found"));
             productAttributeValue.setAttrValue(attrValue.getAttrValue());
-            productAttributeValue.setLastModifiedBy(currentUserId());
             productVariantAttrValueRepository.save(productAttributeValue);
         }
         return ResponseEntity.ok(productVariant);

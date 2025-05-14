@@ -18,11 +18,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "product_variants")
 public class ProductVariant extends AbstractAuditingEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+//    private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "prod-generator")
-    @GenericGenerator(name = "prod-generator",
-            strategy = "com.jupiter.store.common.utils.MyGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
     @Column(name = "product_id")
