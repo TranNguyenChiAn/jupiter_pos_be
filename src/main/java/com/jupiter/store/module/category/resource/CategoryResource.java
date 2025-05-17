@@ -33,13 +33,18 @@ public class CategoryResource {
         return categoryService.searchById(categoryId);
     }
 
+    @GetMapping("/search-by-name")
+    public List<Category> searchByName(@RequestParam String categoryName) {
+        return categoryService.searchByName(categoryName);
+    }
+
     @PutMapping("/update/{categoryId}")
     public void updateCategory(@PathVariable Integer categoryId, @RequestParam String name) {
         categoryService.updateCategory(categoryId, name);
     }
 
     @DeleteMapping("/delete")
-    public void deleteCategory(Integer id) {
-        categoryService.deleteCategory(id);
+    public void deleteCategory(Integer categoryId) {
+        categoryService.deleteCategory(categoryId);
     }
 }

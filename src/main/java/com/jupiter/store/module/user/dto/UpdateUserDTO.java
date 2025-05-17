@@ -12,6 +12,7 @@ import lombok.Setter;
 public class UpdateUserDTO {
     private String fullname;
     private String address;
+    private String email;
     private String phone;
     private boolean gender;
 }

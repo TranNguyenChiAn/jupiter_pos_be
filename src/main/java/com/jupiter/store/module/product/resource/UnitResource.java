@@ -14,13 +14,18 @@ public class UnitResource {
     private UnitService unitService;
 
     @PostMapping("/create")
-    public Unit createUnit(String name) {
-        return unitService.createUnit(name);
+    public Unit createUnit(String unitName) {
+        return unitService.createUnit(unitName);
     }
 
     @GetMapping("/find-all")
     public List<Unit> findAllUnit() {
         return unitService.findAllUnit();
+    }
+
+    @GetMapping("/find-by-name")
+    public List<Unit> findUnitByName(@RequestParam String unitName) {
+        return unitService.findUnitByName(unitName);
     }
 
     @PutMapping("/update/{unitId}")

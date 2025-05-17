@@ -4,8 +4,10 @@ import com.jupiter.store.common.exception.CustomException;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
+import com.jupiter.store.module.product.model.Unit;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -21,9 +23,12 @@ public class CategoryService {
         return SecurityUtils.getCurrentUserId();
     }
 
-    public Category addCategory(String name) {
+    public Category addCategory(String categoryName) {
+        if (categoryRepository.existsByCategoryName(categoryName.toLowerCase())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên danh mục " + categoryName + " đã tồn tại!");
+        }
         Category category = new Category();
-        category.setCategoryName(name);
+        category.setCategoryName(categoryName);
         return categoryRepository.save(category);
     }
 
@@ -32,17 +37,31 @@ public class CategoryService {
     }
 
     public Category searchById(Integer id) {
-        return categoryRepository.findById(id).orElse(null);
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục"));
     }
 
     public void updateCategory(Integer categoryId, String name) {
         Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new CustomException("Category not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục"));
+        if (categoryRepository.existsByCategoryName(name)) {
+            throw new IllegalArgumentException("Tên danh mục " + name + " đã tồn tại!");
+        }
         category.setCategoryName(name);
         categoryRepository.save(category);
     }
 
-    public void deleteCategory(Integer id) {
-        categoryRepository.deleteById(id);
+    public void deleteCategory(Integer categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục"));
+        categoryRepository.delete(category);
+    }
+
+    public List<Category> searchByName(String categoryName) {
+        List<Category> categories = categoryRepository.findByCategoryName(categoryName.toLowerCase());
+        if (categories.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục nào với tên: " + categoryName);
+        }
+        return categories;
     }
 }

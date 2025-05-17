@@ -15,13 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 @RestController
 public class AuthResource {
-    private final JwtUtil jwtUtil;
     private final AuthService authService;
-    @Autowired
-    private UserRepository userRepository;
 
-    public AuthResource(JwtUtil jwtUtil, AuthService authService) {
-        this.jwtUtil = jwtUtil;
+    public AuthResource( AuthService authService) {
         this.authService = authService;
     }
 

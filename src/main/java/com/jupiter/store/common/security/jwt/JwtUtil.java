@@ -16,7 +16,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final long validityInMilliseconds = 3600000; // Thời gian hết hạn token1 hour
+    private final long validityInMilliseconds = 14400000; // Thời gian hết hạn token: 1 hour
     @Value("${jwt.secret}")
     private String secretKey;
 

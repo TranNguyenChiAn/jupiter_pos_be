@@ -17,8 +17,8 @@ public class AttributeResource {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole(RoleBase.ADMIN)")
-    public ProductAttribute addAttribute(String name) {
-        return attributeService.addAttribute(name);
+    public ProductAttribute addAttribute(String attributeName) {
+        return attributeService.addAttribute(attributeName);
     }
 
     @GetMapping("/search")
@@ -29,19 +29,25 @@ public class AttributeResource {
 
     @GetMapping("/search/{id}")
     @PreAuthorize("hasAuthority(RoleBase.ADMIN)")
-    public ProductAttribute searchById(@RequestParam Integer id) {
+    public ProductAttribute searchById(@PathVariable Integer id) {
         return attributeService.searchById(id);
+    }
+
+    @GetMapping("/search-by-name")
+    @PreAuthorize("hasAuthority(RoleBase.ADMIN)")
+    public List<ProductAttribute> searchByName(@RequestParam String attributeName) {
+        return attributeService.searchByName(attributeName);
     }
 
     @PutMapping("/update/{attributeId}")
     @PreAuthorize("hasAuthority(RoleBase.ADMIN)")
-    public void updateAttribute(@RequestParam Integer attributeId, @RequestParam String name) {
+    public void updateAttribute(@PathVariable Integer attributeId, @RequestParam String name) {
         attributeService.updateAttribute(attributeId, name);
     }
 
     @DeleteMapping("/delete/{attributeId}")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public void deleteAttribute(@RequestParam Integer id) {
-        attributeService.deleteAttribute(id);
+    public void deleteAttribute(@PathVariable Integer attributeId) {
+        attributeService.deleteAttribute(attributeId);
     }
 }

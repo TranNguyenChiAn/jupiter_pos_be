@@ -7,8 +7,10 @@ import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -22,6 +24,10 @@ public class UserService {
     }
 
     public void register(RegisterUserDTO registerUserDTO) {
+        User existedUser = findByPhoneOrEmail(registerUserDTO.getPhone(), registerUserDTO.getEmail());
+        if (existedUser != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại hoặc email đã tồn tại!");
+        }
         User user = new User();
         String encodedPassword = passwordEncoder.encode(registerUserDTO.getPassword());
         user.setFullName(registerUserDTO.getFullname());
@@ -53,10 +59,15 @@ public class UserService {
 
     @Transactional
     public void update(Integer userId, UpdateUserDTO updateUserDTO) {
-        User user = userRepository.findById(userId).orElseThrow();
-        user.setFullName(updateUserDTO.getFullname());
-        user.setPhone(updateUserDTO.getPhone());
-        user.setGender(updateUserDTO.isGender());
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"User not found with id: " + userId));
+        User existedUser = findByPhoneOrEmail(updateUserDTO.getPhone(), updateUserDTO.getEmail());
+        if (existedUser != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại hoặc email đã tồn tại!");
+        }
+        user.setFullName(updateUserDTO.getFullname() == null ? user.getFullName() : updateUserDTO.getFullname());
+        user.setPhone(updateUserDTO.getPhone() == null ? user.getPhone() : updateUserDTO.getPhone());
+        user.setGender(updateUserDTO.isGender() == updateUserDTO.isGender() ? user.isGender() : updateUserDTO.isGender());
         userRepository.save(user);
     }
 
