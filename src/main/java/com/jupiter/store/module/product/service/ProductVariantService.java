@@ -1,19 +1,24 @@
 package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.SecurityUtils;
+import com.jupiter.store.module.product.dto.GetAllProductVariantDTO;
 import com.jupiter.store.module.product.dto.ProductVariantAttrValueDto;
-import com.jupiter.store.module.product.dto.ProductVariantDTO;
-import com.jupiter.store.module.product.model.Product;
-import com.jupiter.store.module.product.model.ProductAttributeValue;
-import com.jupiter.store.module.product.model.ProductVariant;
+import com.jupiter.store.module.product.dto.CreateProductVariantDTO;
+import com.jupiter.store.module.product.model.*;
+import com.jupiter.store.module.product.repository.ProductImageRepository;
 import com.jupiter.store.module.product.repository.ProductRepository;
 import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
+import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductVariantService {
@@ -26,63 +31,96 @@ public class ProductVariantService {
     @Autowired
     private ProductRepository productRepository;
 
-    public static Integer currentUserId() {
-        return SecurityUtils.getCurrentUserId();
+    @Autowired
+    private ProductImageRepository productImageRepository;
+
+    public List<GetAllProductVariantDTO> searchProductVariant(Integer productId) {
+        List<ProductVariant> productVariants = productVariantRepository.findByProductId(productId);
+
+        if (productVariants.isEmpty()) {
+            throw new OpenApiResourceNotFoundException("Product variant not found with ID: " + productId);
+        }
+
+        return productVariants.stream()
+                .map(productVariant -> {
+                    // Return product variant details
+                    GetAllProductVariantDTO getProductVariantsDTO = new GetAllProductVariantDTO();
+                    getProductVariantsDTO.setProductVariantId(productVariant.getId());
+                    getProductVariantsDTO.setCostPrice(productVariant.getCostPrice());
+                    getProductVariantsDTO.setPrice(productVariant.getPrice());
+                    getProductVariantsDTO.setQuantity(productVariant.getQuantity());
+                    getProductVariantsDTO.setSku(productVariant.getSku());
+                    getProductVariantsDTO.setBarcode(productVariant.getBarcode());
+                    getProductVariantsDTO.setExpiryDate(productVariant.getExpiryDate());
+
+                    // Trả về thông tin về thuộc tính và giá trị của thuộc tính
+                    List<ProductAttributeValue> productAttributeValues = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId());
+                    List<ProductVariantAttrValueDto> attributeValues = new ArrayList<>();
+                    for (ProductAttributeValue attributeValue : productAttributeValues) {
+                        ProductVariantAttrValueDto productVariantAttrValueDto = new ProductVariantAttrValueDto();
+                        productVariantAttrValueDto.setAttrId(attributeValue.getAttrId());
+                        productVariantAttrValueDto.setAttrValue(attributeValue.getAttrValue());
+                        productVariantAttrValueDto.setUnitId(attributeValue.getUnitId());
+                        attributeValues.add(productVariantAttrValueDto);
+                    }
+                    getProductVariantsDTO.setAttrAndValues(attributeValues);
+
+                    // Trả về ảnh của product variant
+                    List<ProductImage> productImages = productImageRepository.findByProductVariantId(productVariant.getId());
+                    // Set image paths for the attribute value
+                    List<String> imagePaths = new ArrayList<>();
+                    for (ProductImage image : productImages) {
+                        if (image.getProductVariantId().equals(productVariant.getId())) {
+                            imagePaths.add(image.getImagePath());
+                        }
+                    }
+                    getProductVariantsDTO.setImagePaths(imagePaths);
+                    return getProductVariantsDTO;
+                }).collect(Collectors.toList());
     }
 
-    public ResponseEntity<ProductVariant> addProductVariant(Integer productId, ProductVariantDTO productVariant) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+    public ResponseEntity<CreateProductVariantDTO> addProductVariant(Integer productId, CreateProductVariantDTO productVariant) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found with ID: " + productId));
         if (product != null) {
             ProductVariant variant = new ProductVariant();
             variant.setProductId(productId);
+            variant.setCostPrice(productVariant.getCostPrice());
             variant.setPrice(productVariant.getPrice());
             variant.setQuantity(productVariant.getQuantity());
-            variant.setCreatedBy(currentUserId());
+            variant.setUnitId(productVariant.getUnitId());
+            variant.setSku(productVariant.getSku());
+            variant.setBarcode(productVariant.getBarcode());
+            variant.setExpiryDate(productVariant.getExpiryDate());
+            variant.setCreatedBy(SecurityUtils.getCurrentUserId());
             productVariantRepository.save(variant);
+
+            saveProductImages(variant.getId(), productVariant.getImagePaths());
 
             for (ProductVariantAttrValueDto attrValue : productVariant.getAttrAndValues()) {
                 ProductAttributeValue productAttributeValue = new ProductAttributeValue();
-                productAttributeValue.setProductVariantId(productId);
+                productAttributeValue.setProductVariantId(variant.getId());
                 productAttributeValue.setProductVariantId(variant.getId());
                 productAttributeValue.setAttrId(attrValue.getAttrId());
                 productAttributeValue.setAttrValue(attrValue.getAttrValue());
+                productAttributeValue.setUnitId(attrValue.getUnitId());
+                productAttributeValue.setCreatedBy(SecurityUtils.getCurrentUserId());
                 productVariantAttrValueRepository.save(productAttributeValue);
             }
-            return ResponseEntity.ok(variant);
+            return ResponseEntity.ok(productVariant);
 
         } else {
-            throw new RuntimeException("Product not found");
+            throw new OpenApiResourceNotFoundException("Product not found with ID: " + productId);
         }
     }
 
-    private void saveProductVariants(List<ProductVariantDTO> variants, Integer productId) {
-        if (variants != null && !variants.isEmpty()) {
-            for (ProductVariantDTO variantDTO : variants) {
-                ProductVariant variant = new ProductVariant();
-                variant.setProductId(productId);
-                variant.setPrice(variantDTO.getPrice());
-                variant.setQuantity(variantDTO.getQuantity());
-                variant.setCreatedBy(currentUserId());
-                productVariantRepository.save(variant);
-
-                for (ProductVariantAttrValueDto attrValue : variantDTO.getAttrAndValues()) {
-                    ProductAttributeValue productAttributeValue = new ProductAttributeValue();
-                    productAttributeValue.setProductVariantId(variant.getId());
-                    productAttributeValue.setAttrId(attrValue.getAttrId());
-                    productAttributeValue.setAttrValue(attrValue.getAttrValue());
-                    productVariantAttrValueRepository.save(productAttributeValue);
-                }
-            }
-        }
-    }
-
-    public ResponseEntity<ProductVariantDTO> updateProductVariant(Integer variantId, ProductVariantDTO productVariant) {
+    public ResponseEntity<CreateProductVariantDTO> updateProductVariant(Integer variantId, CreateProductVariantDTO productVariant) {
         ProductVariant variant = productVariantRepository.findById(variantId).orElseThrow(() -> new RuntimeException("Product variant not found"));
         variant.setPrice(productVariant.getPrice() != 0 ? productVariant.getPrice() : variant.getPrice());
         variant.setQuantity(productVariant.getQuantity() != 0 ? productVariant.getQuantity() : variant.getQuantity());
-        //TODO: update product image
-        variant.setLastModifiedBy(currentUserId());
+        variant.setLastModifiedBy(SecurityUtils.getCurrentUserId());
         productVariantRepository.save(variant);
+        updateProductImages(variantId, productVariant.getImagePaths());
 
         for (ProductVariantAttrValueDto attrValue : productVariant.getAttrAndValues()) {
             ProductAttributeValue productAttributeValue = productVariantAttrValueRepository.findByProductIdAndAttrId(variantId, attrValue.getAttrId()).orElseThrow(() -> new RuntimeException("Product variant attribute value not found"));
@@ -92,11 +130,49 @@ public class ProductVariantService {
         return ResponseEntity.ok(productVariant);
     }
 
-    public void deleteProductVariant(Integer variantId) {
-        productVariantRepository.deleteById(variantId);
+    private void saveProductImages(Integer productVariantId, List<String> imagePaths) {
+        if (imagePaths != null && !imagePaths.isEmpty()) {
+            for (String imagePath : imagePaths) {
+                ProductImage productImage = new ProductImage();
+                productImage.setProductVariantId(productVariantId);
+                productImage.setImagePath(imagePath);
+                productImageRepository.save(productImage);
+            }
+        }
     }
 
-    public List<ProductVariant> searchProductVariant(Integer productId) {
-        return productVariantRepository.findByProductId(productId);
+    private void updateProductImages(Integer productVariantId, List<String> imagePaths) {
+        if (imagePaths == null || imagePaths.isEmpty()) {
+            return;
+        }
+
+        // Get existing images
+        List<ProductImage> existingImages = productImageRepository.findByProductVariantId(productVariantId);
+        Set<String> newImagePathsSet = new HashSet<>(imagePaths);
+        Set<String> existingImagePaths = new HashSet<>();
+
+        // Track existing image paths and identify images to delete
+        for (ProductImage existingImage : existingImages) {
+            String imagePath = existingImage.getImagePath();
+            existingImagePaths.add(imagePath);
+
+            if (!newImagePathsSet.contains(imagePath)) {
+                productImageRepository.delete(existingImage);
+            }
+        }
+
+        // Add only new images
+        for (String imagePath : imagePaths) {
+            if (!existingImagePaths.contains(imagePath)) {
+                ProductImage productImage = new ProductImage();
+                productImage.setProductVariantId(productVariantId);
+                productImage.setImagePath(imagePath);
+                productImageRepository.save(productImage);
+            }
+        }
+    }
+
+    public void deleteProductVariant(Integer productVariantId) {
+        productVariantRepository.deleteById(productVariantId);
     }
 }

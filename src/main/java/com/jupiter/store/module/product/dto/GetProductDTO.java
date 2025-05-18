@@ -19,19 +19,15 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GetProductDTO {
     private Integer productId;
-    private String name;
+    private String productName;
     private String description;
     private List<Category> category;
-    private List<ProductImage> imagePath;
-    private List<ProductVariant> variant;
 
 
-    public GetProductDTO(Product product, List<Category> productCategory, List<ProductVariant> productVariants, List<ProductImage> productImages) {
+    public GetProductDTO(Product product, List<Category> productCategory) {
         this.productId = product.getId();
-        this.name = product.getName();
+        this.productName = product.getProductName();
         this.description = product.getDescription();
         this.category = productCategory;
-        this.imagePath = productImages;
-        this.variant = productVariants;
     }
 }

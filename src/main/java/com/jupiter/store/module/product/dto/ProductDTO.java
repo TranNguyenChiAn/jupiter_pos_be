@@ -31,7 +31,7 @@ public class ProductDTO extends AbstractAuditingDTO implements Serializable {
 
     public ProductDTO(Product product, List<ProductCategory> productCategory, List<ProductVariant> variants, List<ProductImage> productImages) {
         this.id = product.getId();
-        this.name = product.getName();
+        this.name = product.getProductName();
         this.description = product.getDescription();
         this.categoryId = productCategory;
         this.imagePath = productImages;

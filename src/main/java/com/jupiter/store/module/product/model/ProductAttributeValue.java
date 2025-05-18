@@ -16,7 +16,6 @@ import java.io.Serializable;
 @Entity
 @Table(name = "product_attribute_values")
 public class ProductAttributeValue extends AbstractAuditingEntity implements Serializable {
-    //    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -30,4 +29,7 @@ public class ProductAttributeValue extends AbstractAuditingEntity implements Ser
 
     @Column(name = "attr_value")
     private String attrValue;
+
+    @Column(name = "unit_id")
+    private Integer unitId;
 }

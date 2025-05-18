@@ -10,9 +10,9 @@ import java.util.List;
 
 @Repository
 public interface ProductImageRepository extends JpaRepository<ProductImage, Integer> {
-    @Query(value = "SELECT * FROM product_images p WHERE product_id = :productId", nativeQuery = true)
-    List<ProductImage> findByProductId(@Param("productId") Integer productId);
+    @Query(value = "SELECT * FROM product_images p WHERE product_variant_id = :productId", nativeQuery = true)
+    List<ProductImage> findByProductVariantId(@Param("productId") Integer productId);
 
-    @Query(value = "DELETE FROM product_images pi WHERE pi.product_id = :productId", nativeQuery = true)
-    void deleteByProductId(@Param("productId") Integer productId);
+    @Query(value = "DELETE FROM product_images pi WHERE pi.product_variant_id = :productId", nativeQuery = true)
+    void deleteByProductVariantId(@Param("productId") Integer productId);
 }

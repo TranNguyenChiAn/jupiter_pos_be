@@ -1,7 +1,5 @@
 package com.jupiter.store.module.product.service;
 
-import com.jupiter.store.common.exception.CustomException;
-import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.repository.AttributeRepository;
 import org.springframework.beans.factory.annotation.Autowired;

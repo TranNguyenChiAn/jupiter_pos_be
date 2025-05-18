@@ -44,23 +44,12 @@ public class ProductService {
 
     public void addProduct(CreateProductDTO createProductDTO) {
         Product product = new Product();
-        product.setName(createProductDTO.getName());
+        product.setProductName(createProductDTO.getName());
         product.setDescription(createProductDTO.getDescription());
+        product.setStatus(createProductDTO.getStatus());
         product.setCreatedBy(currentUserId());
         product = productRepository.save(product);
-        saveProductImages(createProductDTO.getImagePath(), product.getId());
         saveProductCategories(createProductDTO.getCategoryId(), product.getId());
-    }
-
-    private void saveProductImages(List<String> imagePaths, Integer productId) {
-        if (imagePaths != null && !imagePaths.isEmpty()) {
-            for (String imagePath : imagePaths) {
-                ProductImage productImage = new ProductImage();
-                productImage.setProductVariantId(productId);
-                productImage.setImagePath(imagePath);
-                productImageRepository.save(productImage);
-            }
-        }
     }
 
     private void saveProductCategories(List<Integer> categoryIds, Integer productId) {
@@ -80,58 +69,12 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found with ID: " + productId));
 
-        // Update product basic information if provided
-        if (updateProductDTO.getName() != null) {
-            product.setName(updateProductDTO.getName());
-        }
-        if (updateProductDTO.getDescription() != null) {
-            product.setDescription(updateProductDTO.getDescription());
-        }
-
-        // Set the last modified by field
+        product.setProductName(updateProductDTO.getName() != null ? updateProductDTO.getName() : product.getProductName());
+        product.setDescription(updateProductDTO.getDescription() != null ? updateProductDTO.getDescription() : product.getDescription());
         product.setLastModifiedBy(currentUserId());
-
-        // Save the updated product
         productRepository.save(product);
-
-        // Update product images if provided
-        updateProductImages(productId, updateProductDTO.getImagePaths());
     }
 
-    /**
-     * Updates product images efficiently by comparing existing and new images
-     * and performing only necessary database operations
-     */
-    private void updateProductImages(Integer productId, List<String> newImagePaths) {
-        if (newImagePaths == null || newImagePaths.isEmpty()) {
-            return;
-        }
-
-        // Get existing images
-        List<ProductImage> existingImages = productImageRepository.findByProductId(productId);
-        Set<String> newImagePathsSet = new HashSet<>(newImagePaths);
-        Set<String> existingImagePaths = new HashSet<>();
-
-        // Track existing image paths and identify images to delete
-        for (ProductImage existingImage : existingImages) {
-            String imagePath = existingImage.getImagePath();
-            existingImagePaths.add(imagePath);
-
-            if (!newImagePathsSet.contains(imagePath)) {
-                productImageRepository.delete(existingImage);
-            }
-        }
-
-        // Add only new images
-        for (String imagePath : newImagePaths) {
-            if (!existingImagePaths.contains(imagePath)) {
-                ProductImage productImage = new ProductImage();
-                productImage.setProductVariantId(productId);
-                productImage.setImagePath(imagePath);
-                productImageRepository.save(productImage);
-            }
-        }
-    }
 
     public List<Product> search() {
         return productRepository.findAll();
@@ -139,29 +82,26 @@ public class ProductService {
 
     public ResponseEntity<GetProductDTO> searchById(Integer productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm"));
         List<Category> productCategory = categoryRepository.findByProductId(productId);
-        List<ProductVariant> productVariants = productVariantRepository.findByProductId(productId);
-        List<ProductImage> productImages = productImageRepository.findByProductId(productId);
-        return ResponseEntity.ok().body(new GetProductDTO(product, productCategory, productVariants, productImages));
+        return ResponseEntity.ok().body(new GetProductDTO(product, productCategory));
     }
 
     public void deleteProduct(Integer productId) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm"));
         if (product != null) {
             productVariantRepository.deleteByProductId(productId);
-            productImageRepository.deleteByProductId(productId);
             productCategoryRepository.deleteByProductId(productId);
             productRepository.deleteById(productId);
         } else {
-            throw new OpenApiResourceNotFoundException("Product not found");
+            throw new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm");
         }
     }
 
     public void addCategory(Integer productId, List<Category> categories) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm"));
         if (product != null) {
             for (Category category : categories) {
                 ProductCategory productCategory = new ProductCategory();
@@ -170,13 +110,13 @@ public class ProductService {
                 productCategoryRepository.save(productCategory);
             }
         } else {
-            throw new OpenApiResourceNotFoundException("Product not found");
+            throw new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm");
         }
     }
 
     public void deleteCategory(Integer productId, List<Category> categories) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm"));
         if (product != null) {
             for (Category category : categories) {
                 productCategoryRepository.deleteByProductIdAndCategoryId(productId, category.getId());

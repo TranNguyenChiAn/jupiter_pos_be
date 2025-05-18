@@ -1,5 +1,6 @@
 package com.jupiter.store.module.product.dto;
 
+import com.jupiter.store.module.product.constant.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +16,5 @@ public class CreateProductDTO {
     private String name;
     private String description;
     private List<Integer> categoryId;
-    private List<String> imagePath;
+    private ProductStatus status;
 }

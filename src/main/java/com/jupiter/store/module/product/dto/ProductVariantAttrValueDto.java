@@ -12,4 +12,5 @@ import lombok.Setter;
 public class ProductVariantAttrValueDto {
     private Integer attrId;
     private String attrValue;
+    private Integer unitId;
 }

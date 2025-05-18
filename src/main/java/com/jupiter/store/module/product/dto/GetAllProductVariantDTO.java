@@ -5,15 +5,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductVariantDTO {
+public class GetAllProductVariantDTO {
+    private Integer productVariantId;
+    private Long costPrice;
     private Long price;
     private Integer quantity;
+    private String sku;
+    private String barcode;
+    private LocalDateTime expiryDate;
     private List<ProductVariantAttrValueDto> attrAndValues;
-    private String imagePath;
+    private List<String> imagePaths;
 }
