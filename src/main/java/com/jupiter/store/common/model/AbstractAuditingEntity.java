@@ -20,11 +20,11 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class AbstractAuditingEntity implements Serializable {
     @CreatedBy
-    @Column(name = "created_by", nullable = false)
+    @Column(name = "created_by")
     private Integer createdBy;
 
     @CreatedDate
-    @Column(name = "created_date", updatable = false)
+    @Column(name = "created_date")
     private LocalDateTime createdDate = LocalDateTime.now();
 
     @LastModifiedBy

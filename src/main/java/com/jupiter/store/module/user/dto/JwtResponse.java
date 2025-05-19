@@ -11,5 +11,10 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class JwtResponse implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String jwttoken;
+    private String token;
+    private String message;
+
+    public JwtResponse(String message) {
+        this.message = message;
+    }
 }

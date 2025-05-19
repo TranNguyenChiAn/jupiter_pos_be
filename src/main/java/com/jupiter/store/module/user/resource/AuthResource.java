@@ -1,11 +1,8 @@
 package com.jupiter.store.module.user.resource;
 
-import com.jupiter.store.common.security.jwt.JwtUtil;
 import com.jupiter.store.module.user.dto.JwtResponse;
 import com.jupiter.store.module.user.dto.LoginRequest;
-import com.jupiter.store.module.user.repository.UserRepository;
 import com.jupiter.store.module.user.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

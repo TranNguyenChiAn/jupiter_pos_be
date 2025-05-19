@@ -7,6 +7,7 @@ import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,33 +26,47 @@ public class AuthService {
     }
 
     public ResponseEntity<JwtResponse> login(LoginRequest loginRequest) {
-        User user = userRepository.findByPhoneOrEmail(loginRequest.getPhone(), loginRequest.getEmail());
+        User user = userRepository.findAccount(loginRequest.getAccount());
 
-        if (!User.isNotNull(user)) {
-            return ResponseEntity.status(401).body(new JwtResponse("Invalid credentials"));
+        if (isInvalidUser(user, loginRequest)) {
+            return unauthorized("Thông tin đăng nhập không hợp lệ");
         }
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(401).body(new JwtResponse("Invalid credentials"));
+
+        if (!user.isActive()) {
+            return unauthorized("Tài khoản chưa được kích hoạt");
         }
-        if (!User.isActive(user)) {
-            return ResponseEntity.status(401).body(new JwtResponse("User is not active"));
+
+        if (!user.hasRole()) {
+            return unauthorized("Tài khoản chưa được cấp quyền truy cập");
         }
-        if (!User.hasRole(user)) {
-            return ResponseEntity.status(401).body(new JwtResponse("User does not have a role"));
+
+        String tokenSubject = extractTokenSubject(user);
+        if (tokenSubject == null) {
+            return unauthorized("Tài khoản không có số điện thoại hoặc email");
         }
-        
-        String tokenParam = "";
-        if (User.hasPhone(user)) {
-            tokenParam = user.getPhone();
-        } else if (User.hasEmail(user)) {
-            tokenParam = user.getEmail();
-        } else {
-            return ResponseEntity.status(401).body(new JwtResponse("User does not have a phone number or email"));
-        }
-        String token = jwtUtil.createToken(tokenParam, user.getId(), user.getRole());
+
+        String token = jwtUtil.createToken(tokenSubject, user.getId(), user.getRole());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .body(new JwtResponse(token));
+                .body(new JwtResponse(token, "Đăng nhập thành công!"));
+    }
+
+    private boolean isInvalidUser(User user, LoginRequest loginRequest) {
+        return user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+    }
+
+    private String extractTokenSubject(User user) {
+        if (user.hasPhone()) {
+            return user.getPhone();
+        }
+        if (user.hasEmail()) {
+            return user.getEmail();
+        }
+        return null;
+    }
+
+    private ResponseEntity<JwtResponse> unauthorized(String message) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new JwtResponse(message));
     }
 }

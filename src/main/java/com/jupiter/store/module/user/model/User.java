@@ -41,23 +41,15 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Column(name = "gender")
     private boolean gender;
 
-    public static boolean isNotNull(User user) {
-        return user != null;
+    public boolean hasRole() {
+        return this.getRole() != null;
     }
 
-    public static boolean isActive(User user) {
-        return isNotNull(user) && user.isActive();
+    public boolean hasPhone() {
+        return this.getPhone() != null;
     }
 
-    public static boolean hasRole(User user) {
-        return isNotNull(user) && user.getRole() != null;
-    }
-
-    public static boolean hasPhone(User user) {
-        return isNotNull(user) && user.getPhone() != null;
-    }
-
-    public static boolean hasEmail(User user) {
-        return isNotNull(user) && user.getEmail() != null;
+    public boolean hasEmail() {
+        return this.getEmail() != null;
     }
 }
