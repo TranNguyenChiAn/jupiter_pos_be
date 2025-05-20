@@ -1,6 +1,6 @@
 package com.jupiter.store.module.product.resource;
 
-import com.jupiter.store.module.category.model.Category;
+import com.jupiter.store.module.product.dto.ProductCategoryDTO;
 import com.jupiter.store.module.product.dto.CreateProductDTO;
 import com.jupiter.store.module.product.dto.GetProductDTO;
 import com.jupiter.store.module.product.dto.UpdateProductDTO;
@@ -21,7 +21,7 @@ public class ProductResource {
     @Autowired
     private ProductService productService;
 
-    @PostMapping("/add")
+    @PostMapping("/create")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public void addProduct(@RequestBody CreateProductDTO createProductDTO) {
         productService.addProduct(createProductDTO);
@@ -61,13 +61,13 @@ public class ProductResource {
 
     @PostMapping("/add-category-for-product")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public void addCategory(@RequestParam Integer productId, @RequestBody List<Category> categories) {
-        productService.addCategory(productId, categories);
+    public void addCategory(@RequestBody ProductCategoryDTO productCategoryDTO) {
+        productService.addCategory(productCategoryDTO);
     }
 
     @DeleteMapping("/delete-category-for-product")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public void deleteCategory(@RequestParam Integer productId, @RequestBody List<Category> categories) {
-        productService.deleteCategory(productId, categories);
+    public void deleteCategory(@RequestBody ProductCategoryDTO deleteCategoryDTO) {
+        productService.deleteCategory(deleteCategoryDTO);
     }
 }

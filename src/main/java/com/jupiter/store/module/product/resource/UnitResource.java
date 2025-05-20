@@ -18,7 +18,7 @@ public class UnitResource {
         return unitService.createUnit(unitName);
     }
 
-    @GetMapping("/find-all")
+    @GetMapping("/search")
     public List<Unit> findAllUnit() {
         return unitService.findAllUnit();
     }

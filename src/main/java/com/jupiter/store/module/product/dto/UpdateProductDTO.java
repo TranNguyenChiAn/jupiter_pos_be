@@ -1,6 +1,7 @@
 package com.jupiter.store.module.product.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.jupiter.store.module.product.constant.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.List;
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateProductDTO {
-    private String name;
+    private String productName;
     private String description;
-    private List<String> imagePaths;
+    private ProductStatus status;
 }

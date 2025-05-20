@@ -114,20 +114,31 @@ public class ProductVariantService {
         }
     }
 
-    public ResponseEntity<CreateProductVariantDTO> updateProductVariant(Integer variantId, CreateProductVariantDTO productVariant) {
+    public ResponseEntity<CreateProductVariantDTO> updateProductVariant(Integer variantId, CreateProductVariantDTO newProductVariant) {
         ProductVariant variant = productVariantRepository.findById(variantId).orElseThrow(() -> new RuntimeException("Product variant not found"));
-        variant.setPrice(productVariant.getPrice() != 0 ? productVariant.getPrice() : variant.getPrice());
-        variant.setQuantity(productVariant.getQuantity() != 0 ? productVariant.getQuantity() : variant.getQuantity());
+        variant.setCostPrice(newProductVariant.getCostPrice() != 0 ? newProductVariant.getCostPrice() : variant.getCostPrice());
+        variant.setPrice(newProductVariant.getPrice() != 0 ? newProductVariant.getPrice() : variant.getPrice());
+        variant.setQuantity(newProductVariant.getQuantity() != 0 ? newProductVariant.getQuantity() : variant.getQuantity());
+        variant.setUnitId(newProductVariant.getUnitId() != 0 ? newProductVariant.getUnitId() : variant.getUnitId());
+        variant.setSku(newProductVariant.getSku() != null ? newProductVariant.getSku() : variant.getSku());
+        variant.setBarcode(newProductVariant.getBarcode() != null ? newProductVariant.getBarcode() : variant.getBarcode());
+        variant.setExpiryDate(newProductVariant.getExpiryDate() != null ? newProductVariant.getExpiryDate() : variant.getExpiryDate());
         variant.setLastModifiedBy(SecurityUtils.getCurrentUserId());
         productVariantRepository.save(variant);
-        updateProductImages(variantId, productVariant.getImagePaths());
-
-        for (ProductVariantAttrValueDto attrValue : productVariant.getAttrAndValues()) {
-            ProductAttributeValue productAttributeValue = productVariantAttrValueRepository.findByProductIdAndAttrId(variantId, attrValue.getAttrId()).orElseThrow(() -> new RuntimeException("Product variant attribute value not found"));
-            productAttributeValue.setAttrValue(attrValue.getAttrValue());
-            productVariantAttrValueRepository.save(productAttributeValue);
+        if (newProductVariant.getImagePaths() != null && !newProductVariant.getImagePaths().isEmpty()) {
+            updateProductImages(variantId, newProductVariant.getImagePaths());
         }
-        return ResponseEntity.ok(productVariant);
+
+        if (newProductVariant.getAttrAndValues() == null || newProductVariant.getAttrAndValues().isEmpty()) {
+            for (ProductVariantAttrValueDto attrValue : newProductVariant.getAttrAndValues()) {
+                ProductAttributeValue productAttributeValue = productVariantAttrValueRepository.findByProductIdAndAttrId(variantId, attrValue.getAttrId())
+                        .orElseThrow(() -> new RuntimeException("Product variant attribute value not found"));
+                productAttributeValue.setAttrValue(attrValue.getAttrValue());
+                productVariantAttrValueRepository.save(productAttributeValue);
+            }
+        }
+
+        return ResponseEntity.ok(newProductVariant);
     }
 
     private void saveProductImages(Integer productVariantId, List<String> imagePaths) {
@@ -173,6 +184,17 @@ public class ProductVariantService {
     }
 
     public void deleteProductVariant(Integer productVariantId) {
-        productVariantRepository.deleteById(productVariantId);
+        ProductVariant productVariant = productVariantRepository.findById(productVariantId)
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + productVariantId));
+        List<ProductAttributeValue> productAttributeValue = productVariantAttrValueRepository.findByProductVariantId(productVariantId);
+        List<ProductImage> productImages = productImageRepository.findByProductVariantId(productVariantId);
+        if (productAttributeValue != null && !productAttributeValue.isEmpty()) {
+            productVariantAttrValueRepository.deleteAll(productAttributeValue);
+        }
+        if (productImages != null && !productImages.isEmpty()) {
+            productImageRepository.deleteAll(productImages);
+        }
+        productVariantRepository.delete(productVariant);
+
     }
 }
