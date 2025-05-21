@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "orders")
 public class Order extends AbstractAuditingEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -22,7 +21,7 @@ public class Order extends AbstractAuditingEntity implements Serializable {
     private Integer userId;
 
     @Column(name = "order_date")
-    private LocalDateTime orderDate;
+    private LocalDateTime orderDate = LocalDateTime.now();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status")
