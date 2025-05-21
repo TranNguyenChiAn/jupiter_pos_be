@@ -3,15 +3,17 @@ package com.jupiter.store.module.product.service;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
-import com.jupiter.store.module.product.dto.ProductCategoryDTO;
-import com.jupiter.store.module.product.dto.CreateProductDTO;
-import com.jupiter.store.module.product.dto.GetProductDTO;
-import com.jupiter.store.module.product.dto.UpdateProductDTO;
+import com.jupiter.store.module.product.dto.*;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.model.ProductCategory;
-import com.jupiter.store.module.product.repository.*;
+import com.jupiter.store.module.product.model.ProductVariant;
+import com.jupiter.store.module.product.repository.ProductCategoryRepository;
+import com.jupiter.store.module.product.repository.ProductRepository;
+import com.jupiter.store.module.product.repository.ProductVariantRepository;
 import jakarta.transaction.Transactional;
 import org.springdoc.api.OpenApiResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -74,11 +76,36 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public ResponseEntity<GetProductDTO> searchById(Integer productId) {
+    public ResponseEntity<ProductReadDTO> searchById(Integer productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm với id: " + productId));
         List<Category> productCategory = categoryRepository.findByProductId(productId);
-        return ResponseEntity.ok().body(new GetProductDTO(product, productCategory));
+        return ResponseEntity.ok().body(new ProductReadDTO(product, productCategory));
+    }
+
+    public Page<ProductWithVariantsReadDTO> searchProductWithVariants(Pageable pageable) {
+        Page<Product> products = productRepository.findAll(pageable);
+        return products.map(product -> {
+            List<Category> productCategory = categoryRepository.findByProductId(product.getId());
+            ProductReadDTO productDTO = new ProductReadDTO(product, productCategory);
+            List<ProductVariant> productVariants = productVariantRepository.findByProductId(product.getId());
+            List<ProductVariantReadDTO> variants = productVariants.stream()
+                    .map(variant -> {
+                        ProductVariantReadDTO dto = new ProductVariantReadDTO();
+                        dto.setId(variant.getId());
+                        dto.setProduct(productDTO); // set the ProductReadDTO
+                        dto.setCostPrice(variant.getCostPrice());
+                        dto.setPrice(variant.getPrice());
+                        dto.setQuantity(variant.getQuantity());
+                        dto.setUnitId(variant.getUnitId());
+                        dto.setSku(variant.getSku());
+                        dto.setBarcode(variant.getBarcode());
+                        dto.setExpiryDate(variant.getExpiryDate());
+                        return dto;
+                    })
+                    .toList();
+            return new ProductWithVariantsReadDTO(productDTO, variants);
+        });
     }
 
     public void deleteProduct(Integer productId) {

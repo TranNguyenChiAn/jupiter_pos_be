@@ -1,13 +1,12 @@
 package com.jupiter.store.module.product.resource;
 
-import com.jupiter.store.module.product.dto.ProductCategoryDTO;
-import com.jupiter.store.module.product.dto.CreateProductDTO;
-import com.jupiter.store.module.product.dto.GetProductDTO;
-import com.jupiter.store.module.product.dto.UpdateProductDTO;
+import com.jupiter.store.module.product.dto.*;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.service.ProductService;
 import com.jupiter.store.module.role.constant.RoleBase;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,8 +31,14 @@ public class ProductResource {
         return productService.search();
     }
 
+    @GetMapping("/search-variant")
+    public ResponseEntity<Page<ProductWithVariantsReadDTO>> searchVariant(Pageable pageable) {
+        Page<ProductWithVariantsReadDTO> result = productService.searchProductWithVariants(pageable);
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/search-detail/{productId}")
-    public ResponseEntity<GetProductDTO> searchById(@PathVariable Integer productId) {
+    public ResponseEntity<ProductReadDTO> searchById(@PathVariable Integer productId) {
         return productService.searchById(productId);
     }
 
