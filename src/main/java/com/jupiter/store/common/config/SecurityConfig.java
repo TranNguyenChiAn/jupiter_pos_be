@@ -21,7 +21,7 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**", "/v2/api-docs", "/v3/api-docs",
             "/v3/api-docs/**", "/swagger-resources", "/swagger-resources/**", "/configuration/ui",
             "/configuration/security", "/swagger-ui/**", "/swagger-ui.html", "/api/auth/**",
-            "/api/test/**", "/authenticate", "/api/users/register", "/error", "/"};
+            "/api/test/**", "/authenticate", "/login", "/api/users/register", "/error", "/", "api/ping"};
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight
                         .requestMatchers(WHITE_LIST_URL).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/authenticate").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .anyRequest().authenticated()
                 )

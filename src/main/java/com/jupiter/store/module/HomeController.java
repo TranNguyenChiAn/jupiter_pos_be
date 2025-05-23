@@ -1,6 +1,7 @@
 package com.jupiter.store.module;
 
 import com.jupiter.store.common.utils.FakeDataGenerator;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
@@ -21,5 +22,10 @@ public class HomeController {
     @GetMapping("/api/fake-data")
     public void generateFakeData() {
         fakeDataGenerator.fake();
+    }
+
+    @GetMapping("api/ping")
+    public ResponseEntity<String> ping() {
+        return ResponseEntity.ok("OK");
     }
 }
