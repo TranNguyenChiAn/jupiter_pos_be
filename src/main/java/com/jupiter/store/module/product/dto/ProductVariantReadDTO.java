@@ -25,7 +25,7 @@ public class ProductVariantReadDTO {
     private String sku;
     private String barcode;
     private LocalDateTime expiryDate;
-    private List<String> attrValues;
+    private List<ProductVariantAttrValueSimpleReadDTO> attrValues;
 
     public ProductVariantReadDTO(ProductVariant productVariant) {
         this.id = productVariant.getId();

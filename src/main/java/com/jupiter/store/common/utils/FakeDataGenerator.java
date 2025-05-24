@@ -10,8 +10,8 @@ import java.util.UUID;
 
 @Service
 public class FakeDataGenerator {
-    private static Random rand = new Random();
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final Random rand = new Random();
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void fake() {
         System.out.println("-- FAKE DATA GENERATOR");

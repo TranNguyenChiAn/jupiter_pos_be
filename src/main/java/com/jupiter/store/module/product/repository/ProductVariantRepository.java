@@ -15,4 +15,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
     @Query(value = "DELETE FROM product_variants pv WHERE pv.product_id = :productId", nativeQuery = true)
     void deleteByProductId(@Param("productId") Integer productId);
+
+    @Query(value = "SELECT pv.id FROM product_variants pv", nativeQuery = true)
+    List<Integer> findAllIds();
 }
