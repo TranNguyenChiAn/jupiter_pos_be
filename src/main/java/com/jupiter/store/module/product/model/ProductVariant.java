@@ -1,6 +1,7 @@
 package com.jupiter.store.module.product.model;
 
 import com.jupiter.store.common.model.AbstractAuditingEntity;
+import com.jupiter.store.module.product.constant.ProductVariantStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,4 +46,8 @@ public class ProductVariant extends AbstractAuditingEntity implements Serializab
 
     @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private ProductVariantStatus status;
 }

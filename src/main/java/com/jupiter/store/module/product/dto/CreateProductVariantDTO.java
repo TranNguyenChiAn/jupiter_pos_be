@@ -1,5 +1,6 @@
 package com.jupiter.store.module.product.dto;
 
+import com.jupiter.store.module.product.constant.ProductVariantStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class CreateProductVariantDTO {
     private String sku;
     private String barcode;
     private LocalDateTime expiryDate;
+    private ProductVariantStatus status;
     private List<ProductVariantAttrValueDTO> attrAndValues;
     private List<String> imagePaths;
 }

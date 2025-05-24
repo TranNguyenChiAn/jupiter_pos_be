@@ -55,6 +55,7 @@ public class ProductVariantService {
                     getProductVariantsDTO.setSku(productVariant.getSku());
                     getProductVariantsDTO.setBarcode(productVariant.getBarcode());
                     getProductVariantsDTO.setExpiryDate(productVariant.getExpiryDate());
+                    getProductVariantsDTO.setStatus(productVariant.getStatus());
 
                     // Trả về thông tin về thuộc tính và giá trị của thuộc tính
                     List<ProductAttributeValue> productAttributeValues = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId());
@@ -95,6 +96,7 @@ public class ProductVariantService {
             variant.setSku(productVariant.getSku());
             variant.setBarcode(productVariant.getBarcode());
             variant.setExpiryDate(productVariant.getExpiryDate());
+            variant.setStatus(productVariant.getStatus());
             variant.setCreatedBy(SecurityUtils.getCurrentUserId());
             productVariantRepository.save(variant);
 
@@ -126,11 +128,16 @@ public class ProductVariantService {
         variant.setSku(newProductVariant.getSku() != null ? newProductVariant.getSku() : variant.getSku());
         variant.setBarcode(newProductVariant.getBarcode() != null ? newProductVariant.getBarcode() : variant.getBarcode());
         variant.setExpiryDate(newProductVariant.getExpiryDate() != null ? newProductVariant.getExpiryDate() : variant.getExpiryDate());
+        variant.setStatus(newProductVariant.getStatus() != null ? newProductVariant.getStatus() : variant.getStatus());
         variant.setLastModifiedBy(SecurityUtils.getCurrentUserId());
         productVariantRepository.save(variant);
         if (newProductVariant.getImagePaths() != null && !newProductVariant.getImagePaths().isEmpty()) {
             updateProductImages(variantId, newProductVariant.getImagePaths());
         }
+//        else {
+//            List<ProductImage> productImages = productImageRepository.findByProductVariantId(variantId);
+//            variant.setIm
+//        }
 
         if (newProductVariant.getAttrAndValues() == null || newProductVariant.getAttrAndValues().isEmpty()) {
             for (ProductVariantAttrValueDTO attrValue : newProductVariant.getAttrAndValues()) {
