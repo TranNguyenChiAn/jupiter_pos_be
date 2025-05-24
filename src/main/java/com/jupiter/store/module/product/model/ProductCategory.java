@@ -1,9 +1,9 @@
 package com.jupiter.store.module.product.model;
 
+import com.jupiter.store.module.category.model.Category;
+import com.jupiter.store.module.category.model.ProductCategoryId;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.io.Serializable;
 
 @Entity
 @Table(name = "product_categories")
@@ -12,21 +12,15 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductCategory implements Serializable {
-    //        private static final long serialVersionUID = 1L;
+@IdClass(ProductCategoryId.class)
+public class ProductCategory {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer id;
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product productId;
 
-    @Column(name = "product_id")
-    private Integer productId;
-
-    @Column(name = "category_id")
-    private Integer categoryId;
-
-    public ProductCategory(Integer productId, Integer categoryId) {
-        this.productId = productId;
-        this.categoryId = categoryId;
-    }
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category categoryId;
 }

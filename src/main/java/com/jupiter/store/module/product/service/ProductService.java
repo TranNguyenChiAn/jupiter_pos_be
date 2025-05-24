@@ -41,15 +41,15 @@ public class ProductService {
         return SecurityUtils.getCurrentUserId();
     }
 
-    public void addProduct(CreateProductDTO createProductDTO) {
-        Product product = new Product();
-        product.setProductName(createProductDTO.getName());
-        product.setDescription(createProductDTO.getDescription());
-        product.setStatus(createProductDTO.getStatus());
-        product.setCreatedBy(currentUserId());
-        product = productRepository.save(product);
-        saveProductCategories(createProductDTO.getCategoryId(), product.getId());
-    }
+//    public void addProduct(CreateProductDTO createProductDTO) {
+//        Product product = new Product();
+//        product.setProductName(createProductDTO.getName());
+//        product.setDescription(createProductDTO.getDescription());
+//        product.setStatus(createProductDTO.getStatus());
+//        product.setCreatedBy(currentUserId());
+//        product = productRepository.save(product);
+//        saveProductCategories(createProductDTO.getCategoryId(), product.getId());
+//    }
 
     @Transactional
     public void createFullProduct(CreateFullProductDTO dto) {
@@ -63,8 +63,9 @@ public class ProductService {
 
         // Save related categories
         if (dto.getCategoryIds() != null && !dto.getCategoryIds().isEmpty()) {
-            List<ProductCategory> productCategories = dto.getCategoryIds().stream()
-                    .map(categoryId -> new ProductCategory(savedProduct.getId(), categoryId))
+            List<Category> categories = categoryRepository.findAllById(dto.getCategoryIds());
+            List<ProductCategory> productCategories = categories.stream()
+                    .map(category -> new ProductCategory(savedProduct, category))
                     .toList();
             productCategoryRepository.saveAll(productCategories);
         }
@@ -77,16 +78,16 @@ public class ProductService {
         }
     }
 
-    private void saveProductCategories(List<Integer> categoryIds, Integer productId) {
-        if (categoryIds != null && !categoryIds.isEmpty()) {
-            for (Integer categoryId : categoryIds) {
-                ProductCategory productCategory = new ProductCategory();
-                productCategory.setProductId(productId);
-                productCategory.setCategoryId(categoryId);
-                productCategoryRepository.save(productCategory);
-            }
-        }
-    }
+//    private void saveProductCategories(List<Integer> categoryIds, Integer productId) {
+//        if (categoryIds != null && !categoryIds.isEmpty()) {
+//            for (Integer categoryId : categoryIds) {
+//                ProductCategory productCategory = new ProductCategory();
+//                productCategory.setProductId(productId);
+//                productCategory.setCategoryId(categoryId);
+//                productCategoryRepository.save(productCategory);
+//            }
+//        }
+//    }
 
     @Transactional
     public void updateProduct(Integer productId, UpdateProductDTO updateProductDTO) {
@@ -126,11 +127,12 @@ public class ProductService {
     public void addCategory(ProductCategoryDTO productCategoryDTO) {
         Product product = productRepository.findById(productCategoryDTO.getProductId())
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
-        if (product != null) {
-            for (Integer categoryId : productCategoryDTO.getCategoryIds()) {
+        List<Category> categories = categoryRepository.findAllById(productCategoryDTO.getCategoryIds());
+        if (product != null && !categories.isEmpty()) {
+            for (Category category : categories) {
                 ProductCategory productCategory = new ProductCategory();
-                productCategory.setProductId(productCategoryDTO.getProductId());
-                productCategory.setCategoryId(categoryId);
+                productCategory.setProductId(product);
+                productCategory.setCategoryId(category);
                 productCategoryRepository.save(productCategory);
             }
         } else {
