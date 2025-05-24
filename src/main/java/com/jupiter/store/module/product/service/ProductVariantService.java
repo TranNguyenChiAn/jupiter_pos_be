@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,13 +28,10 @@ import java.util.stream.Collectors;
 public class ProductVariantService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
-
     @Autowired
     private ProductVariantAttrValueRepository productVariantAttrValueRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private ProductImageRepository productImageRepository;
 
@@ -85,37 +83,27 @@ public class ProductVariantService {
 
     public ResponseEntity<CreateProductVariantDTO> addProductVariant(Integer productId, CreateProductVariantDTO productVariant) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found with ID: " + productId));
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm có ID: " + productId));
         if (product != null) {
-            ProductVariant variant = new ProductVariant();
-            variant.setProductId(productId);
-            variant.setCostPrice(productVariant.getCostPrice());
-            variant.setPrice(productVariant.getPrice());
-            variant.setQuantity(productVariant.getQuantity());
-            variant.setUnitId(productVariant.getUnitId());
-            variant.setSku(productVariant.getSku());
-            variant.setBarcode(productVariant.getBarcode());
-            variant.setExpiryDate(productVariant.getExpiryDate());
-            variant.setStatus(productVariant.getStatus());
-            variant.setCreatedBy(SecurityUtils.getCurrentUserId());
+            Integer currentUserId = SecurityUtils.getCurrentUserId();
+            ProductVariant variant = new ProductVariant(null, productId, productVariant.getCostPrice(),
+                    productVariant.getPrice(), productVariant.getQuantity(),
+                    productVariant.getUnitId(), productVariant.getSku(),
+                    productVariant.getBarcode(), productVariant.getExpiryDate(),
+                    productVariant.getStatus());
+            variant = setAuditFields(variant, true);
             productVariantRepository.save(variant);
 
             saveProductImages(variant.getId(), productVariant.getImagePaths());
 
-            for (ProductVariantAttrValueDTO attrValue : productVariant.getAttrAndValues()) {
-                ProductAttributeValue productAttributeValue = new ProductAttributeValue();
-                productAttributeValue.setProductVariantId(variant.getId());
-                productAttributeValue.setProductVariantId(variant.getId());
-                productAttributeValue.setAttrId(attrValue.getAttrId());
-                productAttributeValue.setAttrValue(attrValue.getAttrValue());
-                productAttributeValue.setUnitId(attrValue.getUnitId());
-                productAttributeValue.setCreatedBy(SecurityUtils.getCurrentUserId());
-                productVariantAttrValueRepository.save(productAttributeValue);
-            }
+            ProductVariant finalVariant = variant;
+            List<ProductAttributeValue> attributeValues = productVariant.getAttrAndValues().stream()
+                    .map(attrValue -> new ProductAttributeValue(finalVariant.getId(), attrValue, currentUserId))
+                    .collect(Collectors.toList());
+            productVariantAttrValueRepository.saveAll(attributeValues);
             return ResponseEntity.ok(productVariant);
-
         } else {
-            throw new OpenApiResourceNotFoundException("Product not found with ID: " + productId);
+            throw new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm có ID: " + productId);
         }
     }
 
@@ -206,5 +194,16 @@ public class ProductVariantService {
         }
         productVariantRepository.delete(productVariant);
 
+    }
+
+    private ProductVariant setAuditFields(ProductVariant variant, Boolean isCreate) {
+        Integer currentUserId = SecurityUtils.getCurrentUserId();
+        if (isCreate) {
+            variant.setCreatedBy(currentUserId);
+            variant.setCreatedDate(LocalDateTime.now());
+        }
+        variant.setLastModifiedBy(currentUserId);
+        variant.setLastModifiedDate(LocalDateTime.now());
+        return variant;
     }
 }

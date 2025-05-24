@@ -13,7 +13,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class ProductCategory implements Serializable {
-    //    private static final long serialVersionUID = 1L;
+    //        private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -24,4 +24,9 @@ public class ProductCategory implements Serializable {
 
     @Column(name = "category_id")
     private Integer categoryId;
+
+    public ProductCategory(Integer productId, Integer categoryId) {
+        this.productId = productId;
+        this.categoryId = categoryId;
+    }
 }

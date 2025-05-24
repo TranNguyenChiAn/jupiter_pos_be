@@ -1,6 +1,7 @@
 package com.jupiter.store.module.product.model;
 
 import com.jupiter.store.common.model.AbstractAuditingEntity;
+import com.jupiter.store.module.product.dto.ProductVariantAttrValueDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,4 +33,12 @@ public class ProductAttributeValue extends AbstractAuditingEntity implements Ser
 
     @Column(name = "unit_id")
     private Integer unitId;
+
+    public ProductAttributeValue(Integer variantId, ProductVariantAttrValueDTO productVariantAttrValueDTO, Integer userId) {
+        this.productVariantId = variantId;
+        this.attrId = productVariantAttrValueDTO.getAttrId();
+        this.attrValue = productVariantAttrValueDTO.getAttrValue();
+        this.unitId = productVariantAttrValueDTO.getUnitId();
+        this.setCreatedBy(userId);
+    }
 }

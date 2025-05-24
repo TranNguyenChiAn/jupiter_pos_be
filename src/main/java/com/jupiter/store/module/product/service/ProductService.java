@@ -3,10 +3,7 @@ package com.jupiter.store.module.product.service;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
-import com.jupiter.store.module.product.dto.CreateProductDTO;
-import com.jupiter.store.module.product.dto.ProductCategoryDTO;
-import com.jupiter.store.module.product.dto.ProductReadDTO;
-import com.jupiter.store.module.product.dto.UpdateProductDTO;
+import com.jupiter.store.module.product.dto.*;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.model.ProductCategory;
 import com.jupiter.store.module.product.repository.ProductCategoryRepository;
@@ -17,6 +14,7 @@ import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,15 +24,17 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductVariantRepository productVariantRepository;
     private final AttributeService attributeService;
+    private final ProductVariantService productVariantService;
 
     public ProductService(ProductRepository productRepository, ProductCategoryRepository productCategoryRepository,
                           CategoryRepository categoryRepository, ProductVariantRepository productVariantRepository,
-                          AttributeService attributeService) {
+                          AttributeService attributeService, ProductVariantService productVariantService) {
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
         this.categoryRepository = categoryRepository;
         this.productVariantRepository = productVariantRepository;
         this.attributeService = attributeService;
+        this.productVariantService = productVariantService;
     }
 
     public static Integer currentUserId() {
@@ -49,6 +49,32 @@ public class ProductService {
         product.setCreatedBy(currentUserId());
         product = productRepository.save(product);
         saveProductCategories(createProductDTO.getCategoryId(), product.getId());
+    }
+
+    @Transactional
+    public void createFullProduct(CreateFullProductDTO dto) {
+        // Create product
+        Product product = new Product();
+        product.setProductName(dto.getProductName());
+        product.setDescription(dto.getDescription());
+        product.setStatus(dto.getStatus());
+        product = setAuditFields(product, true);
+        Product savedProduct = productRepository.save(product);
+
+        // Save related categories
+        if (dto.getCategoryIds() != null && !dto.getCategoryIds().isEmpty()) {
+            List<ProductCategory> productCategories = dto.getCategoryIds().stream()
+                    .map(categoryId -> new ProductCategory(savedProduct.getId(), categoryId))
+                    .toList();
+            productCategoryRepository.saveAll(productCategories);
+        }
+
+        // Create each product variant along with its attribute values
+        if (dto.getVariants() != null && !dto.getVariants().isEmpty()) {
+            for (CreateProductVariantDTO variantDTO : dto.getVariants()) {
+                productVariantService.addProductVariant(savedProduct.getId(), variantDTO);
+            }
+        }
     }
 
     private void saveProductCategories(List<Integer> categoryIds, Integer productId) {
@@ -120,5 +146,15 @@ public class ProductService {
                 productCategoryRepository.deleteByProductIdAndCategoryId(deleteCategoryDTO.getProductId(), categoryId);
             }
         }
+    }
+
+    private Product setAuditFields(Product product, Boolean isCreate) {
+        if (isCreate) {
+            product.setCreatedBy(currentUserId());
+            product.setCreatedDate(LocalDateTime.now());
+        }
+        product.setLastModifiedBy(currentUserId());
+        product.setLastModifiedDate(LocalDateTime.now());
+        return product;
     }
 }
