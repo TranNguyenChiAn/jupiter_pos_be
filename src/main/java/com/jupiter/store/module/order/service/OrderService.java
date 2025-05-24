@@ -2,14 +2,12 @@ package com.jupiter.store.module.order.service;
 
 import com.jupiter.store.common.exception.CustomException;
 import com.jupiter.store.common.utils.SecurityUtils;
-import com.jupiter.store.module.customer.repository.CustomerRepository;
 import com.jupiter.store.module.order.constant.OrderStatus;
 import com.jupiter.store.module.order.dto.OrderItemsDTO;
 import com.jupiter.store.module.order.dto.UpdateOrderDTO;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.model.OrderDetail;
 import com.jupiter.store.module.order.repository.OrderDetailRepository;
-import com.jupiter.store.module.order.repository.OrderHistoryRepository;
 import com.jupiter.store.module.order.repository.OrderRepository;
 import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
@@ -96,9 +94,9 @@ public class OrderService {
         OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId).orElseThrow(() -> new OpenApiResourceNotFoundException("Cart item not found"));
         ProductVariant productVariant = productVariantRepository.findById(orderDetail.getProductVariantId())
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
-        if (productVariant != null ) {
+        if (productVariant != null) {
             orderDetail.setSoldQuantity(quantity);
-        }else {
+        } else {
             throw new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!");
         }
         return ResponseEntity.ok(orderDetailRepository.save(orderDetail));

@@ -1,10 +1,8 @@
 package com.jupiter.store.module.category.service;
 
-import com.jupiter.store.common.exception.CustomException;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
-import com.jupiter.store.module.product.model.Unit;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;

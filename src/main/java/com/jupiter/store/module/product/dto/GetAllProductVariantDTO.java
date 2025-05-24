@@ -20,6 +20,6 @@ public class GetAllProductVariantDTO {
     private String sku;
     private String barcode;
     private LocalDateTime expiryDate;
-    private List<ProductVariantAttrValueDto> attrAndValues;
+    private List<ProductVariantAttrValueDTO> attrAndValues;
     private List<String> imagePaths;
 }

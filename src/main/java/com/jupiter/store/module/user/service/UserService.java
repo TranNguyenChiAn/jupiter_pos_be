@@ -60,7 +60,7 @@ public class UserService {
     @Transactional
     public void update(Integer userId, UpdateUserDTO updateUserDTO) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"User not found with id: " + userId));
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found with id: " + userId));
         User existedUser = findByPhoneOrEmail(updateUserDTO.getPhone(), updateUserDTO.getEmail());
         if (existedUser != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại hoặc email đã tồn tại!");

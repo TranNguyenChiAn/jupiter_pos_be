@@ -15,11 +15,11 @@ import java.util.Objects;
 public class OrderDetailId implements Serializable {
     private Integer order;
     private Integer productVariantId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OrderDetailId)) return false;
-        OrderDetailId that = (OrderDetailId) o;
+        if (!(o instanceof OrderDetailId that)) return false;
         return Objects.equals(order, that.order) &&
                 Objects.equals(productVariantId, that.productVariantId);
     }

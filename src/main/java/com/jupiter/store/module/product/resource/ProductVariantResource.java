@@ -2,7 +2,6 @@ package com.jupiter.store.module.product.resource;
 
 import com.jupiter.store.module.product.dto.CreateProductVariantDTO;
 import com.jupiter.store.module.product.dto.GetAllProductVariantDTO;
-import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.service.ProductVariantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class ProductVariantResource {
 
     @PostMapping("/add/{productId}")
     public ResponseEntity<CreateProductVariantDTO> addProductVariant(@PathVariable Integer productId,
-                                                            @RequestBody CreateProductVariantDTO productVariant) {
+                                                                     @RequestBody CreateProductVariantDTO productVariant) {
         return productVariantService.addProductVariant(productId, productVariant);
     }
 

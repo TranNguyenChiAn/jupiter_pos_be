@@ -46,6 +46,7 @@ public class UnitService {
         unit.setName(name);
         return unitRepository.save(unit);
     }
+
     public void deleteUnit(Integer unitId) {
         Unit unit = unitRepository.findById(unitId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn vị!"));

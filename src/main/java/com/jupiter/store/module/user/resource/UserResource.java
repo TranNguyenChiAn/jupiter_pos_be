@@ -29,7 +29,7 @@ public class UserResource {
         return SecurityUtils.getCurrentUserId();
     }
 
-        @PutMapping("/update")
+    @PutMapping("/update")
     public void update(@RequestParam Integer userId, @RequestBody UpdateUserDTO updateUserDTO) {
         userService.update(userId, updateUserDTO);
     }

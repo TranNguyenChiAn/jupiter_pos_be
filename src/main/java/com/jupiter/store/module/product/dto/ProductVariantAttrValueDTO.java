@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductVariantAttrValueDto {
+public class ProductVariantAttrValueDTO {
     private Integer attrId;
     private String attrValue;
     private Integer unitId;

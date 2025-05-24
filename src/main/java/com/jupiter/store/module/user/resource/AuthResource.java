@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthResource {
     private final AuthService authService;
 
-    public AuthResource( AuthService authService) {
+    public AuthResource(AuthService authService) {
         this.authService = authService;
     }
 

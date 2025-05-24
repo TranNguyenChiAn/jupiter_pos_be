@@ -5,13 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class ProductWithVariantsReadDTO {
-    private ProductReadDTO product;
-    private List<ProductVariantReadDTO> variants;
+@NoArgsConstructor
+public class ProductVariantAttrValueSimpleReadDTO {
+    private String attrName;
+    private String attrValue;
 }

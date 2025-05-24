@@ -1,8 +1,10 @@
 package com.jupiter.store.module.product.resource;
 
+import com.jupiter.store.common.dto.PageResponse;
 import com.jupiter.store.module.product.dto.*;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.service.ProductService;
+import com.jupiter.store.module.product.service.ProductVariantSearchService;
 import com.jupiter.store.module.role.constant.RoleBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,8 @@ import java.util.List;
 public class ProductResource {
     @Autowired
     private ProductService productService;
+    @Autowired
+    private ProductVariantSearchService productVariantSearchService;
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
@@ -32,9 +36,9 @@ public class ProductResource {
     }
 
     @GetMapping("/search-variant")
-    public ResponseEntity<Page<ProductWithVariantsReadDTO>> searchVariant(Pageable pageable) {
-        Page<ProductWithVariantsReadDTO> result = productService.searchProductWithVariants(pageable);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<PageResponse<ProductVariantReadDTO>> searchVariant(Pageable pageable) {
+        Page<ProductVariantReadDTO> result = productVariantSearchService.searchProductWithVariants(pageable);
+        return ResponseEntity.ok(new PageResponse<>(result));
     }
 
     @GetMapping("/search-detail/{productId}")

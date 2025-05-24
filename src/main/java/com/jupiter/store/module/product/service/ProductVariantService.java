@@ -1,10 +1,13 @@
 package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.SecurityUtils;
-import com.jupiter.store.module.product.dto.GetAllProductVariantDTO;
-import com.jupiter.store.module.product.dto.ProductVariantAttrValueDto;
 import com.jupiter.store.module.product.dto.CreateProductVariantDTO;
-import com.jupiter.store.module.product.model.*;
+import com.jupiter.store.module.product.dto.GetAllProductVariantDTO;
+import com.jupiter.store.module.product.dto.ProductVariantAttrValueDTO;
+import com.jupiter.store.module.product.model.Product;
+import com.jupiter.store.module.product.model.ProductAttributeValue;
+import com.jupiter.store.module.product.model.ProductImage;
+import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductImageRepository;
 import com.jupiter.store.module.product.repository.ProductRepository;
 import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
@@ -55,9 +58,9 @@ public class ProductVariantService {
 
                     // Trả về thông tin về thuộc tính và giá trị của thuộc tính
                     List<ProductAttributeValue> productAttributeValues = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId());
-                    List<ProductVariantAttrValueDto> attributeValues = new ArrayList<>();
+                    List<ProductVariantAttrValueDTO> attributeValues = new ArrayList<>();
                     for (ProductAttributeValue attributeValue : productAttributeValues) {
-                        ProductVariantAttrValueDto productVariantAttrValueDto = new ProductVariantAttrValueDto();
+                        ProductVariantAttrValueDTO productVariantAttrValueDto = new ProductVariantAttrValueDTO();
                         productVariantAttrValueDto.setAttrId(attributeValue.getAttrId());
                         productVariantAttrValueDto.setAttrValue(attributeValue.getAttrValue());
                         productVariantAttrValueDto.setUnitId(attributeValue.getUnitId());
@@ -97,7 +100,7 @@ public class ProductVariantService {
 
             saveProductImages(variant.getId(), productVariant.getImagePaths());
 
-            for (ProductVariantAttrValueDto attrValue : productVariant.getAttrAndValues()) {
+            for (ProductVariantAttrValueDTO attrValue : productVariant.getAttrAndValues()) {
                 ProductAttributeValue productAttributeValue = new ProductAttributeValue();
                 productAttributeValue.setProductVariantId(variant.getId());
                 productAttributeValue.setProductVariantId(variant.getId());
@@ -130,7 +133,7 @@ public class ProductVariantService {
         }
 
         if (newProductVariant.getAttrAndValues() == null || newProductVariant.getAttrAndValues().isEmpty()) {
-            for (ProductVariantAttrValueDto attrValue : newProductVariant.getAttrAndValues()) {
+            for (ProductVariantAttrValueDTO attrValue : newProductVariant.getAttrAndValues()) {
                 ProductAttributeValue productAttributeValue = productVariantAttrValueRepository.findByProductIdAndAttrId(variantId, attrValue.getAttrId())
                         .orElseThrow(() -> new RuntimeException("Product variant attribute value not found"));
                 productAttributeValue.setAttrValue(attrValue.getAttrValue());
