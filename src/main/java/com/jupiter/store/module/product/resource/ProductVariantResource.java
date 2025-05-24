@@ -23,8 +23,11 @@ public class ProductVariantResource {
     private ProductVariantSearchService productVariantSearchService;
 
     @GetMapping("/search")
-    public ResponseEntity<PageResponse<ProductVariantReadDTO>> searchVariant(Pageable pageable) {
-        Page<ProductVariantReadDTO> result = productVariantSearchService.search(pageable);
+    public ResponseEntity<PageResponse<ProductVariantReadDTO>> searchVariant(
+            Pageable pageable,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sort) {
+        Page<ProductVariantReadDTO> result = productVariantSearchService.search(pageable, search, sort);
         return ResponseEntity.ok(new PageResponse<>(result));
     }
 

@@ -1,12 +1,14 @@
 package com.jupiter.store.module.product.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.jupiter.store.common.model.AbstractAuditingEntity;
 import com.jupiter.store.module.product.model.ProductVariant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProductVariantReadDTO {
+public class ProductVariantReadDTO extends AbstractAuditingEntity implements Serializable {
     private Integer id;
     private ProductReadDTO product;
     private Long costPrice;

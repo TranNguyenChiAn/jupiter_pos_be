@@ -1,6 +1,7 @@
 package com.jupiter.store.module.product.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.jupiter.store.common.model.AbstractAuditingEntity;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.product.model.Product;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
@@ -15,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProductReadDTO {
+public class ProductReadDTO extends AbstractAuditingEntity implements Serializable {
     private Integer productId;
     private String productName;
     private String description;
