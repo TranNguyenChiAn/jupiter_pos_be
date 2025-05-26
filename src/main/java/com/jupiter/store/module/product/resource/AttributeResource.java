@@ -1,5 +1,6 @@
 package com.jupiter.store.module.product.resource;
 
+import com.jupiter.store.module.product.dto.ProductAttributeDTO;
 import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.service.AttributeService;
 import com.jupiter.store.module.role.constant.RoleBase;
@@ -16,13 +17,11 @@ public class AttributeResource {
     private AttributeService attributeService;
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole(RoleBase.ADMIN)")
-    public ProductAttribute addAttribute(String attributeName) {
-        return attributeService.addAttribute(attributeName);
+    public ProductAttribute addAttribute(@RequestBody ProductAttributeDTO attributeDTO) {
+        return attributeService.addAttribute(attributeDTO.getName());
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasRole(RoleBase.ADMIN)")
     public List<ProductAttribute> search() {
         return attributeService.search();
     }

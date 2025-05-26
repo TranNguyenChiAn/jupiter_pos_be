@@ -1,5 +1,6 @@
 package com.jupiter.store.module.product.resource;
 
+import com.jupiter.store.module.product.dto.UnitDTO;
 import com.jupiter.store.module.product.model.Unit;
 import com.jupiter.store.module.product.service.UnitService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,8 @@ public class UnitResource {
     private UnitService unitService;
 
     @PostMapping("/create")
-    public Unit createUnit(String unitName) {
-        return unitService.createUnit(unitName);
+    public Unit createUnit(@RequestBody UnitDTO unitDTO) {
+        return unitService.createUnit(unitDTO.getName());
     }
 
     @GetMapping("/search")

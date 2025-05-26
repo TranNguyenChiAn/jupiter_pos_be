@@ -1,5 +1,6 @@
 package com.jupiter.store.module.category.resource;
 
+import com.jupiter.store.module.category.dto.CategoryDTO;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.service.CategoryService;
 import com.jupiter.store.module.role.constant.RoleBase;
@@ -18,9 +19,8 @@ public class CategoryResource {
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-    public Category addCategory(String categoryName) {
-        return categoryService.addCategory(categoryName);
+    public Category addCategory(@RequestBody CategoryDTO createCategoryDTO) {
+        return categoryService.addCategory(createCategoryDTO.getName());
     }
 
     @GetMapping("/search")
