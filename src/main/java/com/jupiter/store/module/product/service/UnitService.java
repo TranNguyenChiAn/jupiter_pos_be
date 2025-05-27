@@ -2,6 +2,7 @@ package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.module.product.model.Unit;
 import com.jupiter.store.module.product.repository.UnitRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class UnitService {
     @Autowired
@@ -25,6 +27,15 @@ public class UnitService {
 
     public List<Unit> findAllUnit() {
         return unitRepository.findAll();
+    }
+
+    public Unit findById(Integer unitId) {
+        if (unitId == null) {
+            log.debug("Unit ID is null, returning null.");
+            return null;
+        }
+        return unitRepository.findById(unitId)
+                .orElse(null);
     }
 
     public List<Unit> findUnitByName(String unitName) {

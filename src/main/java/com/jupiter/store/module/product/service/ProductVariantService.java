@@ -1,13 +1,8 @@
 package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.SecurityUtils;
-import com.jupiter.store.module.product.dto.CreateProductVariantDTO;
-import com.jupiter.store.module.product.dto.GetAllProductVariantDTO;
-import com.jupiter.store.module.product.dto.ProductVariantAttrValueDTO;
-import com.jupiter.store.module.product.model.Product;
-import com.jupiter.store.module.product.model.ProductAttributeValue;
-import com.jupiter.store.module.product.model.ProductImage;
-import com.jupiter.store.module.product.model.ProductVariant;
+import com.jupiter.store.module.product.dto.*;
+import com.jupiter.store.module.product.model.*;
 import com.jupiter.store.module.product.repository.ProductImageRepository;
 import com.jupiter.store.module.product.repository.ProductRepository;
 import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
@@ -34,6 +29,10 @@ public class ProductVariantService {
     private ProductRepository productRepository;
     @Autowired
     private ProductImageRepository productImageRepository;
+    @Autowired
+    private AttributeService attributeService;
+    @Autowired
+    private UnitService unitService;
 
     public List<GetAllProductVariantDTO> searchProductVariant(Integer productId) {
         List<ProductVariant> productVariants = productVariantRepository.findByProductId(productId);
@@ -78,6 +77,40 @@ public class ProductVariantService {
                     }
                     getProductVariantsDTO.setImagePaths(imagePaths);
                     return getProductVariantsDTO;
+                }).collect(Collectors.toList());
+    }
+
+    public List<ProductVariantReadDTO> searchVariant(Integer productId) {
+        List<ProductVariant> productVariants = productVariantRepository.findByProductId(productId);
+        return productVariants.stream()
+                .map(productVariant -> {
+                    // Return product variant details
+                    ProductVariantReadDTO productVariantReadDTO = new ProductVariantReadDTO(productVariant);
+
+                    // Trả về thông tin về thuộc tính và giá trị của thuộc tính
+                    List<ProductAttributeValue> productAttributeValues = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId());
+                    List<ProductVariantAttrValueSimpleReadDTO> attributeValues = new ArrayList<>();
+                    for (ProductAttributeValue attributeValue : productAttributeValues) {
+                        ProductVariantAttrValueSimpleReadDTO productVariantAttrValueDto = new ProductVariantAttrValueSimpleReadDTO();
+                        productVariantAttrValueDto.setAttrName(attributeService.searchById(attributeValue.getAttrId()).getAttributeName());
+                        productVariantAttrValueDto.setAttrValue(attributeValue.getAttrValue());
+                        Unit unit = unitService.findById(attributeValue.getUnitId());
+                        productVariantAttrValueDto.setUnitName(unit != null ? unit.getName() : null);
+                        attributeValues.add(productVariantAttrValueDto);
+                    }
+                    productVariantReadDTO.setAttrValues(attributeValues);
+
+                    // Trả về ảnh của product variant
+                    List<ProductImage> productImages = productImageRepository.findByProductVariantId(productVariant.getId());
+                    // Set image paths for the attribute value
+                    List<String> imagePaths = new ArrayList<>();
+                    for (ProductImage image : productImages) {
+                        if (image.getProductVariantId().equals(productVariant.getId())) {
+                            imagePaths.add(image.getImagePath());
+                        }
+                    }
+                    productVariantReadDTO.setImagePaths(imagePaths);
+                    return productVariantReadDTO;
                 }).collect(Collectors.toList());
     }
 

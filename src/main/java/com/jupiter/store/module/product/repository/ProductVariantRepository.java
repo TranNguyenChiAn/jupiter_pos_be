@@ -4,6 +4,7 @@ import com.jupiter.store.module.product.model.ProductVariant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -24,4 +25,8 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Query(value = "SELECT pv FROM product_variants pv INNER JOIN products p ON p.id = pv.productId " +
             "WHERE lower(p.name) LIKE lower(concat('%', :productName, '%'))", nativeQuery = true)
     Page<ProductVariant> findByProductNameContainingIgnoreCase(@Param("productName") String productName, Pageable pageable);
+
+    @Modifying
+    @Query(value = "UPDATE product_variants pv SET status = 'DELETED' WHERE pv.product_id = :productId", nativeQuery = true)
+    void softDeleteByProductId(@Param("productId") Integer productId);
 }

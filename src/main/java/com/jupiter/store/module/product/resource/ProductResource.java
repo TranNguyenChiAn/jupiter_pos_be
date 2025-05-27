@@ -1,14 +1,14 @@
 package com.jupiter.store.module.product.resource;
 
-import com.jupiter.store.module.product.dto.CreateFullProductDTO;
-import com.jupiter.store.module.product.dto.ProductCategoryDTO;
-import com.jupiter.store.module.product.dto.ProductReadDTO;
-import com.jupiter.store.module.product.dto.UpdateProductDTO;
+import com.jupiter.store.common.dto.PageResponse;
+import com.jupiter.store.module.product.dto.*;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.service.ProductService;
 import com.jupiter.store.module.role.constant.RoleBase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,16 +45,26 @@ public class ProductResource {
         return productService.search();
     }
 
+    @GetMapping("/search-with-variants")
+    public ResponseEntity<PageResponse<ProductWithVariantsReadDTO>> searchProductsWithVariants(
+            Pageable pageable,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sort
+    ) {
+        Page<ProductWithVariantsReadDTO> result = productService.searchProductsWithVariants(pageable, search, sort);
+        return ResponseEntity.ok(new PageResponse<>(result));
+    }
+
     @GetMapping("/search-detail/{productId}")
     public ResponseEntity<ProductReadDTO> searchById(@PathVariable Integer productId) {
         return productService.searchById(productId);
     }
 
     @PutMapping("/update/{productId}")
-    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
+//    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> updateProduct(@PathVariable Integer productId, @RequestBody UpdateProductDTO updateProductDTO) {
         try {
-            productService.updateProduct(productId, updateProductDTO);
+            productService.updateFullProduct(productId, updateProductDTO);
             return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error updating product: " + e.getMessage(), HttpStatus.BAD_REQUEST);

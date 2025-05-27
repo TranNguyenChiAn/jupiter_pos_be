@@ -17,9 +17,10 @@ public interface ProductVariantAttrValueRepository extends JpaRepository<Product
     List<ProductAttributeValue> findByProductVariantId(@Param("productVariantId") Integer productVariantId);
 
 
-    @Query(value = "SELECT pa.attribute_name as attr_name, pav.attr_value " +
+    @Query(value = "SELECT pa.attribute_name as attr_name, pav.attr_value, u.unit_name " +
             "FROM product_attributes pa " +
             "INNER JOIN product_attribute_values pav ON pa.id = pav.attr_id " +
+            "INNER JOIN UNITS U ON PAV.UNIT_ID = U.ID " +
             "WHERE pav.product_variant_id = :variantId " +
             "ORDER BY pa.id DESC " +
             "LIMIT :numberOfAttributes", nativeQuery = true)

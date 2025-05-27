@@ -1,6 +1,5 @@
 package com.jupiter.store.module.product.repository;
 
-import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.model.ProductCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

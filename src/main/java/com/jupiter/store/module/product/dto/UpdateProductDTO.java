@@ -7,6 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
@@ -15,5 +19,8 @@ import lombok.Setter;
 public class UpdateProductDTO {
     private String productName;
     private String description;
+    @Enumerated(EnumType.STRING)
     private ProductStatus status;
+    private List<Integer> categoryIds;
+    private List<CreateProductVariantDTO> variants;
 }

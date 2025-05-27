@@ -2,6 +2,7 @@ package com.jupiter.store.module.product.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.jupiter.store.common.model.AbstractAuditingEntity;
+import com.jupiter.store.module.product.constant.ProductVariantStatus;
 import com.jupiter.store.module.product.model.ProductVariant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductVariantReadDTO extends AbstractAuditingEntity implements Serializable {
     private Integer id;
-    private ProductReadDTO product;
     private Long costPrice;
     private Long price;
     private Integer quantity;
@@ -27,7 +27,10 @@ public class ProductVariantReadDTO extends AbstractAuditingEntity implements Ser
     private String sku;
     private String barcode;
     private LocalDateTime expiryDate;
+    private ProductVariantStatus status;
     private List<ProductVariantAttrValueSimpleReadDTO> attrValues;
+    private List<String> imagePaths;
+    private ProductReadDTO product;
 
     public ProductVariantReadDTO(ProductVariant productVariant) {
         this.id = productVariant.getId();
@@ -38,5 +41,6 @@ public class ProductVariantReadDTO extends AbstractAuditingEntity implements Ser
         this.sku = productVariant.getSku();
         this.barcode = productVariant.getBarcode();
         this.expiryDate = productVariant.getExpiryDate();
+        this.status = productVariant.getStatus();
     }
 }

@@ -3,7 +3,6 @@ package com.jupiter.store.module.product.service;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
-import com.jupiter.store.module.product.constant.SearchParam;
 import com.jupiter.store.module.product.dto.ProductReadDTO;
 import com.jupiter.store.module.product.dto.ProductVariantAttrValueSimpleReadDTO;
 import com.jupiter.store.module.product.dto.ProductVariantReadDTO;
@@ -95,8 +94,8 @@ public class ProductVariantSearchService {
 
         ProductVariantReadDTO dto = new ProductVariantReadDTO(variant);
         dto.setId(variant.getId());
-        dto.setProduct(productDTO);
         // Copy audit fields from entity
+        dto.setProduct(productDTO);
         dto.setCreatedBy(variant.getCreatedBy());
         dto.setCreatedDate(variant.getCreatedDate());
         dto.setLastModifiedBy(variant.getLastModifiedBy());

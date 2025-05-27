@@ -11,6 +11,7 @@ import com.jupiter.store.module.product.repository.ProductRepository;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
 import jakarta.transaction.Transactional;
 import org.springdoc.api.OpenApiResourceNotFoundException;
+import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -101,8 +102,66 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    @Transactional
+    public void updateFullProduct(Integer productId, UpdateProductDTO dto) {
+        // Assume that dto contains productId
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + productId));
+
+        // Update product basic details and audit fields (isCreate is false for update)
+        product.setProductName(dto.getProductName());
+        product.setDescription(dto.getDescription());
+        product.setStatus(dto.getStatus());
+        product = setAuditFields(product, false);
+        Product savedProduct = productRepository.save(product);
+
+        // Update categories: remove existing entries and save the new ones
+        productCategoryRepository.deleteByProductId(savedProduct.getId());
+        if (dto.getCategoryIds() != null && !dto.getCategoryIds().isEmpty()) {
+            List<Category> categories = categoryRepository.findAllById(dto.getCategoryIds());
+            List<ProductCategory> productCategories = categories.stream()
+                    .map(category -> new ProductCategory(savedProduct, category))
+                    .toList();
+            productCategoryRepository.saveAll(productCategories);
+        }
+
+        // Update variants: remove existing variants and add new ones from the DTO
+        productVariantRepository.softDeleteByProductId(savedProduct.getId());
+        if (dto.getVariants() != null && !dto.getVariants().isEmpty()) {
+            for (CreateProductVariantDTO variantDTO : dto.getVariants()) {
+                productVariantService.addProductVariant(savedProduct.getId(), variantDTO);
+            }
+        }
+    }
+
     public List<Product> search() {
         return productRepository.findAll();
+    }
+
+    public Page<ProductWithVariantsReadDTO> searchProductsWithVariants(Pageable pageable, String search, String sort) {
+        if (sort != null && !sort.isEmpty()) {
+            String[] sortParams = sort.split(",");
+            if (sortParams.length == 2) {
+                String property = sortParams[0].trim();
+                Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
+                pageable = PageRequest.of(pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        Sort.by(new Sort.Order(direction, property)));
+            } else {
+                pageable = PageRequest.of(pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        Sort.by(sort));
+            }
+        }
+        Page<Product> products = productRepository.findAll(pageable);
+        List<ProductWithVariantsReadDTO> content = products.getContent().stream()
+                .map(product -> {
+                    List<Category> categories = categoryRepository.findByProductId(product.getId());
+                    List<ProductVariantReadDTO> variants = productVariantService.searchVariant(product.getId());
+                    return new ProductWithVariantsReadDTO(new ProductReadDTO(product, categories), variants);
+                })
+                .toList();
+        return new PageImpl<>(content, pageable, products.getTotalElements());
     }
 
     public ResponseEntity<ProductReadDTO> searchById(Integer productId) {

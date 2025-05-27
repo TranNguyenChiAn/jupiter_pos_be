@@ -54,7 +54,8 @@ public class AttributeService {
         return rows.stream()
                 .map(r -> new ProductVariantAttrValueSimpleReadDTO(
                         (String) r[0], // attribute_name
-                        (String) r[1]  // attr_value
+                        (String) r[1],  // attr_value
+                        (String) r[2]   // unit_name
                 ))
                 .collect(Collectors.toList());
     }
