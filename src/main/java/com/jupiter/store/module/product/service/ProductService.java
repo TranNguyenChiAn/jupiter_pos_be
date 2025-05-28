@@ -91,19 +91,7 @@ public class ProductService {
 //    }
 
     @Transactional
-    public void updateProduct(Integer productId, UpdateProductDTO updateProductDTO) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Product not found with ID: " + productId));
-
-        product.setProductName(updateProductDTO.getProductName() != null ? updateProductDTO.getProductName() : product.getProductName());
-        product.setDescription(updateProductDTO.getDescription() != null ? updateProductDTO.getDescription() : product.getDescription());
-        product.setStatus(updateProductDTO.getStatus() != null ? updateProductDTO.getStatus() : product.getStatus());
-        product.setLastModifiedBy(currentUserId());
-        productRepository.save(product);
-    }
-
-    @Transactional
-    public void updateFullProduct(Integer productId, UpdateProductDTO dto) {
+    public void updateProduct(Integer productId, UpdateProductDTO dto) {
         // Assume that dto contains productId
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + productId));
@@ -123,14 +111,6 @@ public class ProductService {
                     .map(category -> new ProductCategory(savedProduct, category))
                     .toList();
             productCategoryRepository.saveAll(productCategories);
-        }
-
-        // Update variants: remove existing variants and add new ones from the DTO
-        productVariantRepository.softDeleteByProductId(savedProduct.getId());
-        if (dto.getVariants() != null && !dto.getVariants().isEmpty()) {
-            for (CreateProductVariantDTO variantDTO : dto.getVariants()) {
-                productVariantService.addProductVariant(savedProduct.getId(), variantDTO);
-            }
         }
     }
 

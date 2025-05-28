@@ -23,14 +23,14 @@ public class ProductReadDTO extends AbstractAuditingEntity implements Serializab
     private String productName;
     private String description;
     private ProductStatus status;
-    private List<Category> category;
+    private List<Category> categoryList;
 
     public ProductReadDTO(Product product, List<Category> productCategory) {
         this.productId = product.getId();
         this.productName = product.getProductName();
         this.description = product.getDescription();
         this.status = product.getStatus();
-        this.category = productCategory;
+        this.categoryList = productCategory;
         this.setCreatedBy(product.getCreatedBy());
         this.setCreatedDate(product.getCreatedDate());
         this.setLastModifiedBy(product.getLastModifiedBy());

@@ -52,7 +52,8 @@ public class ProductVariantSearchService {
                 Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
                 pageable = PageRequest.of(pageable.getPageNumber(),
                         pageable.getPageSize(),
-                        Sort.by(new Sort.Order(direction, property)));
+                        Sort.by(new Sort.Order(direction, property))
+                );
             } else {
                 pageable = PageRequest.of(pageable.getPageNumber(),
                         pageable.getPageSize(),

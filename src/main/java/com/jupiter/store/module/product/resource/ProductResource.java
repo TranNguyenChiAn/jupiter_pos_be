@@ -64,7 +64,7 @@ public class ProductResource {
 //    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> updateProduct(@PathVariable Integer productId, @RequestBody UpdateProductDTO updateProductDTO) {
         try {
-            productService.updateFullProduct(productId, updateProductDTO);
+            productService.updateProduct(productId, updateProductDTO);
             return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error updating product: " + e.getMessage(), HttpStatus.BAD_REQUEST);

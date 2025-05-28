@@ -22,5 +22,4 @@ public class UpdateProductDTO {
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
     private List<Integer> categoryIds;
-    private List<CreateProductVariantDTO> variants;
 }

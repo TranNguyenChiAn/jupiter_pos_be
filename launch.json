@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Launch Spring Boot Application",
+      "projectName": "${input:projectNamePrompt}",
+      "mainClass": "${input:mainClassPrompt}",
+      "args": "",
+      "vmArgs": "",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "maven build"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "jupiter_store",
+      "type": "promptString",
+      "description": "Enter the project name as defined in your pom.xml (e.g. jupiter_pos_be)"
+    },
+    {
+      "id": "JupiterStoreApplication",
+      "type": "promptString",
+      "description": "Enter the fully qualified main class (e.g. com.example.MainApplication)"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "maven build",
+      "type": "shell",
+      "command": "./mvnw clean package",
+      "problemMatcher": ["$maven"]
+    }
+  ]
+}
