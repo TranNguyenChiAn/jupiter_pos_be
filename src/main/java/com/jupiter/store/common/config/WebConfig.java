@@ -16,7 +16,8 @@ public class WebConfig {
                         .allowedOrigins(
                                 "http://localhost:3000",
                                 "https://jupiterpos.vercel.app",
-                                "https://jupiter-pos-dev.vercel.app"
+                                "https://jupiter-pos-dev.vercel.app",
+                                "https://upload.uploadcare.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

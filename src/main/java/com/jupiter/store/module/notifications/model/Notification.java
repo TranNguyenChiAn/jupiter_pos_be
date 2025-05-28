@@ -1,15 +1,15 @@
 package com.jupiter.store.module.notifications.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.jupiter.store.module.notifications.constant.NotificationEntityType;
+import com.jupiter.store.module.notifications.constant.NotificationType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,14 +18,13 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Table(name = "notifications")
 public class Notification implements Serializable {
-    //    private static final long serialVersionUID = 1L;
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "user_id")
-    private Long userId;
+    private Integer userId;
 
     @Column(name = "title")
     private String title;
@@ -35,4 +34,18 @@ public class Notification implements Serializable {
 
     @Column(name = "is_read")
     private boolean isRead;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private NotificationType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "entity_type")
+    private NotificationEntityType entityType;
+
+    @Column(name = "entity_id")
+    private Integer entityId;
+
+    @Column(name = "date")
+    private LocalDateTime date = LocalDateTime.now();
 }

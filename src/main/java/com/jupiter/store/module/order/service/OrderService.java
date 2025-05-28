@@ -2,6 +2,10 @@ package com.jupiter.store.module.order.service;
 
 import com.jupiter.store.common.exception.CustomException;
 import com.jupiter.store.common.utils.SecurityUtils;
+import com.jupiter.store.module.notifications.constant.NotificationEntityType;
+import com.jupiter.store.module.notifications.dto.NotificationDTO;
+import com.jupiter.store.module.notifications.model.Notification;
+import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.order.constant.OrderStatus;
 import com.jupiter.store.module.order.dto.OrderItemsDTO;
 import com.jupiter.store.module.order.dto.UpdateOrderDTO;
@@ -29,6 +33,9 @@ public class OrderService {
 
     @Autowired
     private ProductVariantRepository productVariantRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -58,8 +65,15 @@ public class OrderService {
         order.setTotalAmount(0L);
         order.setOrderStatus(OrderStatus.PENDING);
         order.setCreatedBy(currentUserId());
-        return orderRepository.save(order);
+        orderRepository.save(order);
+
+        NotificationDTO notificationDTO = new NotificationDTO("Đơn hàng mới", "Bạn đã tạo một đơn hàng mới",
+                NotificationEntityType.ORDER, order.getId());
+        notificationService.sendNotification(notificationDTO);
+        return order;
     }
+
+
 
     public OrderItemsDTO addProductToOrder(Integer orderId, Integer productVariantId) {
         Order order = orderRepository.findById(orderId)
