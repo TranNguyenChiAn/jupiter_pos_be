@@ -33,7 +33,7 @@ public class Notification implements Serializable {
     private String body;
 
     @Column(name = "is_read")
-    private boolean isRead;
+    private boolean isRead = false;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")

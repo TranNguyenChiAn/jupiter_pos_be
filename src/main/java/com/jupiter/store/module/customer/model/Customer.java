@@ -35,4 +35,8 @@ public class Customer extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "is_active")
     private boolean isActive;
+
+    @Column(name = "total_spent")
+    private Long totalSpent;
+
 }
