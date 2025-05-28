@@ -67,12 +67,11 @@ public class OrderService {
         order.setCreatedBy(currentUserId());
         orderRepository.save(order);
 
-        NotificationDTO notificationDTO = new NotificationDTO("Đơn hàng mới", "Bạn đã tạo một đơn hàng mới",
+        NotificationDTO notificationDTO = new NotificationDTO("Đơn hàng mới", "Đã tạo một đơn hàng mới",
                 NotificationEntityType.ORDER, order.getId());
         notificationService.sendNotification(notificationDTO);
         return order;
     }
-
 
 
     public OrderItemsDTO addProductToOrder(Integer orderId, Integer productVariantId) {
