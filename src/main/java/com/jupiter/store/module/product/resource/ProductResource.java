@@ -71,6 +71,17 @@ public class ProductResource {
         }
     }
 
+    @PutMapping("/update-status/{productId}")
+//    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
+    public ResponseEntity<String> updateProductStatus(@PathVariable Integer productId, @RequestBody UpdateProductDTO updateProductDTO) {
+        try {
+            productService.updateProductStatus(productId, updateProductDTO.getStatus());
+            return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error updating product: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @DeleteMapping("/delete/{productId}")
     @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> deleteProduct(@PathVariable Integer id) {

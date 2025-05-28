@@ -3,6 +3,7 @@ package com.jupiter.store.module.product.service;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
+import com.jupiter.store.module.product.constant.ProductStatus;
 import com.jupiter.store.module.product.dto.*;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.model.ProductCategory;
@@ -112,6 +113,18 @@ public class ProductService {
                     .toList();
             productCategoryRepository.saveAll(productCategories);
         }
+    }
+
+    @Transactional
+    public void updateProductStatus(Integer productId, ProductStatus productStatus) {
+        // Assume that dto contains productId
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + productId));
+
+        // Update product basic details and audit fields (isCreate is false for update)
+        product.setStatus(productStatus);
+        product = setAuditFields(product, false);
+        productRepository.save(product);
     }
 
     public List<Product> search() {
