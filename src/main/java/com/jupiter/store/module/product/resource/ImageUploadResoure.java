@@ -1,5 +1,7 @@
 package com.jupiter.store.module.product.resource;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -10,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -18,8 +19,13 @@ import java.util.Map;
 public class ImageUploadResoure {
     @Value("${uploadcare.public.key}")
     private String uploadcarePublicKey;
+    private final Cloudinary cloudinary;
 
-    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public ImageUploadResoure(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
+
+    @PostMapping(value = "/uploadcare", consumes = "multipart/form-data")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
             String imageUrl = uploadToUploadcare(file);
@@ -56,5 +62,19 @@ public class ImageUploadResoure {
         String fileUUID = (String) responseData.get("file");
 
         return "https://ucarecdn.com/" + fileUUID + "/";
+    }
+
+    @PostMapping(value = "/upload/cloudinary", consumes = "multipart/form-data")
+    public ResponseEntity<String> uploadFileCloudinary(@RequestParam("file") MultipartFile file) {
+        try {
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+
+            String imageUrl = uploadResult.get("secure_url").toString();
+
+            return ResponseEntity.ok(imageUrl);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Upload failed: " + e.getMessage());
+        }
     }
 }

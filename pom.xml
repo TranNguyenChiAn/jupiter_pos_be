@@ -175,14 +175,22 @@
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 
-<!--		Uploadcare: trang lưu trữ link ảnh-->
+		<!--		Uploadcare: trang lưu trữ link ảnh-->
 		<dependency>
 			<groupId>com.uploadcare</groupId>
 			<artifactId>uploadcare</artifactId>
 			<version>3.5.3</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/jakarta.mail/jakarta.mail-api -->
+
+		<!--		Cloudinary-->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.39.0</version>
+		</dependency>
+
+		<!--		Mail sender-->
 		<dependency>
 			<groupId>jakarta.mail</groupId>
 			<artifactId>jakarta.mail-api</artifactId>
