@@ -4,7 +4,6 @@ import com.jupiter.store.common.exception.CustomException;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
-import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.order.constant.OrderStatus;
 import com.jupiter.store.module.order.dto.OrderItemsDTO;

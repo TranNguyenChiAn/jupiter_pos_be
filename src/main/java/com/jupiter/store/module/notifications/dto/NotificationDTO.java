@@ -1,9 +1,6 @@
 package com.jupiter.store.module.notifications.dto;
 
 import com.jupiter.store.module.notifications.constant.NotificationEntityType;
-import com.jupiter.store.module.notifications.constant.NotificationType;
-
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

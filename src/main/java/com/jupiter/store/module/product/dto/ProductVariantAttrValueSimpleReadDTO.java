@@ -10,7 +10,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductVariantAttrValueSimpleReadDTO {
+    private Integer attrId;
     private String attrName;
     private String attrValue;
+    private Integer unitId;
     private String unitName;
 }

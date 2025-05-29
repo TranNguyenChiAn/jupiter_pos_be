@@ -17,12 +17,20 @@ public interface ProductVariantAttrValueRepository extends JpaRepository<Product
     List<ProductAttributeValue> findByProductVariantId(@Param("productVariantId") Integer productVariantId);
 
 
-    @Query(value = "SELECT pa.attribute_name as attr_name, pav.attr_value, u.unit_name " +
+    @Query(value = "SELECT pa.id, pa.attribute_name as attr_name, pav.attr_value, u.id, u.unit_name " +
             "FROM product_attributes pa " +
-            "INNER JOIN product_attribute_values pav ON pa.id = pav.attr_id " +
-            "INNER JOIN UNITS U ON PAV.UNIT_ID = U.ID " +
+            "LEFT JOIN product_attribute_values pav ON pa.id = pav.attr_id " +
+            "LEFT JOIN UNITS U ON PAV.UNIT_ID = U.ID " +
             "WHERE pav.product_variant_id = :variantId " +
             "ORDER BY pa.id DESC " +
             "LIMIT :numberOfAttributes", nativeQuery = true)
     List<Object[]> findTopAttributesByVariantId(@Param("variantId") Integer variantId, @Param("numberOfAttributes") int numberOfAttributes);
+
+    @Query(value = "SELECT pa.id, pa.attribute_name as attr_name, pav.attr_value, u.id, u.unit_name " +
+            "FROM product_attributes pa " +
+            "LEFT JOIN product_attribute_values pav ON pa.id = pav.attr_id " +
+            "LEFT JOIN UNITS U ON PAV.UNIT_ID = U.ID " +
+            "WHERE pav.product_variant_id = :variantId " +
+            "ORDER BY pa.id DESC ", nativeQuery = true)
+    List<Object[]> findAllAttributesByVariantId(@Param("variantId") Integer variantId);
 }

@@ -92,10 +92,24 @@ public class ProductVariantService {
                     List<ProductVariantAttrValueSimpleReadDTO> attributeValues = new ArrayList<>();
                     for (ProductAttributeValue attributeValue : productAttributeValues) {
                         ProductVariantAttrValueSimpleReadDTO productVariantAttrValueDto = new ProductVariantAttrValueSimpleReadDTO();
-                        productVariantAttrValueDto.setAttrName(attributeService.searchById(attributeValue.getAttrId()).getAttributeName());
-                        productVariantAttrValueDto.setAttrValue(attributeValue.getAttrValue());
+                        ProductAttribute attribute = attributeService.searchById(attributeValue.getAttrId());
+                        if (attribute != null) {
+                            productVariantAttrValueDto.setAttrId(attributeValue.getAttrId());
+                            productVariantAttrValueDto.setAttrName(attribute.getAttributeName());
+                        }
+                        if (attributeValue.getAttrValue() == null) {
+                            productVariantAttrValueDto.setAttrValue("");
+                        } else {
+                            productVariantAttrValueDto.setAttrValue(attributeValue.getAttrValue());
+                        }
                         Unit unit = unitService.findById(attributeValue.getUnitId());
-                        productVariantAttrValueDto.setUnitName(unit != null ? unit.getName() : null);
+                        if (unit != null) {
+                            productVariantAttrValueDto.setUnitId(attributeValue.getUnitId());
+                            productVariantAttrValueDto.setUnitName(unit.getName());
+                        } else {
+                            productVariantAttrValueDto.setUnitId(null);
+                            productVariantAttrValueDto.setUnitName(null);
+                        }
                         attributeValues.add(productVariantAttrValueDto);
                     }
                     productVariantReadDTO.setAttrValues(attributeValues);
@@ -142,15 +156,29 @@ public class ProductVariantService {
 
     public ResponseEntity<CreateProductVariantDTO> updateProductVariant(Integer variantId, CreateProductVariantDTO newProductVariant) {
         ProductVariant variant = productVariantRepository.findById(variantId).orElseThrow(() -> new RuntimeException("Product variant not found"));
-        variant.setCostPrice(newProductVariant.getCostPrice() != 0 ? newProductVariant.getCostPrice() : variant.getCostPrice());
-        variant.setPrice(newProductVariant.getPrice() != 0 ? newProductVariant.getPrice() : variant.getPrice());
-        variant.setQuantity(newProductVariant.getQuantity() != 0 ? newProductVariant.getQuantity() : variant.getQuantity());
-        variant.setUnitId(newProductVariant.getUnitId() != 0 ? newProductVariant.getUnitId() : variant.getUnitId());
-        variant.setSku(newProductVariant.getSku() != null ? newProductVariant.getSku() : variant.getSku());
-        variant.setBarcode(newProductVariant.getBarcode() != null ? newProductVariant.getBarcode() : variant.getBarcode());
-        variant.setExpiryDate(newProductVariant.getExpiryDate() != null ? newProductVariant.getExpiryDate() : variant.getExpiryDate());
-        variant.setStatus(newProductVariant.getStatus() != null ? newProductVariant.getStatus() : variant.getStatus());
+        Long costPrice = newProductVariant.getCostPrice();
+        if (costPrice == null) {
+            costPrice = 0L; // Default to 0 if costPrice is null
+        }
+        variant.setCostPrice(costPrice < 0 ? 0L : costPrice); // Ensure costPrice is not negative
+        Long price = newProductVariant.getPrice();
+        if (price == null) {
+            price = 0L; // Default to 0 if price is null
+        }
+        variant.setPrice(price < 0 ? 0L : price); // Ensure price is not negative
+        Integer quantity = newProductVariant.getQuantity();
+        if (quantity == null) {
+            quantity = 0; // Default to 0 if quantity is null
+        }
+        variant.setQuantity(quantity < 0 ? 0 : quantity); // Ensure quantity is not negative
+        Integer unitId = newProductVariant.getUnitId();
+        variant.setUnitId(unitId);
+        variant.setSku(newProductVariant.getSku());
+        variant.setBarcode(newProductVariant.getBarcode());
+        variant.setExpiryDate(newProductVariant.getExpiryDate());
+        variant.setStatus(newProductVariant.getStatus());
         variant.setLastModifiedBy(SecurityUtils.getCurrentUserId());
+        variant.setLastModifiedDate(LocalDateTime.now());
         productVariantRepository.save(variant);
         if (newProductVariant.getImagePaths() != null && !newProductVariant.getImagePaths().isEmpty()) {
             updateProductImages(variantId, newProductVariant.getImagePaths());
@@ -160,13 +188,24 @@ public class ProductVariantService {
 //            variant.setIm
 //        }
 
-        if (newProductVariant.getAttrAndValues() == null || newProductVariant.getAttrAndValues().isEmpty()) {
-            for (ProductVariantAttrValueDTO attrValue : newProductVariant.getAttrAndValues()) {
-                ProductAttributeValue productAttributeValue = productVariantAttrValueRepository.findByProductIdAndAttrId(variantId, attrValue.getAttrId())
-                        .orElseThrow(() -> new RuntimeException("Product variant attribute value not found"));
-                productAttributeValue.setAttrValue(attrValue.getAttrValue());
-                productVariantAttrValueRepository.save(productAttributeValue);
+        if (newProductVariant.getAttrAndValues() != null && !newProductVariant.getAttrAndValues().isEmpty()) {
+            // Delete all existing attribute values for the variant
+            List<ProductAttributeValue> existingValues = productVariantAttrValueRepository.findByProductVariantId(variantId);
+            if (existingValues != null && !existingValues.isEmpty()) {
+                productVariantAttrValueRepository.deleteAll(existingValues);
             }
+            // Save new attribute values
+            List<ProductAttributeValue> newValues = newProductVariant.getAttrAndValues().stream()
+                    .map(attrValue -> {
+                        ProductAttributeValue value = new ProductAttributeValue();
+                        value.setProductVariantId(variantId);
+                        value.setAttrId(attrValue.getAttrId());
+                        value.setAttrValue(attrValue.getAttrValue());
+                        value.setUnitId(attrValue.getUnitId());
+                        // Set additional fields if needed
+                        return value;
+                    }).collect(Collectors.toList());
+            productVariantAttrValueRepository.saveAll(newValues);
         }
 
         return ResponseEntity.ok(newProductVariant);

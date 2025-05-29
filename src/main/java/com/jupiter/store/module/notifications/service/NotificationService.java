@@ -3,7 +3,6 @@ package com.jupiter.store.module.notifications.service;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.repository.NotificationRepository;
-
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ public class NotificationService {
 
     @Autowired
     private JavaMailSender mailSender;
-
 
 
     public void sendNotification(NotificationDTO message) {

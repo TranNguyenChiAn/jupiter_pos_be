@@ -45,17 +45,24 @@ public class AttributeService {
         return attributes;
     }
 
-    public List<ProductVariantAttrValueSimpleReadDTO> findByVariantId(Integer variantId, int numberOfAttributes) {
-        List<Object[]> results = productVariantAttrValueRepository.findTopAttributesByVariantId(variantId, numberOfAttributes);
-        return mapToDTO(results);
+    public List<ProductVariantAttrValueSimpleReadDTO> findByVariantId(Integer variantId, Integer numberOfAttributes) {
+        List<Object[]> result;
+        if (numberOfAttributes != null) {
+            result = productVariantAttrValueRepository.findTopAttributesByVariantId(variantId, numberOfAttributes);
+        } else {
+            result = productVariantAttrValueRepository.findAllAttributesByVariantId(variantId);
+        }
+        return mapToDTO(result);
     }
 
     public List<ProductVariantAttrValueSimpleReadDTO> mapToDTO(List<Object[]> rows) {
         return rows.stream()
                 .map(r -> new ProductVariantAttrValueSimpleReadDTO(
-                        (String) r[0], // attribute_name
-                        (String) r[1],  // attr_value
-                        (String) r[2]   // unit_name
+                        (Integer) r[0], // attribute_id
+                        (String) r[1],  // attribute_name
+                        (String) r[2],   // attr_value
+                        (Integer) r[3],   // unit_id
+                        (String) r[4]   // unit_name
                 ))
                 .collect(Collectors.toList());
     }

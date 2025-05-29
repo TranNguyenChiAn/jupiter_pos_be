@@ -78,7 +78,7 @@ public class ProductVariantSearchService {
         Optional<ProductVariant> productVariant = productVariantRepository.findById(variantId);
         if (productVariant.isPresent()) {
             ProductVariant variant = productVariant.get();
-            return setDetails(variant);
+            return setDetailsForVariant(variant);
         } else {
             throw new OpenApiResourceNotFoundException("Không tìm thấy biến thể sản phẩm với ID: " + variantId);
         }
@@ -104,6 +104,26 @@ public class ProductVariantSearchService {
 
         // Fetch up to 3 attribute values for this variant
         List<ProductVariantAttrValueSimpleReadDTO> attrValues = attributeService.findByVariantId(variant.getId(), 3);
+        dto.setAttrValues(attrValues);
+
+        return dto;
+    }
+
+    private ProductVariantReadDTO setDetailsForVariant(ProductVariant variant) {
+        Product product = productRepository.findById(variant.getProductId()).orElse(null);
+        List<Category> categories = product != null ? categoryRepository.findByProductId(product.getId()) : List.of();
+        ProductReadDTO productDTO = product != null ? new ProductReadDTO(product, categories) : null;
+
+        ProductVariantReadDTO dto = new ProductVariantReadDTO(variant);
+        dto.setId(variant.getId());
+        // Copy audit fields from entity
+        dto.setProduct(productDTO);
+        dto.setCreatedBy(variant.getCreatedBy());
+        dto.setCreatedDate(variant.getCreatedDate());
+        dto.setLastModifiedBy(variant.getLastModifiedBy());
+        dto.setLastModifiedDate(variant.getLastModifiedDate());
+
+        List<ProductVariantAttrValueSimpleReadDTO> attrValues = attributeService.findByVariantId(variant.getId(), null);
         dto.setAttrValues(attrValues);
 
         return dto;
