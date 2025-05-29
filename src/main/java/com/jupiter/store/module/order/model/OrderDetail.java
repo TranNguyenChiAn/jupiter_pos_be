@@ -1,5 +1,6 @@
 package com.jupiter.store.module.order.model;
 
+import com.jupiter.store.module.product.model.ProductVariant;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,8 +21,9 @@ public class OrderDetail {
     private Order order;
 
     @Id
-    @Column(name = "product_variant_id", nullable = false)
-    private Integer productVariantId;
+    @ManyToOne
+    @JoinColumn(name = "product_variant_id", nullable = false)
+    private ProductVariant productVariant;
 
     @Column(name = "price")
     private Long price;

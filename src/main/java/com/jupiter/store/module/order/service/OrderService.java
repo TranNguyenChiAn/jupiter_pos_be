@@ -88,7 +88,7 @@ public class OrderService {
         } else {
             OrderDetail orderItem = new OrderDetail();
             orderItem.setOrder(order);
-            orderItem.setProductVariantId(productVariantId);
+            orderItem.setProductVariant(productVariant);
             orderItem.setPrice(productVariant.getCostPrice());
             orderItem.setSoldQuantity(1);
             orderItem.setSoldPrice(productVariant.getPrice());
@@ -104,7 +104,7 @@ public class OrderService {
 
     public ResponseEntity<OrderDetail> updateQuantityItem(Integer orderDetailId, int quantity) {
         OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId).orElseThrow(() -> new OpenApiResourceNotFoundException("Cart item not found"));
-        ProductVariant productVariant = productVariantRepository.findById(orderDetail.getProductVariantId())
+        ProductVariant productVariant = productVariantRepository.findById(orderDetail.getProductVariant().getId())
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
         if (productVariant != null) {
             orderDetail.setSoldQuantity(quantity);
