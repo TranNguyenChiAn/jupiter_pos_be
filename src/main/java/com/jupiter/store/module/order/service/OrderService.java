@@ -14,6 +14,9 @@ import com.jupiter.store.module.order.repository.OrderDetailRepository;
 import com.jupiter.store.module.order.repository.OrderRepository;
 import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
+import com.jupiter.store.module.user.model.User;
+import com.jupiter.store.module.user.repository.UserRepository;
+import com.jupiter.store.module.user.service.UserService;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +38,9 @@ public class OrderService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -66,7 +72,10 @@ public class OrderService {
         order.setCreatedBy(currentUserId());
         orderRepository.save(order);
 
-        NotificationDTO notificationDTO = new NotificationDTO("Đơn hàng mới", "Đã tạo một đơn hàng mới",
+        User user = userRepository.findById(currentUserId())
+                .orElseThrow(() -> new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.NOT_FOUND));
+
+        NotificationDTO notificationDTO = new NotificationDTO( "Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới",
                 NotificationEntityType.ORDER, order.getId());
         notificationService.sendNotification(notificationDTO);
         return order;

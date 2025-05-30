@@ -48,4 +48,15 @@ public class Notification implements Serializable {
 
     @Column(name = "date")
     private LocalDateTime date = LocalDateTime.now();
+
+    public Notification(Notification notification) {
+        this.id = notification.getId();
+        this.userId = notification.getUserId();
+        this.title = notification.getTitle();
+        this.body = notification.getBody();
+        this.isRead = notification.isRead();
+        this.entityType = notification.getEntityType();
+        this.entityId = notification.getEntityId();
+        this.date = notification.getDate();
+    }
 }
