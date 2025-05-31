@@ -33,6 +33,8 @@ public class ProductVariantService {
     private AttributeService attributeService;
     @Autowired
     private UnitService unitService;
+    @Autowired
+    private ProductImageService productImageService;
 
     public List<GetAllProductVariantDTO> searchProductVariant(Integer productId) {
         List<ProductVariant> productVariants = productVariantRepository.findByProductId(productId);
@@ -141,7 +143,7 @@ public class ProductVariantService {
             variant = setAuditFields(variant, true);
             productVariantRepository.save(variant);
 
-            saveProductImages(variant.getId(), productVariant.getImagePaths());
+            productImageService.saveProductImages(variant.getId(), productVariant.getImagePaths());
 
             ProductVariant finalVariant = variant;
             List<ProductAttributeValue> attributeValues = productVariant.getAttrAndValues().stream()
@@ -181,7 +183,7 @@ public class ProductVariantService {
         variant.setLastModifiedDate(LocalDateTime.now());
         productVariantRepository.save(variant);
         if (newProductVariant.getImagePaths() != null && !newProductVariant.getImagePaths().isEmpty()) {
-            updateProductImages(variantId, newProductVariant.getImagePaths());
+            productImageService.updateProductImages(variantId, newProductVariant.getImagePaths());
         }
 //        else {
 //            List<ProductImage> productImages = productImageRepository.findByProductVariantId(variantId);
@@ -211,47 +213,7 @@ public class ProductVariantService {
         return ResponseEntity.ok(newProductVariant);
     }
 
-    private void saveProductImages(Integer productVariantId, List<String> imagePaths) {
-        if (imagePaths != null && !imagePaths.isEmpty()) {
-            for (String imagePath : imagePaths) {
-                ProductImage productImage = new ProductImage();
-                productImage.setProductVariantId(productVariantId);
-                productImage.setImagePath(imagePath);
-                productImageRepository.save(productImage);
-            }
-        }
-    }
 
-    private void updateProductImages(Integer productVariantId, List<String> imagePaths) {
-        if (imagePaths == null || imagePaths.isEmpty()) {
-            return;
-        }
-
-        // Get existing images
-        List<ProductImage> existingImages = productImageRepository.findByProductVariantId(productVariantId);
-        Set<String> newImagePathsSet = new HashSet<>(imagePaths);
-        Set<String> existingImagePaths = new HashSet<>();
-
-        // Track existing image paths and identify images to delete
-        for (ProductImage existingImage : existingImages) {
-            String imagePath = existingImage.getImagePath();
-            existingImagePaths.add(imagePath);
-
-            if (!newImagePathsSet.contains(imagePath)) {
-                productImageRepository.delete(existingImage);
-            }
-        }
-
-        // Add only new images
-        for (String imagePath : imagePaths) {
-            if (!existingImagePaths.contains(imagePath)) {
-                ProductImage productImage = new ProductImage();
-                productImage.setProductVariantId(productVariantId);
-                productImage.setImagePath(imagePath);
-                productImageRepository.save(productImage);
-            }
-        }
-    }
 
     public void deleteProductVariant(Integer productVariantId) {
         ProductVariant productVariant = productVariantRepository.findById(productVariantId)

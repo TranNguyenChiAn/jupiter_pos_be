@@ -39,6 +39,8 @@ public class ProductVariantSearchService {
     private ProductVariantRepository productVariantRepository;
     @Autowired
     private AttributeService attributeService;
+    @Autowired
+    private ProductImageService productImageService;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -126,6 +128,8 @@ public class ProductVariantSearchService {
         List<ProductVariantAttrValueSimpleReadDTO> attrValues = attributeService.findByVariantId(variant.getId(), null);
         dto.setAttrValues(attrValues);
 
+        List<String> imagePaths = productImageService.findByProductVariantId(variant.getId());
+        dto.setImagePaths(imagePaths);
         return dto;
     }
 }
