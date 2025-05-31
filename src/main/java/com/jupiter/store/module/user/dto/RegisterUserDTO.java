@@ -1,5 +1,6 @@
 package com.jupiter.store.module.user.dto;
 
+import com.jupiter.store.module.role.constant.RoleBase;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +11,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterUserDTO {
+    private String username;
     private String fullname;
     private String email;
     private String password;
-    private String address;
     private String phone;
     private boolean gender;
+    private RoleBase role;
 }

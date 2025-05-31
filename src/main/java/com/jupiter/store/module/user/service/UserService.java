@@ -1,6 +1,8 @@
 package com.jupiter.store.module.user.service;
 
+import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.role.constant.RoleBase;
+import com.jupiter.store.module.user.dto.ChangePasswordDTO;
 import com.jupiter.store.module.user.dto.RegisterUserDTO;
 import com.jupiter.store.module.user.dto.UpdateUserDTO;
 import com.jupiter.store.module.user.model.User;
@@ -28,16 +30,23 @@ public class UserService {
         if (existedUser != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại hoặc email đã tồn tại!");
         }
+
+        User existedUserName = searchByUsername(registerUserDTO.getUsername());
+        if (existedUserName  != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username này đã tồn tại!");
+        }
+
         User user = new User();
         String encodedPassword = passwordEncoder.encode(registerUserDTO.getPassword());
+        user.setUsername(registerUserDTO.getUsername());
         user.setFullName(registerUserDTO.getFullname());
         user.setEmail(registerUserDTO.getEmail());
         user.setPassword(encodedPassword);
         user.setPhone(registerUserDTO.getPhone());
-        user.setRole(RoleBase.USER);
+        user.setRole(registerUserDTO.getRole().toString());
         user.setGender(registerUserDTO.isGender());
         user.setActive(true);
-        user.setCreatedBy(0);
+        user.setCreatedBy(SecurityUtils.getCurrentUserId());
         userRepository.save(user);
     }
 
@@ -65,7 +74,14 @@ public class UserService {
         if (existedUser != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại hoặc email đã tồn tại!");
         }
+
+        User existedUserName = searchByUsername(updateUserDTO.getUsername());
+        if (existedUserName  != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username này đã tồn tại!");
+        }
+        user.setUsername(updateUserDTO.getUsername() == null ? user.getUsername() : updateUserDTO.getUsername());
         user.setFullName(updateUserDTO.getFullname() == null ? user.getFullName() : updateUserDTO.getFullname());
+        user.setEmail(updateUserDTO.getEmail() == null ? user.getEmail() : updateUserDTO.getEmail());
         user.setPhone(updateUserDTO.getPhone() == null ? user.getPhone() : updateUserDTO.getPhone());
         user.setGender(updateUserDTO.isGender() == updateUserDTO.isGender() ? user.isGender() : updateUserDTO.isGender());
         userRepository.save(user);

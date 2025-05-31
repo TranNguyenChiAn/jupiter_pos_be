@@ -10,8 +10,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateUserDTO {
+    private String username;
     private String fullname;
-    private String address;
     private String email;
     private String phone;
     private boolean gender;

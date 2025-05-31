@@ -1,6 +1,7 @@
 package com.jupiter.store.module.user.resource;
 
 import com.jupiter.store.common.utils.SecurityUtils;
+import com.jupiter.store.module.user.dto.ChangePasswordDTO;
 import com.jupiter.store.module.user.dto.RegisterUserDTO;
 import com.jupiter.store.module.user.dto.UpdateUserDTO;
 import com.jupiter.store.module.user.model.User;

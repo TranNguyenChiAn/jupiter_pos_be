@@ -23,12 +23,6 @@ public class ProductResource {
     @Autowired
     private ProductService productService;
 
-//    @PostMapping("/create")
-//    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
-//    public void addProduct(@RequestBody CreateProductDTO createProductDTO) {
-//        productService.addProduct(createProductDTO);
-//    }
-
     @PostMapping("/create")
     public ResponseEntity<String> create(@RequestBody CreateFullProductDTO createFullProductDTO) {
         log.debug("\t Creating product with details: {}", createFullProductDTO);
@@ -61,7 +55,6 @@ public class ProductResource {
     }
 
     @PutMapping("/update/{productId}")
-//    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> updateProduct(@PathVariable Integer productId, @RequestBody UpdateProductDTO updateProductDTO) {
         try {
             productService.updateProduct(productId, updateProductDTO);
@@ -72,7 +65,6 @@ public class ProductResource {
     }
 
     @PutMapping("/update-status/{productId}")
-//    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> updateProductStatus(@PathVariable Integer productId, @RequestBody UpdateProductDTO updateProductDTO) {
         try {
             productService.updateProductStatus(productId, updateProductDTO.getStatus());
@@ -83,7 +75,6 @@ public class ProductResource {
     }
 
     @DeleteMapping("/delete/{productId}")
-    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public ResponseEntity<String> deleteProduct(@PathVariable Integer id) {
         try {
             productService.deleteProduct(id);
@@ -94,13 +85,11 @@ public class ProductResource {
     }
 
     @PostMapping("/add-category-for-product")
-    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public void addCategory(@RequestBody ProductCategoryDTO productCategoryDTO) {
         productService.addCategory(productCategoryDTO);
     }
 
     @DeleteMapping("/delete-category-for-product")
-    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
     public void deleteCategory(@RequestBody ProductCategoryDTO deleteCategoryDTO) {
         productService.deleteCategory(deleteCategoryDTO);
     }

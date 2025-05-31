@@ -45,7 +45,7 @@ public class AttributeResource {
     }
 
     @DeleteMapping("/delete/{attributeId}")
-    @PreAuthorize("hasAuthority(\"" + RoleBase.ADMIN + "\")")
+    @PreAuthorize("hasAuthority('" + RoleBase.ADMIN + "')")
     public void deleteAttribute(@PathVariable Integer attributeId) {
         attributeService.deleteAttribute(attributeId);
     }

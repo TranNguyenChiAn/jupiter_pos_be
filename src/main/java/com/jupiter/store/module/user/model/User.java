@@ -1,6 +1,7 @@
 package com.jupiter.store.module.user.model;
 
 import com.jupiter.store.common.model.AbstractAuditingEntity;
+import com.jupiter.store.module.role.constant.RoleBase;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +15,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class User extends AbstractAuditingEntity implements Serializable {
-    //    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -22,6 +22,9 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "fullname")
     private String fullName;
+
+    @Column(name = "username")
+    private String username;
 
     @Column(name = "email", unique = true)
     private String email;
