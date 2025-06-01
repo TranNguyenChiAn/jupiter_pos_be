@@ -21,7 +21,7 @@ public class ProductImageService {
     public List<String> findByProductVariantId(Integer productVariantId) {
         List<ProductImage> productImages = productImageRepository.findByProductVariantId(productVariantId);
         if (productImages == null || productImages.isEmpty()) {
-            throw new RuntimeException("No images found for product variant ID: " + productVariantId);
+            return List.of();
         }
         return productImages.stream().map(ProductImage::getImagePath).collect(Collectors.toList());
     }

@@ -131,9 +131,23 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Page<ProductWithVariantsReadDTO> searchProductsWithVariants(Pageable pageable, String search, String sort) {
+    public Page<ProductWithVariantsReadDTO> searchProductsWithVariants(
+            String search,
+            String filter,
+            String sort,
+            Pageable pageable
+    ) {
         if (sort != null && !sort.isEmpty()) {
             String[] sortParams = sort.split(",");
+            if (sortParams.length > 2) {
+                throw new IllegalArgumentException("Sort parameter must be in the format 'property,direction' or 'property'");
+            }
+            if (!((search == null || search.trim().isBlank())
+                    && (filter == null || filter.trim().isBlank()))) {
+                String column = sortParams[0].trim();
+                column = column.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
+                sortParams[0] = column;
+            }
             if (sortParams.length == 2) {
                 String property = sortParams[0].trim();
                 Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
@@ -146,7 +160,12 @@ public class ProductService {
                         Sort.by(sort));
             }
         }
-        Page<Product> products = productRepository.findAll(pageable);
+        Page<Product> products;
+        if (search != null && !search.trim().isEmpty()) {
+            products = productRepository.searchProduct(search, pageable);
+        } else {
+            products = productRepository.findAll(pageable);
+        }
         List<ProductWithVariantsReadDTO> content = products.getContent().stream()
                 .map(product -> {
                     List<Category> categories = categoryRepository.findByProductId(product.getId());

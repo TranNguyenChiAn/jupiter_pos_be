@@ -8,6 +8,7 @@ import com.jupiter.store.module.role.constant.RoleBase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,13 +40,18 @@ public class ProductResource {
         return productService.search();
     }
 
-    @GetMapping("/search-with-variants")
+    @PostMapping("/search-with-variants")
     public ResponseEntity<PageResponse<ProductWithVariantsReadDTO>> searchProductsWithVariants(
-            Pageable pageable,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String sort
+            @RequestBody SearchProductsRequestDTO searchRequest
     ) {
-        Page<ProductWithVariantsReadDTO> result = productService.searchProductsWithVariants(pageable, search, sort);
+        Pageable pageable = PageRequest.of(searchRequest.getPageNumber(), searchRequest.getPageSize());
+        // The filter value is accepted; extend service to use it if needed.
+        Page<ProductWithVariantsReadDTO> result = productService.searchProductsWithVariants(
+                searchRequest.getSearch(),
+                searchRequest.getFilter(),
+                searchRequest.getSort(),
+                pageable
+        );
         return ResponseEntity.ok(new PageResponse<>(result));
     }
 
