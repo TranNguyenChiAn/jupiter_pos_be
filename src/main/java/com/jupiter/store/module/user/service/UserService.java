@@ -5,6 +5,7 @@ import com.jupiter.store.module.role.constant.RoleBase;
 import com.jupiter.store.module.user.dto.ChangePasswordDTO;
 import com.jupiter.store.module.user.dto.RegisterUserDTO;
 import com.jupiter.store.module.user.dto.UpdateUserDTO;
+import com.jupiter.store.module.user.dto.UserReadDTO;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -26,13 +27,13 @@ public class UserService {
     }
 
     public void register(RegisterUserDTO registerUserDTO) {
-        User existedUser = findByPhoneOrEmail(registerUserDTO.getPhone(), registerUserDTO.getEmail());
+        User existedUser = findByPhoneOrEmail(registerUserDTO.getUsername(), registerUserDTO.getPhone(), registerUserDTO.getEmail());
         if (existedUser != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại hoặc email đã tồn tại!");
         }
 
         User existedUserName = searchByUsername(registerUserDTO.getUsername());
-        if (existedUserName  != null) {
+        if (existedUserName != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username này đã tồn tại!");
         }
 
@@ -62,21 +63,21 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User findByPhoneOrEmail(String phone, String email) {
-        return userRepository.findByPhoneOrEmail(phone, email);
+    public User findByPhoneOrEmail(String username, String phone, String email) {
+        return userRepository.findByPhoneOrEmail(username, phone, email);
     }
 
     @Transactional
     public void update(Integer userId, UpdateUserDTO updateUserDTO) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found with id: " + userId));
-        User existedUser = findByPhoneOrEmail(updateUserDTO.getPhone(), updateUserDTO.getEmail());
+        User existedUser = findByPhoneOrEmail(updateUserDTO.getUsername(), updateUserDTO.getPhone(), updateUserDTO.getEmail());
         if (existedUser != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại hoặc email đã tồn tại!");
         }
 
         User existedUserName = searchByUsername(updateUserDTO.getUsername());
-        if (existedUserName  != null) {
+        if (existedUserName != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username này đã tồn tại!");
         }
         user.setUsername(updateUserDTO.getUsername() == null ? user.getUsername() : updateUserDTO.getUsername());
@@ -89,5 +90,20 @@ public class UserService {
 
     public User searchByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public UserReadDTO searchUserByCriteria(Integer id, String username, String email, String phoneNumber, String firstName, String lastName) {
+        User user = null;
+        if (id != null && username == null && email == null && phoneNumber == null && firstName == null && lastName == null) {
+            user = userRepository.findById(id).orElse(null);
+        }
+        //todo: find by firstName and lastName...
+        if (user == null && (username != null || email != null || phoneNumber != null)) {
+            user = findByPhoneOrEmail(username, phoneNumber, email);
+        }
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy người dùng với thông tin đã cung cấp");
+        }
+        return new UserReadDTO(user);
     }
 }

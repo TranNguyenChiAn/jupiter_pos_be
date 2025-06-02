@@ -1,9 +1,7 @@
 package com.jupiter.store.module.user.resource;
 
 import com.jupiter.store.common.utils.SecurityUtils;
-import com.jupiter.store.module.user.dto.ChangePasswordDTO;
-import com.jupiter.store.module.user.dto.RegisterUserDTO;
-import com.jupiter.store.module.user.dto.UpdateUserDTO;
+import com.jupiter.store.module.user.dto.*;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +31,20 @@ public class UserResource {
     @PutMapping("/update")
     public void update(@RequestParam Integer userId, @RequestBody UpdateUserDTO updateUserDTO) {
         userService.update(userId, updateUserDTO);
+    }
+
+    @PostMapping("/search")
+    public UserReadDTO getUserByCriteria(
+            @RequestBody SearchUserDTO request
+    ) {
+        return userService.searchUserByCriteria(
+                request.getId(),
+                request.getUsername(),
+                request.getEmail(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getPhoneNumber()
+        );
     }
 
 //    @PutMapping("change-password")

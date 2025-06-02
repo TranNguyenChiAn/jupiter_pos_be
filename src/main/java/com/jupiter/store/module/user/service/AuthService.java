@@ -3,6 +3,7 @@ package com.jupiter.store.module.user.service;
 import com.jupiter.store.common.security.jwt.JwtUtil;
 import com.jupiter.store.module.user.dto.JwtResponse;
 import com.jupiter.store.module.user.dto.LoginRequest;
+import com.jupiter.store.module.user.dto.UserReadDTO;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
@@ -51,9 +54,10 @@ public class AuthService {
 
         String token = jwtUtil.createToken(tokenSubject, user.getId(), user.getRole());
 
+        UserReadDTO userReadDTO = userService.searchUserByCriteria(user.getId(), null, null, null, null, null);
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .body(new JwtResponse(token, "Đăng nhập thành công!"));
+                .body(new JwtResponse(token, "Đăng nhập thành công!", userReadDTO));
     }
 
     private String extractTokenSubject(User user) {
