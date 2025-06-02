@@ -108,6 +108,8 @@ public class ProductVariantSearchService {
         List<ProductVariantAttrValueSimpleReadDTO> attrValues = attributeService.findByVariantId(variant.getId(), 3);
         dto.setAttrValues(attrValues);
 
+        List<String> imagePaths = productImageService.findByProductVariantId(variant.getId());
+        dto.setImagePaths(imagePaths);
         return dto;
     }
 
