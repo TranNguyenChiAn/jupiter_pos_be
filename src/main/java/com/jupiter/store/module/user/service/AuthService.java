@@ -28,8 +28,12 @@ public class AuthService {
     public ResponseEntity<JwtResponse> login(LoginRequest loginRequest) {
         User user = userRepository.findAccount(loginRequest.getAccount());
 
-        if (isInvalidUser(user, loginRequest)) {
+        if (user == null) {
             return unauthorized("Thông tin đăng nhập không hợp lệ");
+        }
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            return unauthorized("Mật khẩu không chính xác");
         }
 
         if (!user.isActive()) {
@@ -52,16 +56,15 @@ public class AuthService {
                 .body(new JwtResponse(token, "Đăng nhập thành công!"));
     }
 
-    private boolean isInvalidUser(User user, LoginRequest loginRequest) {
-        return user == null || !passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-    }
-
     private String extractTokenSubject(User user) {
         if (user.hasPhone()) {
             return user.getPhone();
         }
         if (user.hasEmail()) {
             return user.getEmail();
+        }
+        if (user.hasUsername()) {
+            return user.getUsername();
         }
         return null;
     }
