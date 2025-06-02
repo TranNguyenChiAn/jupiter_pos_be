@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class ProductService {
@@ -133,7 +134,7 @@ public class ProductService {
 
     public Page<ProductWithVariantsReadDTO> searchProductsWithVariants(
             String search,
-            String filter,
+            SearchProductsFilterDTO filter,
             String sort,
             Pageable pageable
     ) {
@@ -142,8 +143,7 @@ public class ProductService {
             if (sortParams.length > 2) {
                 throw new IllegalArgumentException("Sort parameter must be in the format 'property,direction' or 'property'");
             }
-            if (!((search == null || search.trim().isBlank())
-                    && (filter == null || filter.trim().isBlank()))) {
+            if (!((search == null || search.trim().isBlank()) && (filter == null))) {
                 String column = sortParams[0].trim();
                 column = column.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
                 sortParams[0] = column;
@@ -160,12 +160,22 @@ public class ProductService {
                         Sort.by(sort));
             }
         }
-        Page<Product> products;
-        if (search != null && !search.trim().isEmpty()) {
-            products = productRepository.searchProduct(search, pageable);
-        } else {
-            products = productRepository.findAll(pageable);
+        if (search == null || search.trim().isBlank()) {
+            search = "";
         }
+        Integer categoryId = null;
+        String status = null;
+        if (filter != null) {
+            if (filter.getCategoryId() != null) {
+                categoryId = filter.getCategoryId();
+            }
+            if (filter.getStatus() != null) {
+                if (Stream.of(ProductStatus.ACTIVE, ProductStatus.INACTIVE, ProductStatus.DELETED).anyMatch(s -> s.toString().equalsIgnoreCase(filter.getStatus()))) {
+                    status = filter.getStatus();
+                }
+            }
+        }
+        Page<Product> products = productRepository.searchProduct(search, categoryId, status, pageable);
         List<ProductWithVariantsReadDTO> content = products.getContent().stream()
                 .map(product -> {
                     List<Category> categories = categoryRepository.findByProductId(product.getId());

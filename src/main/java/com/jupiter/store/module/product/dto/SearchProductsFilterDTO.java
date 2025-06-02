@@ -11,10 +11,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SearchProductsRequestDTO implements Serializable {
-    private String search;
-    private String sort;
-    private SearchProductsFilterDTO filter;
-    private int pageNumber;
-    private int pageSize;
+public class SearchProductsFilterDTO implements Serializable {
+    private Integer categoryId;
+    private String status;
 }
