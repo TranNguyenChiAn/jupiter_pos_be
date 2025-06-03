@@ -1,5 +1,6 @@
 package com.jupiter.store.module.product.repository;
 
+import com.jupiter.store.module.product.dto.ProductVariantReadDTO;
 import com.jupiter.store.module.product.model.ProductVariant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,4 +30,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Modifying
     @Query(value = "UPDATE product_variants pv SET status = 'DELETED' WHERE pv.product_id = :productId", nativeQuery = true)
     void softDeleteByProductId(@Param("productId") Integer productId);
+
+    @Query(value = "SELECT * FROM product_variants pv WHERE pv.product_id IN :productIds", nativeQuery = true)
+    List<ProductVariant> findByProductIdIn(@Param("productIds") List<Integer> productIds);
 }

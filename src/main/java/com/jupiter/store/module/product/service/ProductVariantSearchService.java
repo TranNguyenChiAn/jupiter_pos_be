@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.jupiter.store.module.product.constant.SearchParam.PRODUCT_NAME;
 
@@ -169,5 +170,11 @@ public class ProductVariantSearchService {
         List<String> imagePaths = productImageService.findByProductVariantId(variant.getId());
         dto.setImagePaths(imagePaths);
         return dto;
+    }
+
+    public List<ProductVariantReadDTO> searchVariantsByProducts(List<Integer> productIds) {
+        return productVariantRepository.findByProductIdIn(productIds).stream()
+                .map(ProductVariant::toProductVariantReadDTO)
+                .collect(Collectors.toList());
     }
 }

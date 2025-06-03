@@ -2,6 +2,8 @@ package com.jupiter.store.module.product.model;
 
 import com.jupiter.store.common.model.AbstractAuditingEntity;
 import com.jupiter.store.module.product.constant.ProductVariantStatus;
+import com.jupiter.store.module.product.dto.ProductReadDTO;
+import com.jupiter.store.module.product.dto.ProductVariantReadDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -50,4 +52,21 @@ public class ProductVariant extends AbstractAuditingEntity implements Serializab
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ProductVariantStatus status;
+
+    public ProductVariantReadDTO toProductVariantReadDTO() {
+        ProductVariantReadDTO dto = new ProductVariantReadDTO();
+        dto.setId(this.id);
+        dto.setCostPrice(this.costPrice);
+        dto.setPrice(this.price);
+        dto.setQuantity(this.quantity);
+        dto.setUnitId(this.unitId);
+        dto.setSku(this.sku);
+        dto.setBarcode(this.barcode);
+        dto.setExpiryDate(this.expiryDate);
+        dto.setStatus(this.status);
+        ProductReadDTO productDto = new ProductReadDTO();
+        productDto.setProductId(this.productId);
+        dto.setProduct(productDto);
+        return dto;
+    }
 }

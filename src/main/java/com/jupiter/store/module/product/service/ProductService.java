@@ -1,12 +1,16 @@
 package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.SecurityUtils;
+import com.jupiter.store.module.category.dto.CategoryDTO;
+import com.jupiter.store.module.category.dto.IProductCategoryQueryDTO;
+import com.jupiter.store.module.category.dto.ProductCategoryQueryDTO;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
 import com.jupiter.store.module.product.constant.ProductStatus;
 import com.jupiter.store.module.product.dto.*;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.model.ProductCategory;
+import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductCategoryRepository;
 import com.jupiter.store.module.product.repository.ProductRepository;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
@@ -17,8 +21,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -29,16 +36,18 @@ public class ProductService {
     private final ProductVariantRepository productVariantRepository;
     private final AttributeService attributeService;
     private final ProductVariantService productVariantService;
+    private final ProductVariantSearchService productVariantSearchService;
 
     public ProductService(ProductRepository productRepository, ProductCategoryRepository productCategoryRepository,
                           CategoryRepository categoryRepository, ProductVariantRepository productVariantRepository,
-                          AttributeService attributeService, ProductVariantService productVariantService) {
+                          AttributeService attributeService, ProductVariantService productVariantService, ProductVariantSearchService productVariantSearchService) {
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
         this.categoryRepository = categoryRepository;
         this.productVariantRepository = productVariantRepository;
         this.attributeService = attributeService;
         this.productVariantService = productVariantService;
+        this.productVariantSearchService = productVariantSearchService;
     }
 
     public static Integer currentUserId() {
@@ -177,26 +186,62 @@ public class ProductService {
             }
         }
         Page<Product> products = productRepository.searchProduct(search, categoryId, status, pageable);
-        List<CompletableFuture<ProductWithVariantsReadDTO>> futureList = products.getContent().stream()
-                .map(product -> {
-                    CompletableFuture<List<Category>> categoriesFuture = CompletableFuture.supplyAsync(() ->
-                            categoryRepository.findByProductId(product.getId())
-                    );
-                    CompletableFuture<List<ProductVariantReadDTO>> variantFuture = CompletableFuture.supplyAsync(() ->
-                            productVariantService.searchVariant(product.getId())
-                    );
-                    return CompletableFuture.allOf(categoriesFuture, variantFuture)
-                            .thenApply(v -> {
-                                List<Category> categories = categoriesFuture.join();
-                                List<ProductVariantReadDTO> variants = variantFuture.join();
-                                return new ProductWithVariantsReadDTO(new ProductReadDTO(product, categories), variants);
-                            });
-                })
+        List<Product> productList = products.getContent();
+        if (productList.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, 0);
+        }
+
+        // Get list of product IDs to load associated entities in batch.
+        List<Integer> productIds = productList.stream()
+                .map(Product::getId)
                 .toList();
-        List<ProductWithVariantsReadDTO> content = futureList.stream()
-                .map(CompletableFuture::join)
-                .toList();
-        return new PageImpl<>(content, pageable, products.getTotalElements());
+
+        // Launch asynchronous batch queries
+        CompletableFuture<List<ProductCategoryQueryDTO>> categoriesFuture = CompletableFuture.supplyAsync(() -> {
+                    List<ProductCategoryQueryDTO> list = getProductsCategoriesFromObjects(categoryRepository.findByProductIdIn(productIds));
+                    return list;
+                }
+        );
+        CompletableFuture<List<ProductVariantReadDTO>> variantsFuture = CompletableFuture.supplyAsync(() ->
+                {
+                    List<ProductVariantReadDTO> list = productVariantSearchService.searchVariantsByProducts(productIds);
+                    return list;
+                }
+        );
+
+        // Wait for both futures to complete.
+        CompletableFuture.allOf(categoriesFuture, variantsFuture).join();
+
+        List<ProductCategoryQueryDTO> allCategories = categoriesFuture.join();
+        List<ProductVariantReadDTO> allVariants = variantsFuture.join();
+
+        // Group categories and variants by product id.
+        Map<Integer, List<ProductCategoryQueryDTO>> categoriesMap = allCategories.stream()
+                .collect(Collectors.groupingBy(ProductCategoryQueryDTO::getProductId));
+        Map<Integer, List<ProductVariantReadDTO>> variantsMap = allVariants.stream()
+                .collect(Collectors.groupingBy(dto -> dto.getProduct().getProductId()));
+
+        // Build the final DTO list.
+        List<ProductWithVariantsReadDTO> result = productList.stream().map(product -> {
+            List<Category> productCategories = categoriesMap.getOrDefault(product.getId(), List.of()).stream()
+                    .map(ProductCategoryQueryDTO::toCategory).collect(Collectors.toList());
+            List<ProductVariantReadDTO> productVariants = variantsMap.getOrDefault(product.getId(), List.of());
+            return new ProductWithVariantsReadDTO(new ProductReadDTO(product, productCategories), productVariants);
+        }).toList();
+
+        return new PageImpl<>(result, pageable, products.getTotalElements());
+    }
+
+    public List<ProductCategoryQueryDTO> getProductsCategoriesFromObjects(List<Object[]> rows) {
+        List<ProductCategoryQueryDTO> categories = new ArrayList<>();
+        for (Object[] row : rows) {
+            ProductCategoryQueryDTO c = new ProductCategoryQueryDTO();
+            c.setId((Integer) row[0]);
+            c.setCategoryName((String) row[1]);
+            c.setProductId((Integer) row[2]);
+            categories.add(c);
+        }
+        return categories;
     }
 
     public ResponseEntity<ProductReadDTO> searchById(Integer productId) {
