@@ -192,7 +192,7 @@ public class ProductService {
         }
 
         // Get list of product IDs to load associated entities in batch.
-        List<Integer> productIds = productList.stream()
+        List<Integer> productIds = productList.parallelStream()
                 .map(Product::getId)
                 .toList();
 
@@ -216,14 +216,14 @@ public class ProductService {
         List<ProductVariantReadDTO> allVariants = variantsFuture.join();
 
         // Group categories and variants by product id.
-        Map<Integer, List<ProductCategoryQueryDTO>> categoriesMap = allCategories.stream()
+        Map<Integer, List<ProductCategoryQueryDTO>> categoriesMap = allCategories.parallelStream()
                 .collect(Collectors.groupingBy(ProductCategoryQueryDTO::getProductId));
-        Map<Integer, List<ProductVariantReadDTO>> variantsMap = allVariants.stream()
+        Map<Integer, List<ProductVariantReadDTO>> variantsMap = allVariants.parallelStream()
                 .collect(Collectors.groupingBy(dto -> dto.getProduct().getProductId()));
 
         // Build the final DTO list.
-        List<ProductWithVariantsReadDTO> result = productList.stream().map(product -> {
-            List<Category> productCategories = categoriesMap.getOrDefault(product.getId(), List.of()).stream()
+        List<ProductWithVariantsReadDTO> result = productList.parallelStream().map(product -> {
+            List<Category> productCategories = categoriesMap.getOrDefault(product.getId(), List.of()).parallelStream()
                     .map(ProductCategoryQueryDTO::toCategory).collect(Collectors.toList());
             List<ProductVariantReadDTO> productVariants = variantsMap.getOrDefault(product.getId(), List.of());
             return new ProductWithVariantsReadDTO(new ProductReadDTO(product, productCategories), productVariants);
