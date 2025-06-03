@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @Service
@@ -141,7 +142,7 @@ public class ProductService {
         if (sort != null && !sort.isEmpty()) {
             String[] sortParams = sort.split(",");
             if (sortParams.length > 2) {
-                throw new IllegalArgumentException("Sort parameter must be in the format 'property,direction' or 'property'");
+                sortParams = new String[]{"last_modified_date", "desc"};
             }
             if (!((search == null || search.trim().isBlank()) && (filter == null))) {
                 String column = sortParams[0].trim();
@@ -176,12 +177,24 @@ public class ProductService {
             }
         }
         Page<Product> products = productRepository.searchProduct(search, categoryId, status, pageable);
-        List<ProductWithVariantsReadDTO> content = products.getContent().stream()
+        List<CompletableFuture<ProductWithVariantsReadDTO>> futureList = products.getContent().stream()
                 .map(product -> {
-                    List<Category> categories = categoryRepository.findByProductId(product.getId());
-                    List<ProductVariantReadDTO> variants = productVariantService.searchVariant(product.getId());
-                    return new ProductWithVariantsReadDTO(new ProductReadDTO(product, categories), variants);
+                    CompletableFuture<List<Category>> categoriesFuture = CompletableFuture.supplyAsync(() ->
+                            categoryRepository.findByProductId(product.getId())
+                    );
+                    CompletableFuture<List<ProductVariantReadDTO>> variantFuture = CompletableFuture.supplyAsync(() ->
+                            productVariantService.searchVariant(product.getId())
+                    );
+                    return CompletableFuture.allOf(categoriesFuture, variantFuture)
+                            .thenApply(v -> {
+                                List<Category> categories = categoriesFuture.join();
+                                List<ProductVariantReadDTO> variants = variantFuture.join();
+                                return new ProductWithVariantsReadDTO(new ProductReadDTO(product, categories), variants);
+                            });
                 })
+                .toList();
+        List<ProductWithVariantsReadDTO> content = futureList.stream()
+                .map(CompletableFuture::join)
                 .toList();
         return new PageImpl<>(content, pageable, products.getTotalElements());
     }
