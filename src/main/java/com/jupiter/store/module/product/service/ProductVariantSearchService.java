@@ -47,29 +47,10 @@ public class ProductVariantSearchService {
     }
 
     public Page<ProductVariantReadDTO> search(Pageable pageable, String search, String sort) {
-        if (sort != null && !sort.isEmpty()) {
-            String[] sortParams = sort.split(",");
-            if (sortParams.length == 2) {
-                String property = sortParams[0].trim();
-                Sort.Direction direction = Sort.Direction.fromString(sortParams[1].trim());
-                pageable = PageRequest.of(pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        Sort.by(new Sort.Order(direction, property))
-                );
-            } else {
-                pageable = PageRequest.of(pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        Sort.by(sort));
-            }
-        }
         Page<ProductVariant> productVariants;
         if (search != null && !search.isEmpty()) {
-            productVariants = switch (search) {
-                case PRODUCT_NAME -> productVariantRepository.findByProductNameContainingIgnoreCase(search, pageable);
-//                case "active" -> productVariantRepository.findByStatus("active", pageable);
-//                case "inactive" -> productVariantRepository.findByStatus("inactive", pageable);
-                default -> productVariantRepository.findAll(pageable);
-            };
+//            productVariants = productVariantRepository.findByProductNameContainingIgnoreCase(search, pageable);
+            productVariants = productVariantRepository.findAll(pageable);
         } else {
             productVariants = productVariantRepository.findAll(pageable);
         }

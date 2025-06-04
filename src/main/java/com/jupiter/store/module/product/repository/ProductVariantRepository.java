@@ -23,8 +23,8 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     @Query(value = "SELECT pv.id FROM product_variants pv", nativeQuery = true)
     List<Integer> findAllIds();
 
-    @Query(value = "SELECT pv FROM product_variants pv INNER JOIN products p ON p.id = pv.productId " +
-            "WHERE lower(p.name) LIKE lower(concat('%', :productName, '%'))", nativeQuery = true)
+    @Query(value = "SELECT pv FROM product_variants pv INNER JOIN products p ON p.id = pv.product_id " +
+            "WHERE lower(p.product_name) LIKE lower(concat('%', :productName, '%')) ORDER BY pv.last_modified_date DESC", nativeQuery = true)
     Page<ProductVariant> findByProductNameContainingIgnoreCase(@Param("productName") String productName, Pageable pageable);
 
     @Modifying
