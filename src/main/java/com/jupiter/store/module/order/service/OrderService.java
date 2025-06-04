@@ -2,6 +2,8 @@ package com.jupiter.store.module.order.service;
 
 import com.jupiter.store.common.exception.CustomException;
 import com.jupiter.store.common.utils.SecurityUtils;
+import com.jupiter.store.module.customer.model.Customer;
+import com.jupiter.store.module.customer.service.CustomerService;
 import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.service.NotificationService;
@@ -48,6 +50,8 @@ public class OrderService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CustomerService customerService;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -106,7 +110,14 @@ public class OrderService {
 
         Order order = new Order();
         order.setUserId(currentUserId());
-        order.setCustomerId(customerId);
+        Customer customer = customerService.findById(customerId);
+        if (customer == null && receiverPhone != null) {
+            customer = customerService.findByPhone(receiverPhone);
+        }
+        if (customer != null) {
+            customerId = customer.getId();
+            order.setCustomerId(customerId);
+        }
         order.setReceiverName(receiverName);
         order.setReceiverPhone(receiverPhone);
         order.setReceiverAddress(receiverAddress);

@@ -34,5 +34,14 @@ public class CustomerService {
         return customerRepository.findByKeyword(keyword)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
     }
+
+    public Customer findById(Integer customerId) {
+        return customerRepository.findById(customerId)
+                .orElse(null);
+    }
+
+    public Customer findByPhone(String phone) {
+        return customerRepository.findByPhone(phone);
+    }
 }
 

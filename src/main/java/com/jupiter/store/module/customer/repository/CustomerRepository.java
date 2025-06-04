@@ -8,10 +8,13 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
-    @Query(value = "SELECT * FROM customers c WHERE\n" +
-            "       LOWER(c.full_name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR\n" +
-            "       LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR\n" +
-            "       LOWER(c.phone_number) LIKE LOWER(CONCAT('%', :keyword, '%')) OR\n" +
+    @Query(value = "SELECT * FROM customers c WHERE " +
+            "       LOWER(c.full_name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "       LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "       LOWER(c.phone) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "       LOWER(c.address) LIKE LOWER(CONCAT('%', :keyword, '%'))", nativeQuery = true)
     Optional<Customer> findByKeyword(@Param("keyword") String keyword);
+
+    @Query(value = "SELECT * FROM customers WHERE phone = :phone", nativeQuery = true)
+    Customer findByPhone(@Param("phone") String phone);
 }
