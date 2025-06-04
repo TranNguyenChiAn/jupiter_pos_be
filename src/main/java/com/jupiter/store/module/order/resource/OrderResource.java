@@ -1,9 +1,11 @@
 package com.jupiter.store.module.order.resource;
 
+import com.jupiter.store.module.order.dto.CreateOrderDTO;
 import com.jupiter.store.module.order.dto.OrderItemsDTO;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,12 +26,19 @@ public class OrderResource {
         return orderService.getOrderDetailById(orderId);
     }
 
-    @PostMapping("/create-order/")
-    public Order createOrder(@RequestParam(required = false) Integer customerId) {
-        if (customerId == null) {
-            return orderService.createOrder(null);
-        }
-        return orderService.createOrder(customerId);
+    @PostMapping("/create")
+    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderDTO createOrderDTO) {
+        Order order = orderService.createOrder(
+                createOrderDTO.getCustomerId(),
+                createOrderDTO.getReceiverName(),
+                createOrderDTO.getReceiverPhone(),
+                createOrderDTO.getReceiverAddress(),
+                createOrderDTO.getNote(),
+                createOrderDTO.getPaymentMethod(),
+                createOrderDTO.getOrderStatus(),
+                createOrderDTO.getOrderItems()
+        );
+        return ResponseEntity.ok(order);
     }
 
     @PostMapping("/add-product/{orderId}/{productVariantId}")
