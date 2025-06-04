@@ -17,23 +17,40 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                     "LEFT JOIN product_categories pc ON p.id = pc.product_id " +
                     "WHERE (:status IS NULL OR p.status = :status) " +
                     "AND (:categoryId IS NULL OR pc.category_id = :categoryId) " +
-                    "AND (LOWER(p.product_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-                    "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) " +
-                    "OR LOWER(pv.sku) LIKE LOWER(CONCAT('%', :search, '%')) " +
-                    "OR LOWER(pv.barcode) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+                    "AND ( " +
+                    "  :search IS NULL OR (" +
+                    "  (LOWER(p.product_name) ILIKE CONCAT('%', LOWER(:search), '%') " +
+                    "   OR LOWER(p.description) ILIKE CONCAT('%', LOWER(:search), '%') " +
+                    "   OR LOWER(pv.sku) ILIKE CONCAT('%', LOWER(:search), '%') " +
+                    "   OR LOWER(pv.barcode) ILIKE CONCAT('%', LOWER(:search), '%')) " +
+                    "  OR " +
+                    "  (LOWER(p.product_name) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
+                    "   OR LOWER(p.description) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
+                    "   OR LOWER(pv.sku) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
+                    "   OR LOWER(pv.barcode) ILIKE CONCAT('%', LOWER(:swappedSearch), '%')) " +
+                    ")) " +
                     "ORDER BY p.last_modified_date DESC",
             countQuery = "SELECT COUNT(DISTINCT p.id) FROM products p " +
                     "LEFT JOIN product_variants pv ON p.id = pv.product_id " +
                     "LEFT JOIN product_categories pc ON p.id = pc.product_id " +
                     "WHERE (:status IS NULL OR p.status = :status) " +
                     "AND (:categoryId IS NULL OR pc.category_id = :categoryId) " +
-                    "AND (LOWER(p.product_name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-                    "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) " +
-                    "OR LOWER(pv.sku) LIKE LOWER(CONCAT('%', :search, '%')) " +
-                    "OR LOWER(pv.barcode) LIKE LOWER(CONCAT('%', :search, '%')))",
+                    "AND ( " +
+                    "  :search IS NULL OR (" +
+                    "  (LOWER(p.product_name) ILIKE CONCAT('%', LOWER(:search), '%') " +
+                    "   OR LOWER(p.description) ILIKE CONCAT('%', LOWER(:search), '%') " +
+                    "   OR LOWER(pv.sku) ILIKE CONCAT('%', LOWER(:search), '%') " +
+                    "   OR LOWER(pv.barcode) ILIKE CONCAT('%', LOWER(:search), '%')) " +
+                    "  OR " +
+                    "  (LOWER(p.product_name) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
+                    "   OR LOWER(p.description) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
+                    "   OR LOWER(pv.sku) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
+                    "   OR LOWER(pv.barcode) ILIKE CONCAT('%', LOWER(:swappedSearch), '%')) " +
+                    ")) ",
             nativeQuery = true)
     Page<Product> searchProduct(
             @Param("search") String search,
+            @Param("swappedSearch") String swappedSearch,
             @Param("categoryId") Integer categoryId,
             @Param("status") String status,
             Pageable pageable

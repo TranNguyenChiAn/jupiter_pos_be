@@ -173,6 +173,13 @@ public class ProductService {
         if (search == null || search.trim().isBlank()) {
             search = "";
         }
+        String swappedSearch = search;
+        String[] words = search.trim().split("\\s+");
+        if (words.length == 2) {
+            // Build swapped version (for example: "choàng áo" becomes "áo choàng")
+            swappedSearch = words[1] + " " + words[0];
+        }
+
         Integer categoryId = null;
         String status = null;
         if (filter != null) {
@@ -185,7 +192,7 @@ public class ProductService {
                 }
             }
         }
-        Page<Product> products = productRepository.searchProduct(search, categoryId, status, pageable);
+        Page<Product> products = productRepository.searchProduct(search, swappedSearch, categoryId, status, pageable);
         List<Product> productList = products.getContent();
         if (productList.isEmpty()) {
             return new PageImpl<>(List.of(), pageable, 0);
