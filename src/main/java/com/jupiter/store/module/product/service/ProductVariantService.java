@@ -36,100 +36,6 @@ public class ProductVariantService {
     @Autowired
     private ProductImageService productImageService;
 
-    public List<GetAllProductVariantDTO> searchProductVariant(Integer productId) {
-        List<ProductVariant> productVariants = productVariantRepository.findByProductId(productId);
-
-        if (productVariants.isEmpty()) {
-            throw new OpenApiResourceNotFoundException("Product variant not found with ID: " + productId);
-        }
-
-        return productVariants.stream()
-                .map(productVariant -> {
-                    // Return product variant details
-                    GetAllProductVariantDTO getProductVariantsDTO = new GetAllProductVariantDTO();
-                    getProductVariantsDTO.setProductVariantId(productVariant.getId());
-                    getProductVariantsDTO.setCostPrice(productVariant.getCostPrice());
-                    getProductVariantsDTO.setPrice(productVariant.getPrice());
-                    getProductVariantsDTO.setQuantity(productVariant.getQuantity());
-                    getProductVariantsDTO.setSku(productVariant.getSku());
-                    getProductVariantsDTO.setBarcode(productVariant.getBarcode());
-                    getProductVariantsDTO.setExpiryDate(productVariant.getExpiryDate());
-                    getProductVariantsDTO.setStatus(productVariant.getStatus());
-
-                    // Trả về thông tin về thuộc tính và giá trị của thuộc tính
-                    List<ProductAttributeValue> productAttributeValues = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId());
-                    List<ProductVariantAttrValueDTO> attributeValues = new ArrayList<>();
-                    for (ProductAttributeValue attributeValue : productAttributeValues) {
-                        ProductVariantAttrValueDTO productVariantAttrValueDto = new ProductVariantAttrValueDTO();
-                        productVariantAttrValueDto.setAttrId(attributeValue.getAttrId());
-                        productVariantAttrValueDto.setAttrValue(attributeValue.getAttrValue());
-                        productVariantAttrValueDto.setUnitId(attributeValue.getUnitId());
-                        attributeValues.add(productVariantAttrValueDto);
-                    }
-                    getProductVariantsDTO.setAttrAndValues(attributeValues);
-
-                    // Trả về ảnh của product variant
-                    List<ProductImage> productImages = productImageRepository.findByProductVariantId(productVariant.getId());
-                    // Set image paths for the attribute value
-                    List<String> imagePaths = new ArrayList<>();
-                    for (ProductImage image : productImages) {
-                        if (image.getProductVariantId().equals(productVariant.getId())) {
-                            imagePaths.add(image.getImagePath());
-                        }
-                    }
-                    getProductVariantsDTO.setImagePaths(imagePaths);
-                    return getProductVariantsDTO;
-                }).collect(Collectors.toList());
-    }
-
-    public List<ProductVariantReadDTO> searchVariant(Integer productId) {
-        List<ProductVariant> productVariants = productVariantRepository.findByProductId(productId);
-        return productVariants.stream()
-                .map(productVariant -> {
-                    // Return product variant details
-                    ProductVariantReadDTO productVariantReadDTO = new ProductVariantReadDTO(productVariant);
-
-                    // Trả về thông tin về thuộc tính và giá trị của thuộc tính
-                    List<ProductAttributeValue> productAttributeValues = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId());
-                    List<ProductVariantAttrValueSimpleReadDTO> attributeValues = new ArrayList<>();
-                    for (ProductAttributeValue attributeValue : productAttributeValues) {
-                        ProductVariantAttrValueSimpleReadDTO productVariantAttrValueDto = new ProductVariantAttrValueSimpleReadDTO();
-                        ProductAttribute attribute = attributeService.searchById(attributeValue.getAttrId());
-                        if (attribute != null) {
-                            productVariantAttrValueDto.setAttrId(attributeValue.getAttrId());
-                            productVariantAttrValueDto.setAttrName(attribute.getAttributeName());
-                        }
-                        if (attributeValue.getAttrValue() == null) {
-                            productVariantAttrValueDto.setAttrValue("");
-                        } else {
-                            productVariantAttrValueDto.setAttrValue(attributeValue.getAttrValue());
-                        }
-                        Unit unit = unitService.findById(attributeValue.getUnitId());
-                        if (unit != null) {
-                            productVariantAttrValueDto.setUnitId(attributeValue.getUnitId());
-                            productVariantAttrValueDto.setUnitName(unit.getName());
-                        } else {
-                            productVariantAttrValueDto.setUnitId(null);
-                            productVariantAttrValueDto.setUnitName(null);
-                        }
-                        attributeValues.add(productVariantAttrValueDto);
-                    }
-                    productVariantReadDTO.setAttrValues(attributeValues);
-
-                    // Trả về ảnh của product variant
-                    List<ProductImage> productImages = productImageRepository.findByProductVariantId(productVariant.getId());
-                    // Set image paths for the attribute value
-                    List<String> imagePaths = new ArrayList<>();
-                    for (ProductImage image : productImages) {
-                        if (image.getProductVariantId().equals(productVariant.getId())) {
-                            imagePaths.add(image.getImagePath());
-                        }
-                    }
-                    productVariantReadDTO.setImagePaths(imagePaths);
-                    return productVariantReadDTO;
-                }).collect(Collectors.toList());
-    }
-
     public ResponseEntity<CreateProductVariantDTO> addProductVariant(Integer productId, CreateProductVariantDTO productVariant) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm có ID: " + productId));
@@ -212,8 +118,6 @@ public class ProductVariantService {
 
         return ResponseEntity.ok(newProductVariant);
     }
-
-
 
     public void deleteProductVariant(Integer productVariantId) {
         ProductVariant productVariant = productVariantRepository.findById(productVariantId)

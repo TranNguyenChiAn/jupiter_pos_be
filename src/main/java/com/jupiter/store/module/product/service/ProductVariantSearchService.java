@@ -1,6 +1,7 @@
 package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.SecurityUtils;
+import com.jupiter.store.module.category.dto.ProductCategoryQueryDTO;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
 import com.jupiter.store.module.product.dto.ProductReadDTO;
@@ -164,16 +165,20 @@ public class ProductVariantSearchService {
         dto.setLastModifiedBy(variant.getLastModifiedBy());
         dto.setLastModifiedDate(variant.getLastModifiedDate());
 
-        List<ProductVariantAttrValueSimpleReadDTO> attrValues = attributeService.findByVariantId(variant.getId(), null);
-        dto.setAttrValues(attrValues);
+        CompletableFuture<List<ProductVariantAttrValueSimpleReadDTO>> attrValues = CompletableFuture.supplyAsync(() -> {
+            return attributeService.findByVariantId(variant.getId(), null);
+        });
+        dto.setAttrValues(attrValues.join());
 
-        List<String> imagePaths = productImageService.findByProductVariantId(variant.getId());
-        dto.setImagePaths(imagePaths);
+        CompletableFuture<List<String>> imagePaths = CompletableFuture.supplyAsync(() -> {
+            return productImageService.findByProductVariantId(variant.getId());
+        });
+        dto.setImagePaths(imagePaths.join());
         return dto;
     }
 
     public List<ProductVariantReadDTO> searchVariantsByProducts(List<Integer> productIds) {
-        return productVariantRepository.findByProductIdIn(productIds).stream()
+        return productVariantRepository.findByProductIdIn(productIds).parallelStream()
                 .map(this::setDetailsForVariant)
                 .collect(Collectors.toList());
     }

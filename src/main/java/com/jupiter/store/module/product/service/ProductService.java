@@ -198,14 +198,12 @@ public class ProductService {
 
         // Launch asynchronous batch queries
         CompletableFuture<List<ProductCategoryQueryDTO>> categoriesFuture = CompletableFuture.supplyAsync(() -> {
-                    List<ProductCategoryQueryDTO> list = getProductsCategoriesFromObjects(categoryRepository.findByProductIdIn(productIds));
-                    return list;
+            return getProductsCategoriesFromObjects(categoryRepository.findByProductIdIn(productIds));
                 }
         );
         CompletableFuture<List<ProductVariantReadDTO>> variantsFuture = CompletableFuture.supplyAsync(() ->
                 {
-                    List<ProductVariantReadDTO> list = productVariantSearchService.searchVariantsByProducts(productIds);
-                    return list;
+                    return productVariantSearchService.searchVariantsByProducts(productIds);
                 }
         );
 

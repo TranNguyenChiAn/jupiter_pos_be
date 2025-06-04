@@ -37,11 +37,6 @@ public class ProductVariantResource {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/search/{productId}")
-    public List<GetAllProductVariantDTO> searchProductVariant(@PathVariable Integer productId) {
-        return productVariantService.searchProductVariant(productId);
-    }
-
     @GetMapping("/get-all-ids")
     public ResponseEntity<List<Integer>> getAllIds() {
         List<Integer> result = productVariantSearchService.getAllIds();
