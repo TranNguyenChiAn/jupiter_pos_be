@@ -174,7 +174,7 @@ public class ProductVariantSearchService {
 
     public List<ProductVariantReadDTO> searchVariantsByProducts(List<Integer> productIds) {
         return productVariantRepository.findByProductIdIn(productIds).stream()
-                .map(ProductVariant::toProductVariantReadDTO)
+                .map(this::setDetailsForVariant)
                 .collect(Collectors.toList());
     }
 }
