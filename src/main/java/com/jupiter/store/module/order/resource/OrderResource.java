@@ -2,9 +2,12 @@ package com.jupiter.store.module.order.resource;
 
 import com.jupiter.store.module.order.dto.CreateOrderDTO;
 import com.jupiter.store.module.order.dto.OrderItemsDTO;
+import com.jupiter.store.module.order.dto.OrderSearchDTO;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +19,13 @@ public class OrderResource {
     @Autowired
     private OrderService orderService;
 
-    @GetMapping("/search")
-    public List<Order> getUserOrder() {
-        return orderService.getAllUserOrders();
+    @PostMapping("/search")
+    public ResponseEntity<Page<Order>> getUserOrder(@RequestBody OrderSearchDTO orderSearchDTO) {
+        return ResponseEntity.ok(
+                orderService.getAllUserOrders(
+                orderSearchDTO.getPageSize(),
+                orderSearchDTO.getPageNumber()
+        ));
     }
 
     @GetMapping("/detail-search/{orderId}")

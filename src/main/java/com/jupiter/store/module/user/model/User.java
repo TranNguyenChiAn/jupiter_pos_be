@@ -1,6 +1,7 @@
 package com.jupiter.store.module.user.model;
 
 import com.jupiter.store.common.model.AbstractAuditingEntity;
+import com.jupiter.store.module.role.constant.RoleBase;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -57,5 +58,13 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     public boolean hasUsername() {
         return this.getUsername() != null;
+    }
+
+    public boolean isAdmin() {
+        return this.getRole().equalsIgnoreCase(RoleBase.SYSTEM_ADMIN) || this.getRole().equalsIgnoreCase(RoleBase.ADMIN);
+    }
+
+    public boolean canViewOrder() {
+        return this.getRole().equalsIgnoreCase(RoleBase.EMPLOYEE) || this.getRole().equalsIgnoreCase(RoleBase.USER);
     }
 }

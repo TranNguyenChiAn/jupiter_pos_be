@@ -21,6 +21,8 @@ import com.jupiter.store.module.user.repository.UserRepository;
 import com.jupiter.store.module.user.service.UserService;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -64,8 +66,29 @@ public class OrderService {
         return orderItemsDTO;
     }
 
-    public List<Order> getAllUserOrders() {
-        return orderRepository.findByUserId(currentUserId());
+    public Page<Order> getAllUserOrders(
+            Integer pageSize,
+            Integer pageNumber
+    ) {
+        Integer currentUserId = currentUserId();
+        if (currentUserId == null) {
+            throw new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.UNAUTHORIZED);
+        }
+
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.NOT_FOUND));
+
+        if (user.getRole() == null || !user.canViewOrder()) {
+            throw new CustomException("Bạn không có quyền xem đơn hàng", HttpStatus.FORBIDDEN);
+        }
+
+        Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNumber);
+
+        if (user.isAdmin()) {
+            return orderRepository.findAll(pageable);
+        }
+
+        return orderRepository.findByUserId(currentUserId, pageable);
     }
 
     public Order createOrder(
