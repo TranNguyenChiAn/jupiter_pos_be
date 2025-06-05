@@ -159,19 +159,13 @@ public class ProductService {
                         Sort.by(sort));
             }
         }
-        if (search == null || search.trim().isBlank()) {
-            search = "";
-        }
-        // Convert search string into tokens with wildcards.
-        String[] searchTerms;
-        if (search != null && !search.trim().isEmpty()) {
-            String[] tokens = search.toLowerCase().trim().split("\\s+");
-            for (int i = 0; i < tokens.length; i++) {
-                tokens[i] = "%" + tokens[i] + "%";
+        if (search != null) {
+            search = search.trim();
+            if (search.isBlank()) {
+                search = null;
+            } else {
+                search = search.toLowerCase();
             }
-            searchTerms = tokens;
-        } else {
-            searchTerms = new String[] {"%%"};
         }
 
         Integer categoryId = null;
@@ -188,8 +182,7 @@ public class ProductService {
             }
         }
         Page<Product> products = productRepository.searchProduct(
-                search.toLowerCase(),
-                searchTerms,
+                search,
                 categoryId,
                 status,
                 pageable
