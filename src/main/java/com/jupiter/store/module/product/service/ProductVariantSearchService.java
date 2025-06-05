@@ -48,12 +48,15 @@ public class ProductVariantSearchService {
 
     public Page<ProductVariantReadDTO> search(Pageable pageable, String search, String sort) {
         Page<ProductVariant> productVariants;
-        if (search != null && !search.isEmpty()) {
-//            productVariants = productVariantRepository.findByProductNameContainingIgnoreCase(search, pageable);
-            productVariants = productVariantRepository.findAll(pageable);
-        } else {
-            productVariants = productVariantRepository.findAll(pageable);
+        if (search != null) {
+            search = search.trim();
+            if (search.isBlank()) {
+                search = null;
+            } else {
+                search = search.toLowerCase();
+            }
         }
+        productVariants = productVariantRepository.search(search, pageable);
 
         // Process each variant in parallel using CompletableFuture.
         List<CompletableFuture<ProductVariantReadDTO>> futureList = productVariants.getContent().stream()

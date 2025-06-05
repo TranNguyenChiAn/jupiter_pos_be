@@ -24,10 +24,13 @@ public class ProductVariantResource {
 
     @GetMapping("/search")
     public ResponseEntity<PageResponse<ProductVariantReadDTO>> searchVariant(
-            Pageable pageable,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "30") Integer size,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String sort) {
-        Page<ProductVariantReadDTO> result = productVariantSearchService.search(pageable, search, sort);
+        Page<ProductVariantReadDTO> result = productVariantSearchService.search(
+                Pageable.ofSize(size).withPage(page),
+                search, sort);
         return ResponseEntity.ok(new PageResponse<>(result));
     }
 
