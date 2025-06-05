@@ -8,49 +8,58 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query(
-            value = "SELECT DISTINCT p.* FROM products p " +
-                    "LEFT JOIN product_variants pv ON p.id = pv.product_id " +
-                    "LEFT JOIN product_categories pc ON p.id = pc.product_id " +
-                    "WHERE (:status IS NULL OR p.status = :status) " +
-                    "AND (:categoryId IS NULL OR pc.category_id = :categoryId) " +
-                    "AND ( " +
-                    "  :search IS NULL OR (" +
-                    "  (LOWER(p.product_name) ILIKE CONCAT('%', LOWER(:search), '%') " +
-                    "   OR LOWER(p.description) ILIKE CONCAT('%', LOWER(:search), '%') " +
-                    "   OR LOWER(pv.sku) ILIKE CONCAT('%', LOWER(:search), '%') " +
-                    "   OR LOWER(pv.barcode) ILIKE CONCAT('%', LOWER(:search), '%')) " +
-                    "  OR " +
-                    "  (LOWER(p.product_name) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
-                    "   OR LOWER(p.description) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
-                    "   OR LOWER(pv.sku) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
-                    "   OR LOWER(pv.barcode) ILIKE CONCAT('%', LOWER(:swappedSearch), '%')) " +
-                    ")) " +
-                    "ORDER BY p.last_modified_date DESC",
-            countQuery = "SELECT COUNT(DISTINCT p.id) FROM products p " +
-                    "LEFT JOIN product_variants pv ON p.id = pv.product_id " +
-                    "LEFT JOIN product_categories pc ON p.id = pc.product_id " +
-                    "WHERE (:status IS NULL OR p.status = :status) " +
-                    "AND (:categoryId IS NULL OR pc.category_id = :categoryId) " +
-                    "AND ( " +
-                    "  :search IS NULL OR (" +
-                    "  (LOWER(p.product_name) ILIKE CONCAT('%', LOWER(:search), '%') " +
-                    "   OR LOWER(p.description) ILIKE CONCAT('%', LOWER(:search), '%') " +
-                    "   OR LOWER(pv.sku) ILIKE CONCAT('%', LOWER(:search), '%') " +
-                    "   OR LOWER(pv.barcode) ILIKE CONCAT('%', LOWER(:search), '%')) " +
-                    "  OR " +
-                    "  (LOWER(p.product_name) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
-                    "   OR LOWER(p.description) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
-                    "   OR LOWER(pv.sku) ILIKE CONCAT('%', LOWER(:swappedSearch), '%') " +
-                    "   OR LOWER(pv.barcode) ILIKE CONCAT('%', LOWER(:swappedSearch), '%')) " +
-                    ")) ",
+            value = "SELECT * FROM ( " +
+                    "  SELECT DISTINCT p.*, " +
+                    "  CASE WHEN (p.product_name ILIKE CONCAT('%', :search, '%') " +
+                    "         OR p.description ILIKE CONCAT('%', :search, '%') " +
+                    "         OR pv.sku ILIKE CONCAT('%', :search, '%') " +
+                    "         OR pv.barcode ILIKE CONCAT('%', :search, '%')) " +
+                    "       THEN 0 ELSE 1 END AS ord_expr " +
+                    "  FROM products p " +
+                    "  LEFT JOIN product_variants pv ON p.id = pv.product_id " +
+                    "  LEFT JOIN product_categories pc ON p.id = pc.product_id " +
+                    "  WHERE (:status IS NULL OR p.status = :status) " +
+                    "    AND (:categoryId IS NULL OR pc.category_id = :categoryId) " +
+                    "    AND ( :search IS NULL OR " +
+                    "         ((p.product_name ILIKE CONCAT('%', :search, '%') " +
+                    "           OR p.description ILIKE CONCAT('%', :search, '%') " +
+                    "           OR pv.sku ILIKE CONCAT('%', :search, '%') " +
+                    "           OR pv.barcode ILIKE CONCAT('%', :search, '%')) " +
+                    "        OR (p.product_name ILIKE ANY(:searchTerms) " +
+                    "           OR p.description ILIKE ANY(:searchTerms) " +
+                    "           OR pv.sku ILIKE ANY(:searchTerms) " +
+                    "           OR pv.barcode ILIKE ANY(:searchTerms))) " +
+                    "    ) " +
+                    ") sub " +
+                    "ORDER BY sub.ord_expr, sub.last_modified_date DESC",
+            countQuery = "SELECT COUNT(*) FROM ( " +
+                    "  SELECT DISTINCT p.id " +
+                    "  FROM products p " +
+                    "  LEFT JOIN product_variants pv ON p.id = pv.product_id " +
+                    "  LEFT JOIN product_categories pc ON p.id = pc.product_id " +
+                    "  WHERE (:status IS NULL OR p.status = :status) " +
+                    "    AND (:categoryId IS NULL OR pc.category_id = :categoryId) " +
+                    "    AND ( :search IS NULL OR " +
+                    "         ((p.product_name ILIKE CONCAT('%', :search, '%') " +
+                    "           OR p.description ILIKE CONCAT('%', :search, '%') " +
+                    "           OR pv.sku ILIKE CONCAT('%', :search, '%') " +
+                    "           OR pv.barcode ILIKE CONCAT('%', :search, '%')) " +
+                    "        OR (p.product_name ILIKE ANY(:searchTerms) " +
+                    "           OR p.description ILIKE ANY(:searchTerms) " +
+                    "           OR pv.sku ILIKE ANY(:searchTerms) " +
+                    "           OR pv.barcode ILIKE ANY(:searchTerms))) " +
+                    "    ) " +
+                    ") sub",
             nativeQuery = true)
     Page<Product> searchProduct(
             @Param("search") String search,
-            @Param("swappedSearch") String swappedSearch,
+            @Param("searchTerms") String[] searchTerms,
             @Param("categoryId") Integer categoryId,
             @Param("status") String status,
             Pageable pageable

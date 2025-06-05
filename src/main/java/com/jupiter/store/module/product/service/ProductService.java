@@ -91,17 +91,6 @@ public class ProductService {
         }
     }
 
-//    private void saveProductCategories(List<Integer> categoryIds, Integer productId) {
-//        if (categoryIds != null && !categoryIds.isEmpty()) {
-//            for (Integer categoryId : categoryIds) {
-//                ProductCategory productCategory = new ProductCategory();
-//                productCategory.setProductId(productId);
-//                productCategory.setCategoryId(categoryId);
-//                productCategoryRepository.save(productCategory);
-//            }
-//        }
-//    }
-
     @Transactional
     public void updateProduct(Integer productId, UpdateProductDTO dto) {
         // Assume that dto contains productId
@@ -173,11 +162,16 @@ public class ProductService {
         if (search == null || search.trim().isBlank()) {
             search = "";
         }
-        String swappedSearch = search;
-        String[] words = search.trim().split("\\s+");
-        if (words.length == 2) {
-            // Build swapped version (for example: "choàng áo" becomes "áo choàng")
-            swappedSearch = words[1] + " " + words[0];
+        // Convert search string into tokens with wildcards.
+        String[] searchTerms;
+        if (search != null && !search.trim().isEmpty()) {
+            String[] tokens = search.toLowerCase().trim().split("\\s+");
+            for (int i = 0; i < tokens.length; i++) {
+                tokens[i] = "%" + tokens[i] + "%";
+            }
+            searchTerms = tokens;
+        } else {
+            searchTerms = new String[] {"%%"};
         }
 
         Integer categoryId = null;
@@ -187,12 +181,19 @@ public class ProductService {
                 categoryId = filter.getCategoryId();
             }
             if (filter.getStatus() != null) {
-                if (Stream.of(ProductStatus.ACTIVE, ProductStatus.INACTIVE, ProductStatus.DELETED).anyMatch(s -> s.toString().equalsIgnoreCase(filter.getStatus()))) {
+                if (Stream.of(ProductStatus.DANG_BAN, ProductStatus.NGUNG_BAN, ProductStatus.DA_XOA)
+                        .anyMatch(s -> s.toString().equalsIgnoreCase(filter.getStatus()))) {
                     status = filter.getStatus();
                 }
             }
         }
-        Page<Product> products = productRepository.searchProduct(search, swappedSearch, categoryId, status, pageable);
+        Page<Product> products = productRepository.searchProduct(
+                search.toLowerCase(),
+                searchTerms,
+                categoryId,
+                status,
+                pageable
+        );
         List<Product> productList = products.getContent();
         if (productList.isEmpty()) {
             return new PageImpl<>(List.of(), pageable, 0);
