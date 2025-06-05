@@ -110,7 +110,13 @@ public class OrderService {
 
         Order order = new Order();
         order.setUserId(currentUserId());
-
+        Long totalAmount = orderItems.stream()
+                .mapToLong(item -> item.getSoldPrice() * item.getSoldQuantity())
+                .sum();
+        if (totalAmount < 0) {
+            throw new CustomException("Tổng số tiền phải lớn hơn 0", HttpStatus.BAD_REQUEST);
+        }
+        order.setTotalAmount(totalAmount);
         Customer customer = null;
         if (customerId != null) {
             customer = customerService.findById(customerId);
@@ -121,6 +127,7 @@ public class OrderService {
         if (customer != null) {
             customerId = customer.getId();
             order.setCustomerId(customerId);
+            customerService.updateAfterOrder(customerId, totalAmount,1);
         }
         order.setReceiverName(receiverName);
         order.setReceiverPhone(receiverPhone);
@@ -128,13 +135,6 @@ public class OrderService {
         order.setNote(note);
         order.setOrderStatus(orderStatus);
 //        order.setPaymentMethod(paymentMethod);
-        Long totalAmount = orderItems.stream()
-                .mapToLong(item -> item.getSoldPrice() * item.getSoldQuantity())
-                .sum();
-        if (totalAmount < 0) {
-            throw new CustomException("Tổng số tiền phải lớn hơn 0", HttpStatus.BAD_REQUEST);
-        }
-        order.setTotalAmount(totalAmount);
         order.setOrderStatus(OrderStatus.CHO_XAC_NHAN);
         order.setCreatedBy(currentUserId());
         order.setLastModifiedBy(currentUserId());

@@ -5,6 +5,8 @@ import com.jupiter.store.module.customer.dto.CreateCustomerDTO;
 import com.jupiter.store.module.customer.model.Customer;
 import com.jupiter.store.module.customer.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,8 +26,8 @@ public class CustomerService {
         customer.setGender(createCustomerDTO.isGender());
         customer.setPhone(createCustomerDTO.getPhoneNumber());
         customer.setAddress(createCustomerDTO.getAddress());
-        customer.setActive(true);
         customer.setTotalSpent(0L);
+        customer.setTotalOrders(0);
         customer.setCreatedBy(SecurityUtils.getCurrentUserId());
         return customerRepository.save(customer);
     }
@@ -42,6 +44,28 @@ public class CustomerService {
 
     public Customer findByPhone(String phone) {
         return customerRepository.findByPhone(phone);
+    }
+
+
+    public Page<Customer> search(Pageable pageable, String search) {
+        if (search != null) {
+            search = search.trim();
+            if (search.isBlank()) {
+                search = null;
+            } else {
+                search = search.toLowerCase();
+            }
+        }
+        return customerRepository.search(search, pageable);
+    }
+
+    public void updateAfterOrder(Integer customerId, Long totalSpent, Integer totalOrders) {
+        Customer customer = findById(customerId);
+        if (customer != null) {
+            customer.setTotalSpent(customer.getTotalSpent() + totalSpent);
+            customer.setTotalOrders(customer.getTotalOrders() + totalOrders);
+            customerRepository.save(customer);
+        }
     }
 }
 

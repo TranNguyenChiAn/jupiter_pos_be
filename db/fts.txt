@@ -48,3 +48,25 @@ BEFORE INSERT OR UPDATE ON product_variants
 FOR EACH ROW EXECUTE FUNCTION product_variants_fts_trigger();
 
 
+-- customers
+-- Thêm cột FTS nếu chưa có
+ALTER TABLE customers ADD COLUMN fts tsvector;
+
+-- Tạo chỉ mục FTS
+CREATE INDEX customers_fts_idx ON customers USING GIN (fts);
+
+-- Cập nhật dữ liệu ban đầu
+UPDATE customers
+SET fts = to_tsvector('simple', unaccent(coalesce(customer_name, '') || ' ' || coalesce(address, '') || ' ' || coalesce(phone, '')));
+
+CREATE FUNCTION update_customers_fts() RETURNS trigger AS $$
+BEGIN
+  NEW.fts := to_tsvector('simple', unaccent(coalesce(NEW.customer_name, '') || ' ' || coalesce(NEW.address, '') || ' ' || coalesce(NEW.phone, '')));
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_customers_fts
+BEFORE INSERT OR UPDATE ON customers
+FOR EACH ROW EXECUTE FUNCTION update_customers_fts();
+

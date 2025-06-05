@@ -33,10 +33,10 @@ public class Customer extends AbstractAuditingEntity implements Serializable {
     @Column(name = "phone", unique = true)
     private String phone;
 
-    @Column(name = "is_active")
-    private boolean isActive;
-
     @Column(name = "total_spent")
     private Long totalSpent;
+
+    @Column(name = "total_orders")
+    private Integer totalOrders;
 
 }
