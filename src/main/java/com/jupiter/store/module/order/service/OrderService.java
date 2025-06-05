@@ -110,7 +110,11 @@ public class OrderService {
 
         Order order = new Order();
         order.setUserId(currentUserId());
-        Customer customer = customerService.findById(customerId);
+
+        Customer customer = null;
+        if (customerId != null) {
+            customer = customerService.findById(customerId);
+        }
         if (customer == null && receiverPhone != null) {
             customer = customerService.findByPhone(receiverPhone);
         }
