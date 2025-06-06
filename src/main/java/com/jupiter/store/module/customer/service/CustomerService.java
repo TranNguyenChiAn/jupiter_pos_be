@@ -20,15 +20,25 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
-    public Customer addCustomer(CreateCustomerDTO createCustomerDTO) {
+    public Customer create(CreateCustomerDTO createCustomerDTO) {
+        if (createCustomerDTO.getCustomerName() == null || createCustomerDTO.getCustomerName().isBlank()) {
+            throw new RuntimeException("Vui lòng nhập tên khách hàng");
+        }
+        if (createCustomerDTO.getPhone() == null || createCustomerDTO.getPhone().isBlank()) {
+            throw new RuntimeException("Vui lòng nhập số điện thoại");
+        }
+        if (customerRepository.findByPhone(createCustomerDTO.getPhone()) != null) {
+            throw new RuntimeException("Số điện thoại đã tồn tại");
+        }
         Customer customer = new Customer();
-        customer.setCustomerName(createCustomerDTO.getFullName());
+        customer.setCustomerName(createCustomerDTO.getCustomerName());
         customer.setGender(createCustomerDTO.isGender());
-        customer.setPhone(createCustomerDTO.getPhoneNumber());
+        customer.setPhone(createCustomerDTO.getPhone());
         customer.setAddress(createCustomerDTO.getAddress());
         customer.setTotalSpent(0L);
         customer.setTotalOrders(0);
         customer.setCreatedBy(SecurityUtils.getCurrentUserId());
+        customer.setLastModifiedBy(SecurityUtils.getCurrentUserId());
         return customerRepository.save(customer);
     }
 
@@ -62,8 +72,10 @@ public class CustomerService {
     public void updateAfterOrder(Integer customerId, Long totalSpent, Integer totalOrders) {
         Customer customer = findById(customerId);
         if (customer != null) {
-            customer.setTotalSpent(customer.getTotalSpent() + totalSpent);
-            customer.setTotalOrders(customer.getTotalOrders() + totalOrders);
+            Long oldTotalSpent = customer.getTotalSpent() != null ? customer.getTotalSpent() : 0L;
+            Integer oldTotalOrders = customer.getTotalOrders() != null ? customer.getTotalOrders() : 0;
+            customer.setTotalSpent(oldTotalSpent + totalSpent);
+            customer.setTotalOrders(oldTotalOrders + totalOrders);
             customerRepository.save(customer);
         }
     }

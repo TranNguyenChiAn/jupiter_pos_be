@@ -29,7 +29,12 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                     "    OR pv.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
                     "        ) " +
                     ") sub " +
-                    "ORDER BY sub.rank DESC, sub.last_modified_date DESC",
+                    "ORDER BY " +
+                    "  CASE " +
+                    "    WHEN (:search IS NULL OR unaccent(:search) = '') THEN NULL " +
+                    "    ELSE COALESCE(sub.rank, 0) " +
+                    "  END DESC, " +
+                    "  sub.last_modified_date DESC nulls last",
             countQuery = "SELECT COUNT(*) FROM ( " +
                     "  SELECT DISTINCT p.id " +
                     "  FROM products p " +

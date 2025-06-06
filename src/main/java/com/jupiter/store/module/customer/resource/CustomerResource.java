@@ -1,6 +1,7 @@
 package com.jupiter.store.module.customer.resource;
 
 import com.jupiter.store.module.customer.dto.CreateCustomerDTO;
+import com.jupiter.store.module.customer.dto.CustomerSearchDTO;
 import com.jupiter.store.module.customer.model.Customer;
 import com.jupiter.store.module.customer.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +17,9 @@ public class CustomerResource {
     private CustomerService customerService;
 
     @PostMapping("/search")
-    public ResponseEntity<Page<Customer>> findAllCustomer(
-            @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer size,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false) String sort
-    ) {
+    public ResponseEntity<Page<Customer>> findAllCustomer(@RequestBody CustomerSearchDTO request) {
         Page<Customer> result = customerService.search(
-                Pageable.ofSize(size).withPage(page), search
+                Pageable.ofSize(request.getSize()).withPage(request.getPage()), request.getSearch()
         );
         return ResponseEntity.ok(result);
     }
@@ -33,9 +29,10 @@ public class CustomerResource {
         return customerService.findCustomer(keyword);
     }
 
-    @PostMapping("/add-customer")
-    public Customer addCustomer(@RequestBody CreateCustomerDTO createCustomerDTO) {
-        return customerService.addCustomer(createCustomerDTO);
+    @PostMapping("")
+    public ResponseEntity<Customer> create(@RequestBody CreateCustomerDTO createCustomerDTO) {
+        Customer result = customerService.create(createCustomerDTO);
+        return ResponseEntity.ok(result);
     }
 
 }

@@ -9,9 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateCustomerDTO {
-    private String customerName;
-    private boolean gender;
-    private String address;
-    private String phone;
+public class CustomerSearchDTO {
+    private Integer page = 0;
+    private Integer size;
+    private String search;
 }

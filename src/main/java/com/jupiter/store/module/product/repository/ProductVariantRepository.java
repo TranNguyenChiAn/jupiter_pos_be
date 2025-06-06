@@ -1,11 +1,9 @@
 package com.jupiter.store.module.product.repository;
 
-import com.jupiter.store.module.product.dto.ProductVariantReadDTO;
 import com.jupiter.store.module.product.model.ProductVariant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -37,7 +35,12 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
                     "    OR pv.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
                     "        ) " +
                     ") sub " +
-                    "ORDER BY sub.rank DESC, sub.pv_last_modified_date DESC",
+                    "ORDER BY " +
+                    "  CASE " +
+                    "    WHEN (:search IS NULL OR unaccent(:search) = '') THEN NULL " +
+                    "    ELSE COALESCE(sub.rank, 0) " +
+                    "  END DESC, " +
+                    "  sub.pv_last_modified_date DESC nulls last",
             countQuery = "SELECT COUNT(*) FROM ( " +
                     "  SELECT DISTINCT pv.*, pv.last_modified_date as pv_last_modified_date, " +
                     "         ts_rank_cd( to_tsvector('simple', " +
