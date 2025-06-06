@@ -1,7 +1,7 @@
 package com.jupiter.store.module.customer.service;
 
 import com.jupiter.store.common.utils.SecurityUtils;
-import com.jupiter.store.module.customer.dto.CreateCustomerDTO;
+import com.jupiter.store.module.customer.dto.CustomerDTO;
 import com.jupiter.store.module.customer.model.Customer;
 import com.jupiter.store.module.customer.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,21 +20,21 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
-    public Customer create(CreateCustomerDTO createCustomerDTO) {
-        if (createCustomerDTO.getCustomerName() == null || createCustomerDTO.getCustomerName().isBlank()) {
+    public Customer create(CustomerDTO customerDTO) {
+        if (customerDTO.getCustomerName() == null || customerDTO.getCustomerName().isBlank()) {
             throw new RuntimeException("Vui lòng nhập tên khách hàng");
         }
-        if (createCustomerDTO.getPhone() == null || createCustomerDTO.getPhone().isBlank()) {
+        if (customerDTO.getPhone() == null || customerDTO.getPhone().isBlank()) {
             throw new RuntimeException("Vui lòng nhập số điện thoại");
         }
-        if (customerRepository.findByPhone(createCustomerDTO.getPhone()) != null) {
+        if (customerRepository.findByPhone(customerDTO.getPhone()) != null) {
             throw new RuntimeException("Số điện thoại đã tồn tại");
         }
         Customer customer = new Customer();
-        customer.setCustomerName(createCustomerDTO.getCustomerName());
-        customer.setGender(createCustomerDTO.isGender());
-        customer.setPhone(createCustomerDTO.getPhone());
-        customer.setAddress(createCustomerDTO.getAddress());
+        customer.setCustomerName(customerDTO.getCustomerName());
+        customer.setGender(customerDTO.isGender());
+        customer.setPhone(customerDTO.getPhone());
+        customer.setAddress(customerDTO.getAddress());
         customer.setTotalSpent(0L);
         customer.setTotalOrders(0);
         customer.setCreatedBy(SecurityUtils.getCurrentUserId());
@@ -78,6 +78,19 @@ public class CustomerService {
             customer.setTotalOrders(oldTotalOrders + totalOrders);
             customerRepository.save(customer);
         }
+    }
+
+    public Customer update(Integer id, CustomerDTO customerDTO) {
+        Customer existingCustomer = findById(id);
+        if (existingCustomer == null) {
+            throw new RuntimeException("Khách hàng không tồn tại");
+        }
+        existingCustomer.setCustomerName(customerDTO.getCustomerName() == null ? "" : customerDTO.getCustomerName());
+        existingCustomer.setGender(customerDTO.isGender());
+        existingCustomer.setPhone(customerDTO.getPhone() == null ? existingCustomer.getPhone() : customerDTO.getPhone());
+        existingCustomer.setAddress(customerDTO.getAddress() == null ? "" : customerDTO.getAddress());
+        existingCustomer.setLastModifiedBy(SecurityUtils.getCurrentUserId());
+        return customerRepository.save(existingCustomer);
     }
 }
 

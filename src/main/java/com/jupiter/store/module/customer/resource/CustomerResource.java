@@ -1,6 +1,6 @@
 package com.jupiter.store.module.customer.resource;
 
-import com.jupiter.store.module.customer.dto.CreateCustomerDTO;
+import com.jupiter.store.module.customer.dto.CustomerDTO;
 import com.jupiter.store.module.customer.dto.CustomerSearchDTO;
 import com.jupiter.store.module.customer.model.Customer;
 import com.jupiter.store.module.customer.service.CustomerService;
@@ -24,15 +24,24 @@ public class CustomerResource {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/search-detail")
-    public Customer findCustomerById(@RequestParam String keyword) {
-        return customerService.findCustomer(keyword);
+    @GetMapping("/{customerId}")
+    public Customer findCustomerById(@PathVariable Integer customerId) {
+        Customer customer = customerService.findById(customerId);
+        if (customer == null) {
+            throw new RuntimeException("Xảy ra lỗi khi tìm kiếm khách hàng");
+        }
+        return customer;
     }
 
     @PostMapping("")
-    public ResponseEntity<Customer> create(@RequestBody CreateCustomerDTO createCustomerDTO) {
-        Customer result = customerService.create(createCustomerDTO);
+    public ResponseEntity<Customer> create(@RequestBody CustomerDTO customerDTO) {
+        Customer result = customerService.create(customerDTO);
         return ResponseEntity.ok(result);
     }
 
+    @PutMapping("/{customerId}")
+    public ResponseEntity<Customer> update(@PathVariable Integer customerId, @RequestBody CustomerDTO customerDTO) {
+        Customer result = customerService.update(customerId, customerDTO);
+        return ResponseEntity.ok(result);
+    }
 }
