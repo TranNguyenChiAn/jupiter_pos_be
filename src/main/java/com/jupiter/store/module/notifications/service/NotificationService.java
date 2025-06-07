@@ -9,6 +9,7 @@ import com.jupiter.store.module.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -42,6 +43,7 @@ public class NotificationService {
         return notificationRepository.findByUserId(userId);
     }
 
+    @Async
     public void sendNotification(NotificationDTO message) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
@@ -59,6 +61,7 @@ public class NotificationService {
         }
     }
 
+    @Async
     public void sendEmail(String toEmail, Notification notification) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("$spring.mail.username");
@@ -71,6 +74,7 @@ public class NotificationService {
         System.out.println("Mail sent successfully!");
     }
 
+    @Async
     public void sendWebNotification(Notification notification) {
         Notification msg = new Notification(notification);
         msg.setType(NotificationType.WEB);

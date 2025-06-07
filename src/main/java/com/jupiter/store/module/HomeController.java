@@ -1,10 +1,10 @@
 package com.jupiter.store.module;
 
 import com.jupiter.store.common.utils.FakeDataGenerator;
-import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.service.NotificationService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +39,7 @@ public class HomeController {
     }
 
     @GetMapping("/payment-result")
-    public void handlePaymentResult(@RequestParam String status, @RequestParam Integer orderId) {
+    public RedirectView handlePaymentResult(@RequestParam String status, @RequestParam Integer orderId, HttpServletRequest request) {
         Notification notification = new Notification();
         notification.setTitle("Kết quả thanh toán");
         if(status.equals("success")) {
@@ -53,5 +53,10 @@ public class HomeController {
         notification.setRead(false);
         notification.setUserId(2);
         notificationService.sendWebNotification(notification);
+
+        // Lấy domain hiện tại
+        String domain = request.getScheme() + "://" + request.getServerName()
+                + (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort());
+        return new RedirectView(domain + "/api/orders/search");
     }
 }
