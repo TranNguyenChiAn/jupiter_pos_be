@@ -51,7 +51,7 @@ public class HomeController {
         }
         notification.setEntityType(NotificationEntityType.PAYMENT);
         notification.setRead(false);
-        notification.setUserId(SecurityUtils.getCurrentUserId());
+        notification.setUserId(2);
         notificationService.sendWebNotification(notification);
     }
 }
