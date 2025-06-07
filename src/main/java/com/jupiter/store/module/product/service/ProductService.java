@@ -54,16 +54,6 @@ public class ProductService {
         return SecurityUtils.getCurrentUserId();
     }
 
-//    public void addProduct(CreateProductDTO createProductDTO) {
-//        Product product = new Product();
-//        product.setProductName(createProductDTO.getName());
-//        product.setDescription(createProductDTO.getDescription());
-//        product.setStatus(createProductDTO.getStatus());
-//        product.setCreatedBy(currentUserId());
-//        product = productRepository.save(product);
-//        saveProductCategories(createProductDTO.getCategoryId(), product.getId());
-//    }
-
     @Transactional
     public void createFullProduct(CreateFullProductDTO dto) {
         // Create product

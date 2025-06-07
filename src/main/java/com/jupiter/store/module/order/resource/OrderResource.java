@@ -1,23 +1,32 @@
 package com.jupiter.store.module.order.resource;
 
+import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.order.dto.CreateOrderDTO;
 import com.jupiter.store.module.order.dto.OrderItemsDTO;
 import com.jupiter.store.module.order.dto.OrderSearchDTO;
+import com.jupiter.store.module.order.dto.UpdateOrderStatusDTO;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.service.OrderService;
+import com.jupiter.store.module.payment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrderResource {
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @PostMapping("/search")
     public ResponseEntity<Page<Order>> getUserOrder(@RequestBody OrderSearchDTO orderSearchDTO) {
@@ -41,11 +50,27 @@ public class OrderResource {
                 createOrderDTO.getReceiverPhone(),
                 createOrderDTO.getReceiverAddress(),
                 createOrderDTO.getNote(),
-                createOrderDTO.getPaymentMethod(),
                 createOrderDTO.getOrderStatus(),
                 createOrderDTO.getOrderItems()
         );
-        return ResponseEntity.ok(order);
+
+        CompletableFuture<String> paymentFuture = CompletableFuture.supplyAsync(() -> {
+            return paymentService.createPayment(
+                    order.getId(),
+                    createOrderDTO.getPaid(),
+                    createOrderDTO.getPaymentMethod(),
+                    SecurityUtils.getCurrentUserId()
+            );
+        });
+        String paymentUrl = paymentFuture.join();
+
+        // Nếu là thanh toán online → redirect
+        if (paymentUrl != null && !paymentUrl.isEmpty()) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create(paymentUrl));
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 
     @PostMapping("/add-product/{orderId}/{productVariantId}")
@@ -59,8 +84,8 @@ public class OrderResource {
     }
 
     @PutMapping("/update-status")
-    public void updateOrder(@RequestParam Integer orderId) {
-        orderService.updateOrderStatus(orderId);
+    public void updateOrder(@RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
+        orderService.updateOrderStatus(updateOrderStatusDTO);
     }
 
     @PostMapping("/confirm-order/{orderId}")

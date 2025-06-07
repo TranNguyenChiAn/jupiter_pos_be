@@ -8,19 +8,16 @@ import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.order.constant.OrderStatus;
-import com.jupiter.store.module.order.dto.CreateOrderDTO;
-import com.jupiter.store.module.order.dto.OrderDetailCreateDTO;
-import com.jupiter.store.module.order.dto.OrderItemsDTO;
-import com.jupiter.store.module.order.dto.UpdateOrderDTO;
+import com.jupiter.store.module.order.dto.*;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.model.OrderDetail;
 import com.jupiter.store.module.order.repository.OrderDetailRepository;
 import com.jupiter.store.module.order.repository.OrderRepository;
+import com.jupiter.store.module.payment.service.PaymentService;
 import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
-import com.jupiter.store.module.user.service.UserService;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,10 +26,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class OrderService {
@@ -52,6 +49,8 @@ public class OrderService {
     private UserRepository userRepository;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private PaymentService paymentService;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -101,7 +100,6 @@ public class OrderService {
             String receiverPhone,
             String receiverAddress,
             String note,
-            String paymentMethod,
             OrderStatus orderStatus,
             List<OrderDetailCreateDTO> orderItems
     ) {
@@ -110,7 +108,7 @@ public class OrderService {
 
         Order order = new Order();
         order.setUserId(currentUserId());
-        Long totalAmount = orderItems.stream()
+        Long totalAmount = orderItems.stream().filter(Objects::nonNull)
                 .mapToLong(item -> item.getSoldPrice() * item.getSoldQuantity())
                 .sum();
         if (totalAmount < 0) {
@@ -134,14 +132,13 @@ public class OrderService {
         order.setReceiverAddress(receiverAddress);
         order.setNote(note);
         order.setOrderStatus(orderStatus);
-//        order.setPaymentMethod(paymentMethod);
         order.setOrderStatus(OrderStatus.CHO_XAC_NHAN);
         order.setCreatedBy(currentUserId());
         order.setLastModifiedBy(currentUserId());
         orderRepository.save(order);
 
         // Save order details if provided
-        if (orderItems != null && !orderItems.isEmpty()) {
+        if (!orderItems.isEmpty()) {
             List<OrderDetail> orderDetailList = new ArrayList<>();
             for (OrderDetailCreateDTO orderDetailDTO : orderItems) {
                 OrderDetail orderDetail = new OrderDetail();
@@ -162,9 +159,12 @@ public class OrderService {
             }
             orderDetailRepository.saveAll(orderDetailList);
         }
-//        NotificationDTO notificationDTO = new NotificationDTO( "Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới",
-//                NotificationEntityType.ORDER, order.getId());
-//        notificationService.sendNotification(notificationDTO);
+
+        CompletableFuture.runAsync(() -> {
+            NotificationDTO notificationDTO = new NotificationDTO( "Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới",
+                    NotificationEntityType.ORDER, order.getId());
+            notificationService.sendNotification(notificationDTO);
+        });
         return order;
     }
 
@@ -209,10 +209,10 @@ public class OrderService {
         return ResponseEntity.ok(orderDetailRepository.save(orderDetail));
     }
 
-    public void updateOrderStatus(Integer orderId) {
-        Order order = orderRepository.findById(orderId)
+    public void updateOrderStatus(UpdateOrderStatusDTO updateOrderStatusDTO) {
+        Order order = orderRepository.findById(updateOrderStatusDTO.getOrderId())
                 .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
-        order.setOrderStatus(OrderStatus.DA_XAC_NHAN);
+        order.setOrderStatus(updateOrderStatusDTO.getOrderStatus());
         order.setLastModifiedBy(currentUserId());
         orderRepository.save(order);
     }

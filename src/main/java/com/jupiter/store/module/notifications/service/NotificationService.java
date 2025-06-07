@@ -71,7 +71,7 @@ public class NotificationService {
         System.out.println("Mail sent successfully!");
     }
 
-    private void sendWebNotification(Notification notification) {
+    public void sendWebNotification(Notification notification) {
         Notification msg = new Notification(notification);
         msg.setType(NotificationType.WEB);
 

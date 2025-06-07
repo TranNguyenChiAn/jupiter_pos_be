@@ -2,6 +2,7 @@ package com.jupiter.store.module.order.dto;
 
 import com.jupiter.store.module.order.constant.OrderStatus;
 import com.jupiter.store.module.order.model.OrderDetail;
+import com.jupiter.store.module.payment.constant.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,8 @@ public class CreateOrderDTO {
     private String receiverPhone;
     private String receiverAddress;
     private String note;
-    private String paymentMethod;
+    private Long paid;
+    private PaymentMethod paymentMethod;
     private List<OrderDetailCreateDTO> orderItems;
     private OrderStatus orderStatus = OrderStatus.CHO_XAC_NHAN;
 }
