@@ -21,8 +21,8 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**", "/v2/api-docs", "/v3/api-docs",
             "/v3/api-docs/**", "/swagger-resources", "/swagger-resources/**", "/configuration/ui",
             "/configuration/security", "/swagger-ui/**", "/swagger-ui.html", "/api/auth/**",
-            "/api/test/**", "/authenticate", "/login", "/api/users/register", "/error", "/", "/api/ping", "/api/product-variants/get-all-ids",
-            "/api/payments/vnpay-return", "/api/payments/vnpay-ipn"};
+            "/api/test/**", "/authenticate", "/login", "/api/users/register", "/error", "/", "/api/ping",
+            "/api/product-variants/get-all-ids"};
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {

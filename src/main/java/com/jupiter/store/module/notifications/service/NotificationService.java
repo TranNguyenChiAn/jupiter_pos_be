@@ -39,8 +39,8 @@ public class NotificationService {
         return emitter;
     }
 
-    public List<Notification> getNotificationsByUserId(Integer userId) {
-        return notificationRepository.findByUserId(userId);
+    public List<Notification> getNotificationsByUserId(Integer userId, Integer page) {
+        return notificationRepository.findByUserId(userId, page);
     }
 
     @Async

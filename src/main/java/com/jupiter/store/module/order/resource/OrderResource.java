@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -41,32 +40,18 @@ public class OrderResource {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Order> createOrder(
-            @RequestBody CreateOrderDTO createOrderDTO,
-            HttpServletResponse response
-    ) throws IOException {
-        Order order = orderService.createOrder(
+    public Order createOrder(@RequestBody CreateOrderDTO createOrderDTO) {
+        return orderService.createOrder(
                 createOrderDTO.getCustomerId(),
                 createOrderDTO.getReceiverName(),
                 createOrderDTO.getReceiverPhone(),
                 createOrderDTO.getReceiverAddress(),
                 createOrderDTO.getNote(),
+                createOrderDTO.getPaid(),
+                createOrderDTO.getPaymentMethod(),
                 createOrderDTO.getOrderStatus(),
                 createOrderDTO.getOrderItems()
         );
-
-        String paymentUrl= paymentService.createPayment(
-            order.getId(),
-            createOrderDTO.getPaid(),
-            createOrderDTO.getPaymentMethod()
-        );
-
-        // Nếu là thanh toán online → redirect
-        if (paymentUrl != null && !paymentUrl.isEmpty()) {
-            response.sendRedirect(paymentUrl);
-            return null;
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 
     @PostMapping("/add-product/{orderId}/{productVariantId}")

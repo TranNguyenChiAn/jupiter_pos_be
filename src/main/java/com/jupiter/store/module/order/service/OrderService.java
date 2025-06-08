@@ -13,6 +13,7 @@ import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.model.OrderDetail;
 import com.jupiter.store.module.order.repository.OrderDetailRepository;
 import com.jupiter.store.module.order.repository.OrderRepository;
+import com.jupiter.store.module.payment.constant.PaymentMethod;
 import com.jupiter.store.module.payment.service.PaymentService;
 import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
@@ -100,6 +101,8 @@ public class OrderService {
             String receiverPhone,
             String receiverAddress,
             String note,
+            Long paid,
+            PaymentMethod paymentMethod,
             OrderStatus orderStatus,
             List<OrderDetailCreateDTO> orderItems
     ) {
@@ -160,6 +163,7 @@ public class OrderService {
             orderDetailRepository.saveAll(orderDetailList);
         }
 
+        paymentService.createPayment(order.getId(), paid, paymentMethod);
         CompletableFuture.runAsync(() -> {
             NotificationDTO notificationDTO = new NotificationDTO( "Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới",
                     NotificationEntityType.ORDER, order.getId());
