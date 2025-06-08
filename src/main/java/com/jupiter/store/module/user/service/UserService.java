@@ -14,6 +14,8 @@ import com.jupiter.store.module.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.relational.core.sql.In;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,7 +37,21 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void register(RegisterUserDTO registerUserDTO) {
+    public Page<UserReadDTO> searchUsers(String search, Pageable pageable) {
+        Page<User> usersPage;
+        if (search != null) {
+            search = search.trim();
+            if (search.isBlank()) {
+                search = null;
+            } else {
+                search = search.toLowerCase();
+            }
+        }
+        usersPage = userRepository.search(search, pageable);
+        return usersPage.map(UserReadDTO::new);
+    }
+
+    public UserReadDTO register(RegisterUserDTO registerUserDTO) {
         User existedUser = findByPhoneOrEmail(registerUserDTO.getUsername(), registerUserDTO.getPhone(), registerUserDTO.getEmail());
         if (existedUser != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại hoặc email đã tồn tại!");
@@ -47,6 +63,10 @@ public class UserService {
         }
 
         User user = new User();
+        String pwd = registerUserDTO.getPassword();
+        if (pwd == null || pwd.isBlank()) {
+            return null;
+        }
         String encodedPassword = passwordEncoder.encode(registerUserDTO.getPassword());
         user.setUsername(registerUserDTO.getUsername());
         user.setFullName(registerUserDTO.getFullname());
@@ -58,6 +78,7 @@ public class UserService {
         user.setActive(true);
         user.setCreatedBy(SecurityUtils.getCurrentUserId());
         userRepository.save(user);
+        return new UserReadDTO(user);
     }
 
     public User findById(Integer userId) {

@@ -5,6 +5,8 @@ import com.jupiter.store.module.user.dto.*;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,24 +15,40 @@ public class UserResource {
     @Autowired
     private UserService userService;
 
+    @PostMapping("/search-users")
+    public Page<UserReadDTO> search(@RequestBody UserSearchDTO request) {
+        return userService.searchUsers(request.getSearch(), Pageable.ofSize(request.getSize()).withPage(request.getPage()));
+    }
+
+    @GetMapping("/{userId}")
+    public UserReadDTO getUserById(@PathVariable Integer userId) {
+        User user = userService.findById(userId);
+        return new UserReadDTO(user);
+    }
+
+    @PostMapping
+    public UserReadDTO createUser(@RequestBody RegisterUserDTO registerUserDTO) {
+        return userService.register(registerUserDTO);
+    }
+
+    @PutMapping("/{userId}")
+    public void updateUser(@PathVariable Integer userId, @RequestBody UpdateUserDTO updateUserDTO) {
+        userService.update(userId, updateUserDTO);
+    }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable Integer userId) {
+        userService.deleteUser(userId);
+    }
+
     @GetMapping("/search/{username}")
     public User searchById(@RequestParam String username) {
         return userService.searchByUsername(username);
     }
 
-    @PostMapping("/register")
-    public void register(@RequestBody RegisterUserDTO registerUserDTO) {
-        userService.register(registerUserDTO);
-    }
-
     @GetMapping("/current-user-id")
     public Integer getUser() {
         return SecurityUtils.getCurrentUserId();
-    }
-
-    @PutMapping("/update")
-    public void update(@RequestParam Integer userId, @RequestBody UpdateUserDTO updateUserDTO) {
-        userService.update(userId, updateUserDTO);
     }
 
     @PostMapping("/search")

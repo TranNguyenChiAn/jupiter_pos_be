@@ -591,3 +591,46 @@ CREATE
     ON CUSTOMERS
     FOR EACH ROW
 EXECUTE FUNCTION UPDATE_CUSTOMERS_FTS();
+
+
+-- Users
+----
+-- Thêm cột FTS nếu chưa có
+ALTER TABLE PUBLIC.USERS
+    ADD COLUMN IF NOT EXISTS FTS TSVECTOR;
+
+-- Tạo chỉ mục FTS
+CREATE INDEX IF NOT EXISTS USERS_FTS_IDX ON PUBLIC.USERS USING GIN (FTS);
+
+-- Cập nhật dữ liệu ban đầu
+UPDATE PUBLIC.USERS
+SET
+    FTS = TO_TSVECTOR(
+            'simple',
+            UNACCENT (
+                    COALESCE(FULLNAME, '') || ' ' || COALESCE(EMAIL, '') || ' ' || COALESCE(PHONE, '') || ' ' || COALESCE(USERNAME, '')
+            )
+          );
+
+-- Tạo lại hàm trigger
+CREATE OR REPLACE FUNCTION UPDATE_USERS_FTS () RETURNS TRIGGER AS $$
+BEGIN
+    NEW.fts := to_tsvector(
+            'simple',
+            unaccent(
+                    coalesce(NEW.fullname, '') || ' ' ||
+                    coalesce(NEW.email, '') || ' ' ||
+                    coalesce(NEW.phone, '') || ' ' ||
+                    coalesce(NEW.username, '')
+            )
+               );
+    RETURN NEW;
+END
+$$ LANGUAGE PLPGSQL;
+
+-- Tạo lại trigger
+CREATE
+    OR REPLACE TRIGGER TRG_USERS_FTS BEFORE INSERT
+    OR
+    UPDATE ON PUBLIC.USERS FOR EACH ROW
+EXECUTE FUNCTION UPDATE_USERS_FTS ();
