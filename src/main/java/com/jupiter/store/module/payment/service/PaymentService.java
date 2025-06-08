@@ -51,13 +51,12 @@ public class PaymentService {
         String qrPath = String.format("%s-%s-compact2.png",
                 vietQRConfig.getVietQrBankCode(), vietQRConfig.getVietQrBankAccount());
 
-        String qrUrl = String.format("%s/%s?amount=%d&addInfo=%s&accountName=%s",
+        return String.format("%s/%s?amount=%d&addInfo=%s&accountName=%s",
                 baseUrl,
                 qrPath,
                 amount,
                 UriUtils.encode(content, StandardCharsets.UTF_8),
                 UriUtils.encode(vietQRConfig.getVietQrUserBankName(), StandardCharsets.UTF_8)
         );
-        return qrUrl;
     }
 }

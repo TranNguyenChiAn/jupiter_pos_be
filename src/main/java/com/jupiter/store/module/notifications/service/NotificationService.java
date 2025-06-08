@@ -29,14 +29,33 @@ public class NotificationService {
     private JavaMailSender mailSender;
 
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
-    public SseEmitter subscribe() {
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+
+    public void createSSEConnection() {
+        SseEmitter emitter = new SseEmitter(0L);
         emitters.add(emitter);
 
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));
+        emitter.onError((e) -> emitters.remove(emitter));
 
-        return emitter;
+    }
+
+    @Async
+    public void sendWebNotification(Notification notification) {
+        Notification msg = new Notification(notification);
+        msg.setType(NotificationType.WEB);
+        notificationRepository.save(msg);
+
+        createSSEConnection();
+        List<SseEmitter> deadEmitters = new java.util.ArrayList<>();
+        for (SseEmitter emitter : emitters) {
+            try {
+                emitter.send(SseEmitter.event().name(msg.getTitle()).data(msg.getBody()));
+            } catch (IOException e) {
+                deadEmitters.add(emitter);
+            }
+        }
+        emitters.removeAll(deadEmitters);
     }
 
     public List<Notification> getNotificationsByUserId(Integer userId, Integer page) {
@@ -69,25 +88,10 @@ public class NotificationService {
         message.setSubject(notification.getTitle());
         message.setText(notification.getBody());
         notification.setType(NotificationType.EMAIL);
+        notificationRepository.save(notification);
 
         mailSender.send(message);
         System.out.println("Mail sent successfully!");
-    }
-
-    @Async
-    public void sendWebNotification(Notification notification) {
-        Notification msg = new Notification(notification);
-        msg.setType(NotificationType.WEB);
-
-        List<SseEmitter> deadEmitters = new java.util.ArrayList<>();
-        for (SseEmitter emitter : emitters) {
-            try {
-                emitter.send(SseEmitter.event().name(msg.getTitle()).data(msg.getBody()));
-            } catch (IOException e) {
-                deadEmitters.add(emitter);
-            }
-        }
-        emitters.removeAll(deadEmitters);
     }
     private void sendSms(Notification msg) {
         System.out.println("Gửi SMS: " + msg.getType());
