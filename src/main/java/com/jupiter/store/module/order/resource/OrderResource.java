@@ -1,6 +1,5 @@
 package com.jupiter.store.module.order.resource;
 
-import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.order.dto.CreateOrderDTO;
 import com.jupiter.store.module.order.dto.OrderItemsDTO;
 import com.jupiter.store.module.order.dto.OrderSearchDTO;
@@ -8,15 +7,14 @@ import com.jupiter.store.module.order.dto.UpdateOrderStatusDTO;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.service.OrderService;
 import com.jupiter.store.module.payment.service.PaymentService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.util.List;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -43,7 +41,10 @@ public class OrderResource {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderDTO createOrderDTO) {
+    public ResponseEntity<Order> createOrder(
+            @RequestBody CreateOrderDTO createOrderDTO,
+            HttpServletResponse response
+    ) throws IOException {
         Order order = orderService.createOrder(
                 createOrderDTO.getCustomerId(),
                 createOrderDTO.getReceiverName(),
@@ -54,22 +55,17 @@ public class OrderResource {
                 createOrderDTO.getOrderItems()
         );
 
-        CompletableFuture<String> paymentFuture = CompletableFuture.supplyAsync(() -> {
-            return paymentService.createPayment(
-                    order.getId(),
-                    createOrderDTO.getPaid(),
-                    createOrderDTO.getPaymentMethod(),
-                    SecurityUtils.getCurrentUserId()
-            );
-        });
-        String paymentUrl = paymentFuture.join();
+        String paymentUrl= paymentService.createPayment(
+            order.getId(),
+            createOrderDTO.getPaid(),
+            createOrderDTO.getPaymentMethod()
+        );
 
         // Nếu là thanh toán online → redirect
         if (paymentUrl != null && !paymentUrl.isEmpty()) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(URI.create(paymentUrl));
+            response.sendRedirect(paymentUrl);
+            return null;
         }
-
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 

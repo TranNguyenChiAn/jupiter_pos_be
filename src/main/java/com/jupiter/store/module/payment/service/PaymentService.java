@@ -32,8 +32,7 @@ public class PaymentService {
     public String createPayment(
             Integer orderId,
             Long paid,
-            PaymentMethod paymentMethod,
-            Integer userId
+            PaymentMethod paymentMethod
     ) {
         try {
             switch (paymentMethod) {
@@ -42,7 +41,7 @@ public class PaymentService {
                 case MOMO:
                     return ("Phương thức thanh toán Momo chưa được hỗ trợ");
                 case TIEN_MAT:
-                    return createCashPayment(orderId, paid, userId);
+                    return createCashPayment(orderId, paid);
                 default:
                     return ("Phương thức thanh toán không hợp lệ");
             }
@@ -112,7 +111,7 @@ public class PaymentService {
         }
     }
     
-    public String createCashPayment(Integer orderId, Long paid, Integer userId) {
+    public String createCashPayment(Integer orderId, Long paid) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found"));
         
@@ -123,7 +122,7 @@ public class PaymentService {
         payment.setPaid(paid);
         payment.setRemaining(order.getTotalAmount() - paid);
         payment.setStatus(PaymentStatus.THANH_TOAN_THANH_CONG);
-        payment.setCreatedBy(userId);
+        payment.setCreatedBy(order.getCreatedBy());
         paymentRepository.save(payment);
         return null;
     }
