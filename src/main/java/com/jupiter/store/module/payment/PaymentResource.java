@@ -1,10 +1,6 @@
 package com.jupiter.store.module.payment;
 
 import com.jupiter.store.common.config.VNPayConfig;
-import com.jupiter.store.common.utils.SecurityUtils;
-import com.jupiter.store.module.notifications.constant.NotificationEntityType;
-import com.jupiter.store.module.notifications.model.Notification;
-import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.order.constant.PaymentStatus;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.repository.OrderRepository;
@@ -19,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -91,16 +86,15 @@ public class PaymentResource {
             if ("00".equals(responseCode) && "00".equals(transactionStatus)) {
                 // Giao dịch hợp lệ & thành công
                 payment.setStatus(PaymentStatus.THANH_TOAN_THANH_CONG);
-                response.sendRedirect("/payment-result?status=success&orderId=" + orderId);
+                response.sendRedirect("https://jupiterpos.vercel.app/admin/don-hang/");
             } else {
                 payment.setStatus(PaymentStatus.THANH_TOAN_THAT_BAI);
                 log.debug("Lỗi: " + responseCode);
-                response.sendRedirect("/payment-result?status=fail&reason=" + responseCode);
+                response.sendRedirect("https://jupiterpos.vercel.app/admin/don-hang/");
             }
         } else {
-            // Chữ ký sai → có thể bị giả mạo
             payment.setStatus(PaymentStatus.THANH_TOAN_CO_THE_BI_GIA_MAO);
-            response.sendRedirect("/payment-result?status=invalid");
+            response.sendRedirect("https://jupiterpos.vercel.app/admin/don-hang/");
         }
         payment.setCreatedBy(order.getCreatedBy());
         paymentRepository.save(payment);
