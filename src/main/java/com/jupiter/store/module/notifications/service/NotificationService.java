@@ -4,6 +4,7 @@ import com.jupiter.store.module.notifications.constant.NotificationType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.repository.NotificationRepository;
+import com.jupiter.store.module.user.dto.ChangePasswordDTO;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -95,5 +97,11 @@ public class NotificationService {
     }
     private void sendSms(Notification msg) {
         System.out.println("Gửi SMS: " + msg.getType());
+    }
+
+    public Notification verifyOtp(Integer otp) {
+        LocalDateTime nowMinus5 = LocalDateTime.now().minusMinutes(5);
+        return notificationRepository.verifyByEntityId(otp, nowMinus5)
+                .orElseThrow(() -> new RuntimeException("OTP không hợp lệ hoặc đã hết hạn"));
     }
 }

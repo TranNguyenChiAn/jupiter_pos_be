@@ -6,5 +6,6 @@ public enum NotificationEntityType {
     ORDER,
     CUSTOMER,
     PAYMENT,
-    SYSTEM
+    SYSTEM,
+    PASSWORD_RESET,
 }

@@ -1,6 +1,9 @@
 package com.jupiter.store.module.user.service;
 
 import com.jupiter.store.common.utils.SecurityUtils;
+import com.jupiter.store.module.notifications.constant.NotificationEntityType;
+import com.jupiter.store.module.notifications.model.Notification;
+import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.role.constant.RoleBase;
 import com.jupiter.store.module.user.dto.ChangePasswordDTO;
 import com.jupiter.store.module.user.dto.RegisterUserDTO;
@@ -9,17 +12,23 @@ import com.jupiter.store.module.user.dto.UserReadDTO;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Random;
 
 @Service
 public class UserService {
     private final PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private NotificationService notificationService;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -106,4 +115,35 @@ public class UserService {
         }
         return new UserReadDTO(user);
     }
+
+    public void generateOTP(String loginInfo) {
+        User currentUser = userRepository.findAccount(loginInfo);
+        if (!currentUser.isActive()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại");
+        }
+        Integer otpCode = new Random().nextInt(999999);
+        Notification notification = new Notification();
+        notification.setUserId(currentUser.getId());
+        notification.setTitle("Yêu cầu đặt lại mật khẩu");
+        notification.setBody("Mã OTP của bạn là: " + otpCode);
+        notification.setEntityType(NotificationEntityType.PASSWORD_RESET);
+        notification.setEntityId(otpCode);
+        notification.setRead(false);
+
+        notificationService.sendEmail(currentUser.getEmail(), notification);
+    }
+
+    public void verifyOtpAndChangePassword(ChangePasswordDTO changePasswordDTO){
+        Integer otp = changePasswordDTO.getOtp();
+        try {
+            Notification notification = notificationService.verifyOtp(otp);
+            User currentUser = userRepository.findById(notification.getUserId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
+            currentUser.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+            userRepository.save(currentUser);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã OTP không hợp lệ", e);
+        }
+    }
+
 }

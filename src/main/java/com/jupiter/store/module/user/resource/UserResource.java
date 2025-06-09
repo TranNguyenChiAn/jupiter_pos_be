@@ -47,10 +47,15 @@ public class UserResource {
         );
     }
 
-//    @PutMapping("change-password")
-//    public void changePassword(@RequestParam Long userId, @RequestBody ChangePasswordDTO changePasswordDTO) {
-//        userService.changePassword(userId, changePasswordDTO);
-//    }
+    @PostMapping("/generate-otp")
+    public void generateOTP(@RequestBody GenerateOtpDTO generateOtpDTO) {
+        userService.generateOTP(generateOtpDTO.getLoginInfo());
+    }
+
+    @PutMapping("/change-password")
+    public void changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        userService.verifyOtpAndChangePassword(changePasswordDTO);
+    }
 }
 
 
