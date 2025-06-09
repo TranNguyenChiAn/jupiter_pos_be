@@ -18,4 +18,5 @@ public class RegisterUserDTO {
     private String phone;
     private boolean gender;
     private RoleBase role;
+    private boolean active;
 }

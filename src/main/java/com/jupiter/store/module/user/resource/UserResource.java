@@ -36,10 +36,10 @@ public class UserResource {
         userService.update(userId, updateUserDTO);
     }
 
-    @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable Integer userId) {
-        userService.deleteUser(userId);
-    }
+//    @DeleteMapping("/{userId}")
+//    public void deleteUser(@PathVariable Integer userId) {
+//        userService.deleteUser(userId);
+//    }
 
     @GetMapping("/search/{username}")
     public User searchById(@RequestParam String username) {

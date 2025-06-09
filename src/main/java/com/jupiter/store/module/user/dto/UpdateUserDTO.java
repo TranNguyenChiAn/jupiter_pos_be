@@ -15,4 +15,5 @@ public class UpdateUserDTO {
     private String email;
     private String phone;
     private boolean gender;
+    private boolean active;
 }
