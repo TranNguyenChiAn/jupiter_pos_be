@@ -16,8 +16,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findByUserId(@Param("userId") Integer userId, @Param("page") Integer page);
 
 
-    @Query(value = "SELECT * FROM notifications n WHERE n.user_id = :userId " +
-                    "AND n.entity_type = 'PASSWORD_RESET' " +
+    @Query(value = "SELECT * FROM notifications n " +
+                    "WHERE n.entity_type = 'PASSWORD_RESET' " +
                     "AND n.entity_id = :otp " +
                     "AND n.date >= NOW() - INTERVAL '7 hour' - INTERVAL '5 minute' ", nativeQuery = true)
     Optional<Notification> verifyByEntityId(

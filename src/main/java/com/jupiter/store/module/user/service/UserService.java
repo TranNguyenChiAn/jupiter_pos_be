@@ -197,9 +197,9 @@ public class UserService {
 
     public void deleteUser(Integer userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại!"));
         if (user.getRole().equals(RoleBase.ADMIN.toString())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không thể xóa người dùng có quyền ADMIN");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không thể xóa người dùng!");
         }
         userRepository.delete(user);
     }

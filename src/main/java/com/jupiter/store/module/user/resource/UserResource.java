@@ -4,11 +4,14 @@ import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.user.dto.*;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.service.UserService;
+import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/users")
@@ -77,9 +80,13 @@ public class UserResource {
         userService.deactivateUser(userId);
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/delete/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(@PathVariable Integer userId) {
+        User user = userService.findById(userId);
+        if (user.isActive()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không thể xóa người dùng đang hoạt động!");
+        }
         userService.deleteUser(userId);
     }
 }
