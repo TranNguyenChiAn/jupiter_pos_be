@@ -130,12 +130,12 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại này đã tồn tại!");
         }
 
-        user.setUsername(updateUserDTO.getUsername());
-        user.setEmail(updateUserDTO.getEmail());
-        user.setPhone(updateUserDTO.getPhone());
-        user.setFullName(updateUserDTO.getFullname());
-        user.setGender(updateUserDTO.isGender());
-        user.setActive(updateUserDTO.isActive());
+        user.setUsername(updateUserDTO.getUsername() != null ? updateUserDTO.getUsername() : user.getUsername());
+        user.setFullName(updateUserDTO.getFullname() != null ? updateUserDTO.getFullname() : user.getFullName());
+        user.setEmail(updateUserDTO.getEmail() != null ? updateUserDTO.getEmail() : user.getEmail());
+        user.setPhone(updateUserDTO.getPhone() != null ? updateUserDTO.getPhone() : user.getPhone());
+        user.setGender(updateUserDTO.isGender() != user.isGender() ? updateUserDTO.isGender() : user.isGender());
+        user.setActive(updateUserDTO.isActive() != user.isActive() ? updateUserDTO.isActive() : user.isActive());
         userRepository.save(user);
     }
 
