@@ -100,8 +100,7 @@ public class NotificationService {
     }
 
     public Notification verifyOtp(Integer otp) {
-        LocalDateTime nowMinus5 = LocalDateTime.now().minusMinutes(5);
-        return notificationRepository.verifyByEntityId(otp, nowMinus5)
+        return notificationRepository.verifyByEntityId(otp)
                 .orElseThrow(() -> new RuntimeException("OTP không hợp lệ hoặc đã hết hạn"));
     }
 }

@@ -44,4 +44,9 @@ public class CustomerResource {
         Customer result = customerService.update(customerId, customerDTO);
         return ResponseEntity.ok(result);
     }
+
+    @DeleteMapping("/delete/{customerId}")
+    public void delete(@PathVariable Integer customerId) {
+        customerService.deleteUser(customerId);
+    }
 }

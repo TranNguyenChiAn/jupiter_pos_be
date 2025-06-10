@@ -20,7 +20,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
                     "WHERE n.entity_type = 'PASSWORD_RESET' " +
                     "AND n.entity_id = :otp " +
                     "AND n.date >= NOW() - INTERVAL '7 hour' - INTERVAL '5 minute' ", nativeQuery = true)
-    Optional<Notification> verifyByEntityId(
-            @Param("otp") Integer otp,
-            @Param("nowMinus5")LocalDateTime nowMinus5);
+    Optional<Notification> verifyByEntityId(@Param("otp") Integer otp);
 }

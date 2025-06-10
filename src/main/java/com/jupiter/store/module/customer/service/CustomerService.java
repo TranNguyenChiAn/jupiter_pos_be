@@ -92,5 +92,13 @@ public class CustomerService {
         existingCustomer.setLastModifiedBy(SecurityUtils.getCurrentUserId());
         return customerRepository.save(existingCustomer);
     }
+
+    public void deleteUser(Integer customerId) {
+        Customer customer = findById(customerId);
+        if (customer == null) {
+            throw new RuntimeException("Khách hàng không tồn tại");
+        }
+        customerRepository.delete(customer);
+    }
 }
 

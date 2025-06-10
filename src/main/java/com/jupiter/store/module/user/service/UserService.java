@@ -3,6 +3,7 @@ package com.jupiter.store.module.user.service;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.model.Notification;
+import com.jupiter.store.module.notifications.repository.NotificationRepository;
 import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.role.constant.RoleBase;
 import com.jupiter.store.module.user.dto.ChangePasswordDTO;
@@ -31,6 +32,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -183,6 +186,7 @@ public class UserService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
             currentUser.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
             userRepository.save(currentUser);
+            notificationRepository.delete(notification);
         } catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mã OTP không hợp lệ", e);
         }
