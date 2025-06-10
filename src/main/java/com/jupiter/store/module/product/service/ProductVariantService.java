@@ -85,8 +85,7 @@ public class ProductVariantService {
         variant.setBarcode(newProductVariant.getBarcode());
         variant.setExpiryDate(newProductVariant.getExpiryDate());
         variant.setStatus(newProductVariant.getStatus());
-        variant.setLastModifiedBy(SecurityUtils.getCurrentUserId());
-        variant.setLastModifiedDate(LocalDateTime.now());
+        variant = setAuditFields(variant, false);
         productVariantRepository.save(variant);
         if (newProductVariant.getImagePaths() != null && !newProductVariant.getImagePaths().isEmpty()) {
             productImageService.updateProductImages(variantId, newProductVariant.getImagePaths());
@@ -110,10 +109,13 @@ public class ProductVariantService {
                         value.setAttrId(attrValue.getAttrId());
                         value.setAttrValue(attrValue.getAttrValue());
                         value.setUnitId(attrValue.getUnitId());
+                        value.setCreatedBy(SecurityUtils.getCurrentUserId());
+                        value.setLastModifiedBy(SecurityUtils.getCurrentUserId());
                         // Set additional fields if needed
                         return value;
                     }).collect(Collectors.toList());
             productVariantAttrValueRepository.saveAll(newValues);
+
         }
 
         return ResponseEntity.ok(newProductVariant);
