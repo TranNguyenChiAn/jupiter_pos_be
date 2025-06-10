@@ -27,25 +27,21 @@ public class AttributeResource {
     }
 
     @GetMapping("/search/{id}")
-    @PreAuthorize("hasAuthority(RoleBase.ADMIN)")
     public ProductAttribute searchById(@PathVariable Integer id) {
         return attributeService.searchById(id);
     }
 
     @GetMapping("/search-by-name")
-    @PreAuthorize("hasAuthority(RoleBase.ADMIN)")
     public List<ProductAttribute> searchByName(@RequestParam String attributeName) {
         return attributeService.searchByName(attributeName);
     }
 
     @PutMapping("/update/{attributeId}")
-    @PreAuthorize("hasAuthority(RoleBase.ADMIN)")
     public void updateAttribute(@PathVariable Integer attributeId, @RequestParam String name) {
         attributeService.updateAttribute(attributeId, name);
     }
 
     @DeleteMapping("/delete/{attributeId}")
-    @PreAuthorize("hasAuthority('" + RoleBase.ADMIN + "')")
     public void deleteAttribute(@PathVariable Integer attributeId) {
         attributeService.deleteAttribute(attributeId);
     }
