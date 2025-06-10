@@ -7,6 +7,7 @@ import com.jupiter.store.module.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,11 +36,6 @@ public class UserResource {
     public void updateUser(@PathVariable Integer userId, @RequestBody UpdateUserDTO updateUserDTO) {
         userService.update(userId, updateUserDTO);
     }
-
-//    @DeleteMapping("/{userId}")
-//    public void deleteUser(@PathVariable Integer userId) {
-//        userService.deleteUser(userId);
-//    }
 
     @GetMapping("/search/{username}")
     public User searchById(@RequestParam String username) {
@@ -73,6 +69,18 @@ public class UserResource {
     @PutMapping("/change-password")
     public void changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
         userService.verifyOtpAndChangePassword(changePasswordDTO);
+    }
+
+    @PutMapping("/deactivate/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deactivateUser(@PathVariable Integer userId) {
+        userService.deactivateUser(userId);
+    }
+
+    @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteUser(@PathVariable Integer userId) {
+        userService.deleteUser(userId);
     }
 }
 

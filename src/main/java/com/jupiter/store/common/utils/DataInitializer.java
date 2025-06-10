@@ -27,7 +27,7 @@ public class DataInitializer {
                 admin.setEmail("admin@localhost");
                 admin.setPhone("0123456789");
                 admin.setActive(true);
-                admin.setRole(RoleBase.SYSTEM_ADMIN);
+                admin.setRole(RoleBase.ADMIN);
                 admin.setCreatedBy(0);
                 userRepository.save(admin);
             }

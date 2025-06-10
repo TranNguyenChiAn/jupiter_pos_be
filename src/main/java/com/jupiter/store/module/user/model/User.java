@@ -61,10 +61,10 @@ public class User extends AbstractAuditingEntity implements Serializable {
     }
 
     public boolean isAdmin() {
-        return this.getRole().equalsIgnoreCase(RoleBase.SYSTEM_ADMIN) || this.getRole().equalsIgnoreCase(RoleBase.ADMIN);
+        return this.getRole().equalsIgnoreCase(RoleBase.ADMIN) || this.getRole().equalsIgnoreCase(RoleBase.ADMIN);
     }
 
     public boolean canViewOrder() {
-        return isAdmin() || this.getRole().equalsIgnoreCase(RoleBase.EMPLOYEE) || this.getRole().equalsIgnoreCase(RoleBase.USER);
+        return isAdmin() || this.getRole().equalsIgnoreCase(RoleBase.EMPLOYEE);
     }
 }
