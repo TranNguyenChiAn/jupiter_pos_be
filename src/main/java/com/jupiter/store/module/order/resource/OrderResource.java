@@ -7,14 +7,10 @@ import com.jupiter.store.module.order.dto.UpdateOrderStatusDTO;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.service.OrderService;
 import com.jupiter.store.module.payment.service.PaymentService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -26,12 +22,16 @@ public class OrderResource {
     private PaymentService paymentService;
 
     @PostMapping("/search")
-    public ResponseEntity<Page<Order>> getUserOrder(@RequestBody OrderSearchDTO orderSearchDTO) {
+    public ResponseEntity<Page<Order>> search(@RequestBody OrderSearchDTO orderSearchDTO) {
         return ResponseEntity.ok(
-                orderService.getAllUserOrders(
-                orderSearchDTO.getPageSize(),
-                orderSearchDTO.getPageNumber()
-        ));
+                orderService.search(
+                        orderSearchDTO.getPageSize(),
+                        orderSearchDTO.getPageNumber(),
+                        orderSearchDTO.getSearch(),
+                        orderSearchDTO.getOrderStatuses(),
+                        orderSearchDTO.getStartDate(),
+                        orderSearchDTO.getEndDate()
+                ));
     }
 
     @GetMapping("/detail-search/{orderId}")

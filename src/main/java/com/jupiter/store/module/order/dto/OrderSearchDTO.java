@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -15,4 +16,8 @@ import java.util.List;
 public class OrderSearchDTO {
     private Integer pageSize;
     private Integer pageNumber;
+    private String search;
+    private List<OrderStatus> orderStatuses;
+    private LocalDate startDate;
+    private LocalDate endDate;
 }

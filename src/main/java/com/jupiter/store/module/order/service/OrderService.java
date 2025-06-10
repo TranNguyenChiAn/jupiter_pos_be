@@ -8,7 +8,10 @@ import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.order.constant.OrderStatus;
-import com.jupiter.store.module.order.dto.*;
+import com.jupiter.store.module.order.dto.OrderDetailCreateDTO;
+import com.jupiter.store.module.order.dto.OrderItemsDTO;
+import com.jupiter.store.module.order.dto.UpdateOrderDTO;
+import com.jupiter.store.module.order.dto.UpdateOrderStatusDTO;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.model.OrderDetail;
 import com.jupiter.store.module.order.repository.OrderDetailRepository;
@@ -27,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -70,9 +74,13 @@ public class OrderService {
         return orderItemsDTO;
     }
 
-    public Page<Order> getAllUserOrders(
+    public Page<Order> search(
             Integer pageSize,
-            Integer pageNumber
+            Integer pageNumber,
+            String search,
+            List<OrderStatus> orderStatuses,
+            LocalDate startDate,
+            LocalDate endDate
     ) {
         Integer currentUserId = currentUserId();
         if (currentUserId == null) {
@@ -88,11 +96,35 @@ public class OrderService {
 
         Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNumber);
 
-        if (user.isAdmin()) {
-            return orderRepository.findAll(pageable);
+        if (search != null) {
+            search = search.trim();
+            if (search.isBlank()) {
+                search = null;
+            } else {
+                search = search.toLowerCase();
+            }
+        }
+        if (startDate == null) {
+            startDate = LocalDate.of(1900, 1, 1);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.of(9999, 1, 1);
         }
 
-        return orderRepository.findByUserId(currentUserId, pageable);
+        // +1 ngày vì dùng `<` trong sql
+        endDate = endDate.plusDays(1);
+
+        List<String> statuses = new ArrayList<>();
+        if (orderStatuses != null && !orderStatuses.isEmpty()) {
+            statuses = orderStatuses.stream().map(OrderStatus::name).toList();
+            if (statuses.isEmpty()) {
+                statuses = OrderStatus.getAllStatuses();
+            }
+        } else {
+            statuses = OrderStatus.getAllStatuses();
+        }
+
+        return orderRepository.search(search, statuses, startDate, endDate, pageable);
     }
 
     public Order createOrder(
@@ -128,7 +160,7 @@ public class OrderService {
         if (customer != null) {
             customerId = customer.getId();
             order.setCustomerId(customerId);
-            customerService.updateAfterOrder(customerId, totalAmount,1);
+            customerService.updateAfterOrder(customerId, totalAmount, 1);
         }
         order.setReceiverName(receiverName);
         order.setReceiverPhone(receiverPhone);
@@ -165,7 +197,7 @@ public class OrderService {
 
         paymentService.createPayment(order.getId(), paid, paymentMethod);
         CompletableFuture.runAsync(() -> {
-            NotificationDTO notificationDTO = new NotificationDTO( "Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới",
+            NotificationDTO notificationDTO = new NotificationDTO("Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới",
                     NotificationEntityType.ORDER, order.getId());
             notificationService.sendNotification(notificationDTO);
         });
