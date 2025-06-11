@@ -2,24 +2,25 @@ package com.jupiter.store.module.order.service;
 
 import com.jupiter.store.common.exception.CustomException;
 import com.jupiter.store.common.utils.SecurityUtils;
+import com.jupiter.store.module.customer.dto.CustomerDTO;
 import com.jupiter.store.module.customer.model.Customer;
 import com.jupiter.store.module.customer.service.CustomerService;
 import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.order.constant.OrderStatus;
-import com.jupiter.store.module.order.dto.OrderDetailCreateDTO;
-import com.jupiter.store.module.order.dto.OrderItemsDTO;
-import com.jupiter.store.module.order.dto.UpdateOrderDTO;
-import com.jupiter.store.module.order.dto.UpdateOrderStatusDTO;
+import com.jupiter.store.module.order.dto.*;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.model.OrderDetail;
 import com.jupiter.store.module.order.repository.OrderDetailRepository;
 import com.jupiter.store.module.order.repository.OrderRepository;
 import com.jupiter.store.module.payment.constant.PaymentMethod;
+import com.jupiter.store.module.payment.dto.PaymentReadDTO;
+import com.jupiter.store.module.payment.model.Payment;
 import com.jupiter.store.module.payment.service.PaymentService;
 import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
+import com.jupiter.store.module.user.dto.UserReadDTO;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import org.springdoc.api.OpenApiResourceNotFoundException;
@@ -56,6 +57,8 @@ public class OrderService {
     private CustomerService customerService;
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private OrderDetailService orderDetailService;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -166,8 +169,7 @@ public class OrderService {
         order.setReceiverPhone(receiverPhone);
         order.setReceiverAddress(receiverAddress);
         order.setNote(note);
-        order.setOrderStatus(orderStatus);
-        order.setOrderStatus(OrderStatus.CHO_XAC_NHAN);
+        order.setOrderStatus(orderStatus != null ? orderStatus : OrderStatus.CHO_XAC_NHAN);
         order.setCreatedBy(currentUserId());
         order.setLastModifiedBy(currentUserId());
         orderRepository.save(order);
@@ -271,5 +273,35 @@ public class OrderService {
         order.setOrderStatus(OrderStatus.DA_HUY);
         order.setLastModifiedBy(currentUserId());
         orderRepository.save(order);
+    }
+
+    public OrderReadDTO getOrderById(Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
+
+        OrderReadDTO orderReadDTO = new OrderReadDTO(order);
+
+        if (order.getUserId() != null) {
+            User user = userRepository.findById(order.getUserId()).orElse(null);
+            orderReadDTO.setUser(new UserReadDTO(user));
+        }
+        if (order.getCustomerId() != null) {
+            Customer customer = customerService.findById(order.getCustomerId());
+            orderReadDTO.setCustomer(customer != null ? new CustomerDTO(customer) : null);
+        }
+        setOrderDetails(orderReadDTO);
+        setPayments(orderReadDTO);
+        return orderReadDTO;
+    }
+
+    public void setOrderDetails(OrderReadDTO orderReadDTO) {
+        List<OrderDetail> orderDetails = orderDetailService.findByOrderId(orderReadDTO.getId());
+        List<OrderDetailReadDTO> orderDetailReadDTOs = orderDetailService.setDetails(orderDetails);
+        orderReadDTO.setOrderDetails(orderDetailReadDTOs);
+    }
+
+    public void setPayments(OrderReadDTO orderReadDTO) {
+        List<PaymentReadDTO> payments = paymentService.getPaymentsByOrderId(orderReadDTO.getId());
+        orderReadDTO.setPayments(payments);
     }
 }

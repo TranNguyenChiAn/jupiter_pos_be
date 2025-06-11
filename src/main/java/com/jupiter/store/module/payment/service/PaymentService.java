@@ -5,6 +5,7 @@ import com.jupiter.store.module.order.constant.PaymentStatus;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.repository.OrderRepository;
 import com.jupiter.store.module.payment.constant.PaymentMethod;
+import com.jupiter.store.module.payment.dto.PaymentReadDTO;
 import com.jupiter.store.module.payment.model.Payment;
 import com.jupiter.store.module.payment.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
@@ -58,5 +61,12 @@ public class PaymentService {
                 UriUtils.encode(content, StandardCharsets.UTF_8),
                 UriUtils.encode(vietQRConfig.getVietQrUserBankName(), StandardCharsets.UTF_8)
         );
+    }
+
+    public List<PaymentReadDTO> getPaymentsByOrderId(Integer id) {
+        List<Payment> payments = paymentRepository.findByOrderId(id);
+        return payments.stream()
+                .map(PaymentReadDTO::new)
+                .collect(Collectors.toList());
     }
 }

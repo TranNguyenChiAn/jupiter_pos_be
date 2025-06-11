@@ -134,7 +134,7 @@ public class ProductVariantSearchService {
         return dto;
     }
 
-    private ProductVariantReadDTO setDetailsForVariant(ProductVariant variant) {
+    public ProductVariantReadDTO setDetailsForVariant(ProductVariant variant) {
         Product product = productRepository.findById(variant.getProductId()).orElse(null);
         List<Category> categories = product != null ? categoryRepository.findByProductId(product.getId()) : List.of();
         ProductReadDTO productDTO = product != null ? new ProductReadDTO(product, categories) : null;

@@ -1,16 +1,15 @@
 package com.jupiter.store.module.order.resource;
 
-import com.jupiter.store.module.order.dto.CreateOrderDTO;
-import com.jupiter.store.module.order.dto.OrderItemsDTO;
-import com.jupiter.store.module.order.dto.OrderSearchDTO;
-import com.jupiter.store.module.order.dto.UpdateOrderStatusDTO;
+import com.jupiter.store.module.order.dto.*;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.service.OrderService;
 import com.jupiter.store.module.payment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -32,6 +31,15 @@ public class OrderResource {
                         orderSearchDTO.getStartDate(),
                         orderSearchDTO.getEndDate()
                 ));
+    }
+
+    @GetMapping("/{orderId}")
+    public OrderReadDTO getOrderById(@PathVariable Integer orderId) {
+        OrderReadDTO order = orderService.getOrderById(orderId);
+        if (order == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Đơn hàng không tồn tại");
+        }
+        return order;
     }
 
     @GetMapping("/detail-search/{orderId}")
