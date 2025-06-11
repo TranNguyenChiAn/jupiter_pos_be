@@ -72,7 +72,7 @@ public class UserService {
         }
         String encodedPassword = passwordEncoder.encode(registerUserDTO.getPassword());
         user.setUsername(registerUserDTO.getUsername());
-        user.setFullName(registerUserDTO.getFullname());
+        user.setFullName(registerUserDTO.getFullName());
         user.setEmail(registerUserDTO.getEmail());
         user.setPassword(encodedPassword);
         user.setPhone(registerUserDTO.getPhone());
@@ -133,12 +133,12 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại này đã tồn tại!");
         }
 
-        user.setUsername(updateUserDTO.getUsername() != null ? updateUserDTO.getUsername() : user.getUsername());
-        user.setFullName(updateUserDTO.getFullname() != null ? updateUserDTO.getFullname() : user.getFullName());
-        user.setEmail(updateUserDTO.getEmail() != null ? updateUserDTO.getEmail() : user.getEmail());
-        user.setPhone(updateUserDTO.getPhone() != null ? updateUserDTO.getPhone() : user.getPhone());
-        user.setGender(updateUserDTO.isGender() != user.isGender() ? updateUserDTO.isGender() : user.isGender());
-        user.setActive(updateUserDTO.isActive() != user.isActive() ? updateUserDTO.isActive() : user.isActive());
+        user.setUsername(updateUserDTO.getUsername() == null ? "" : updateUserDTO.getUsername());
+        user.setFullName(updateUserDTO.getFullName() == null ? "" : updateUserDTO.getFullName());
+        user.setEmail(updateUserDTO.getEmail() == null ? "" : updateUserDTO.getEmail());
+        user.setPhone(updateUserDTO.getPhone() == null ? "" : updateUserDTO.getPhone());
+        user.setGender(updateUserDTO.isGender());
+        user.setActive(updateUserDTO.isActive());
         userRepository.save(user);
     }
 
