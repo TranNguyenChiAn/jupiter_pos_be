@@ -44,7 +44,7 @@ public class CustomerService {
 
     public Customer findCustomer(String keyword) {
         return customerRepository.findByKeyword(keyword)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new RuntimeException("Khách hàng không tồn tại!"));
     }
 
     public Customer findById(Integer customerId) {
@@ -83,7 +83,7 @@ public class CustomerService {
     public Customer update(Integer id, CustomerDTO customerDTO) {
         Customer existingCustomer = findById(id);
         if (existingCustomer == null) {
-            throw new RuntimeException("Khách hàng không tồn tại");
+            throw new RuntimeException("Khách hàng không tồn tại!");
         }
         existingCustomer.setCustomerName(customerDTO.getCustomerName() == null ? "" : customerDTO.getCustomerName());
         existingCustomer.setGender(customerDTO.isGender());
@@ -93,10 +93,10 @@ public class CustomerService {
         return customerRepository.save(existingCustomer);
     }
 
-    public void deleteUser(Integer customerId) {
+    public void deleteCustomer(Integer customerId) {
         Customer customer = findById(customerId);
         if (customer == null) {
-            throw new RuntimeException("Khách hàng không tồn tại");
+            throw new RuntimeException("Khách hàng không tồn tại!");
         }
         customerRepository.delete(customer);
     }

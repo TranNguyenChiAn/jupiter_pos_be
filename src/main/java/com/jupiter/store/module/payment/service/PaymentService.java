@@ -1,6 +1,7 @@
 package com.jupiter.store.module.payment.service;
 
 import com.jupiter.store.common.config.VietQRConfig;
+import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.order.constant.PaymentStatus;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.repository.OrderRepository;
@@ -68,5 +69,25 @@ public class PaymentService {
         return payments.stream()
                 .map(PaymentReadDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    public Payment updatePayment(Integer orderId, Long paid, PaymentMethod paymentMethod, PaymentStatus status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
+
+        Long totalPaid = paymentRepository.findByOrderId(orderId).stream()
+                .mapToLong(Payment::getPaid)
+                .sum();
+        Payment newPayment = new Payment();
+        newPayment.setOrderId(orderId);
+        newPayment.setPaid(paid);
+        newPayment.setPaymentMethod(paymentMethod);
+        newPayment.setRemaining(order.getTotalAmount() - totalPaid - paid);
+        newPayment.setStatus(status);
+        newPayment.setCreatedBy(SecurityUtils.getCurrentUserId());
+        newPayment.setDate(LocalDateTime.now());
+        newPayment.setLastModifiedBy(order.getCreatedBy());
+
+        return paymentRepository.save(newPayment);
     }
 }

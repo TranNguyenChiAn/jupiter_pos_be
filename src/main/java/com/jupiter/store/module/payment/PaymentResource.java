@@ -1,12 +1,11 @@
 package com.jupiter.store.module.payment;
 
+import com.jupiter.store.module.payment.dto.UpdatePaymentOrderDTO;
+import com.jupiter.store.module.payment.model.Payment;
 import com.jupiter.store.module.payment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -22,5 +21,16 @@ public class PaymentResource {
         Map<String, String> response = new HashMap<>();
         response.put("qrUrl", qrUrl);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/update-for-order")
+    public ResponseEntity<Payment> updatePayment(@RequestBody UpdatePaymentOrderDTO updatePaymentOrderDTO) {
+        Payment updatedPayment = paymentService.updatePayment(
+                updatePaymentOrderDTO.getOrderId(),
+                updatePaymentOrderDTO.getPaid(),
+                updatePaymentOrderDTO.getPaymentMethod(),
+                updatePaymentOrderDTO.getPaymentStatus()
+        );
+        return ResponseEntity.ok(updatedPayment);
     }
 }

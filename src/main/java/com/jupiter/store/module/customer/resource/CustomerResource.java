@@ -47,6 +47,6 @@ public class CustomerResource {
 
     @DeleteMapping("/delete/{customerId}")
     public void delete(@PathVariable Integer customerId) {
-        customerService.deleteUser(customerId);
+        customerService.deleteCustomer(customerId);
     }
 }
