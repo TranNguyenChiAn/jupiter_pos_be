@@ -4,7 +4,6 @@ import com.jupiter.store.module.notifications.constant.NotificationType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.repository.NotificationRepository;
-import com.jupiter.store.module.user.dto.ChangePasswordDTO;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +99,8 @@ public class NotificationService {
     }
 
     public Notification verifyOtp(Integer otp) {
-        return notificationRepository.verifyByEntityId(otp)
+        LocalDateTime now = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+        return notificationRepository.verifyByEntityId(otp, now)
                 .orElseThrow(() -> new RuntimeException("OTP không hợp lệ hoặc đã hết hạn"));
     }
 }

@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class AbstractAuditingDTO implements Serializable {
-
-    private static final long serialVersionUID = 1L;
     @JMap
     private Integer id;
     @JMap

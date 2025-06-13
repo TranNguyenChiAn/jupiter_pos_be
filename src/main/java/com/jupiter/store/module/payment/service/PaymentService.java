@@ -71,7 +71,8 @@ public class PaymentService {
                 .collect(Collectors.toList());
     }
 
-    public Payment updatePayment(Integer orderId, Long paid, PaymentMethod paymentMethod, PaymentStatus status) {
+
+    public Payment createMorePaymentForOrder(Integer orderId, Long paid, PaymentMethod paymentMethod) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
 
@@ -83,11 +84,21 @@ public class PaymentService {
         newPayment.setPaid(paid);
         newPayment.setPaymentMethod(paymentMethod);
         newPayment.setRemaining(order.getTotalAmount() - totalPaid - paid);
-        newPayment.setStatus(status);
+        newPayment.setStatus(PaymentStatus.THANH_TOAN_THANH_CONG);
         newPayment.setCreatedBy(SecurityUtils.getCurrentUserId());
-        newPayment.setDate(LocalDateTime.now());
-        newPayment.setLastModifiedBy(order.getCreatedBy());
+        newPayment.setDate(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")));
 
         return paymentRepository.save(newPayment);
+    }
+
+    public Payment updatePayment(Integer paymentId, PaymentMethod paymentMethod) {
+        Integer currentUserId = SecurityUtils.getCurrentUserId();
+        Payment existingPayment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thanh toán cho đơn hàng"));
+        existingPayment.setPaymentMethod(paymentMethod);
+        existingPayment.setLastModifiedBy(currentUserId);
+        existingPayment.setLastModifiedDate(LocalDateTime.now());
+
+        return paymentRepository.save(existingPayment);
     }
 }

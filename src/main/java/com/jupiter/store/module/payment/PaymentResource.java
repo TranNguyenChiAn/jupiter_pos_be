@@ -1,5 +1,6 @@
 package com.jupiter.store.module.payment;
 
+import com.jupiter.store.module.payment.dto.CreatePaymentOrderDTO;
 import com.jupiter.store.module.payment.dto.UpdatePaymentOrderDTO;
 import com.jupiter.store.module.payment.model.Payment;
 import com.jupiter.store.module.payment.service.PaymentService;
@@ -23,13 +24,21 @@ public class PaymentResource {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/update-for-order")
-    public ResponseEntity<Payment> updatePayment(@RequestBody UpdatePaymentOrderDTO updatePaymentOrderDTO) {
+    @PostMapping("/create-for-order")
+    public ResponseEntity<Payment> createPayment(@RequestBody CreatePaymentOrderDTO createPaymentOrderDTO) {
+        Payment newPayment = paymentService.createMorePaymentForOrder(
+                createPaymentOrderDTO.getOrderId(),
+                createPaymentOrderDTO.getPaid(),
+                createPaymentOrderDTO.getPaymentMethod()
+        );
+        return ResponseEntity.ok(newPayment);
+    }
+
+    @PutMapping("/update-for-order")
+    public ResponseEntity<Payment> Payment(@RequestBody UpdatePaymentOrderDTO updatePaymentOrderDTO) {
         Payment updatedPayment = paymentService.updatePayment(
-                updatePaymentOrderDTO.getOrderId(),
-                updatePaymentOrderDTO.getPaid(),
-                updatePaymentOrderDTO.getPaymentMethod(),
-                updatePaymentOrderDTO.getPaymentStatus()
+                updatePaymentOrderDTO.getPaymentId(),
+                updatePaymentOrderDTO.getPaymentMethod()
         );
         return ResponseEntity.ok(updatedPayment);
     }
