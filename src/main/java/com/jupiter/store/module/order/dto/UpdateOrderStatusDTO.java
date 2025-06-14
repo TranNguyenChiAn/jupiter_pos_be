@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateOrderStatusDTO {
-    private Integer orderId;
-    private OrderStatus orderStatus;
+    private OrderStatus oldOrderStatus;
+    private OrderStatus newOrderStatus;
 }

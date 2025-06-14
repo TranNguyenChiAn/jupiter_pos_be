@@ -72,9 +72,10 @@ public class OrderResource {
         orderService.updateQuantityItem(orderDetailId, quantity);
     }
 
-    @PutMapping("/update-status")
-    public void updateOrder(@RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
-        orderService.updateOrderStatus(updateOrderStatusDTO);
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<Void> updateOrder(@PathVariable Integer orderId, @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
+        orderService.updateOrderStatus(orderId, updateOrderStatusDTO);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/confirm-order/{orderId}")

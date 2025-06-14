@@ -1,4 +1,4 @@
-package com.jupiter.store.module.payment;
+package com.jupiter.store.module.payment.resource;
 
 import com.jupiter.store.module.payment.dto.CreatePaymentOrderDTO;
 import com.jupiter.store.module.payment.dto.UpdatePaymentOrderDTO;

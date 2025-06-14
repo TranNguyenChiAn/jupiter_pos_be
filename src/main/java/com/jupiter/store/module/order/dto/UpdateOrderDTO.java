@@ -17,6 +17,5 @@ public class UpdateOrderDTO {
     private String receiverName;
     private String receiverPhone;
     private String receiverAddress;
-    private double taxRate;
     private String note;
 }

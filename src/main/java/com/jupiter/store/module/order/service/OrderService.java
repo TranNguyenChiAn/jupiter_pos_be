@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -59,6 +60,8 @@ public class OrderService {
     private PaymentService paymentService;
     @Autowired
     private OrderDetailService orderDetailService;
+    @Autowired
+    private OrderHistoryService orderHistoryService;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -69,7 +72,7 @@ public class OrderService {
      */
     public OrderItemsDTO getOrderDetailById(Integer orderId) {
         orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
         OrderItemsDTO orderItemsDTO = new OrderItemsDTO();
         orderItemsDTO.setOrderId(orderId);
@@ -247,12 +250,30 @@ public class OrderService {
         return ResponseEntity.ok(orderDetailRepository.save(orderDetail));
     }
 
-    public void updateOrderStatus(UpdateOrderStatusDTO updateOrderStatusDTO) {
-        Order order = orderRepository.findById(updateOrderStatusDTO.getOrderId())
+    public void updateOrderStatus(Integer orderId, UpdateOrderStatusDTO updateOrderStatusDTO) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
-        order.setOrderStatus(updateOrderStatusDTO.getOrderStatus());
+        OrderStatus currentStatus = order.getOrderStatus();
+        OrderStatus oldStatus = updateOrderStatusDTO.getOldOrderStatus();
+        if (currentStatus == OrderStatus.DA_HUY) {
+            throw new CustomException("Không thể cập nhật trạng thái đơn hàng đã hủy", HttpStatus.BAD_REQUEST);
+        }
+        if (oldStatus != null && !currentStatus.equals(oldStatus)) {
+            throw new CustomException("Trạng thái đơn hàng đã bị thay đổi", HttpStatus.BAD_REQUEST);
+        }
+        OrderStatus newOrderStatus = updateOrderStatusDTO.getNewOrderStatus();
+        if (newOrderStatus == null) {
+            throw new CustomException("Trạng thái đơn hàng mới không được để trống", HttpStatus.BAD_REQUEST);
+        }
+        Set<OrderStatus> allowedTransitions = OrderStatus.validTransitions.get(currentStatus);
+        if (allowedTransitions == null || !allowedTransitions.contains(newOrderStatus)) {
+            throw new CustomException("Không thể chuyển từ " + currentStatus.getValue() + " sang " + newOrderStatus.getValue(), HttpStatus.BAD_REQUEST);
+        }
+        order.setOrderStatus(newOrderStatus);
         order.setLastModifiedBy(currentUserId());
         orderRepository.save(order);
+
+        orderHistoryService.createOrderHistory(order.getId(), oldStatus, newOrderStatus);
     }
 
     public void updateOrder(UpdateOrderDTO updateOrderDTO) {
@@ -291,6 +312,7 @@ public class OrderService {
         }
         setOrderDetails(orderReadDTO);
         setPayments(orderReadDTO);
+        setOrderHistory(orderReadDTO);
         return orderReadDTO;
     }
 
@@ -303,5 +325,10 @@ public class OrderService {
     public void setPayments(OrderReadDTO orderReadDTO) {
         List<PaymentReadDTO> payments = paymentService.getPaymentsByOrderId(orderReadDTO.getId());
         orderReadDTO.setPayments(payments);
+    }
+
+    public void setOrderHistory(OrderReadDTO orderReadDTO) {
+        List<OrderHistoryDTO> orderHistories = orderHistoryService.getOrderHistoriesByOrderId(orderReadDTO.getId());
+        orderReadDTO.setOrderHistories(orderHistories);
     }
 }

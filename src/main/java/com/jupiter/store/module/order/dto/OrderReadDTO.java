@@ -31,6 +31,7 @@ public class OrderReadDTO {
     private String note;
     private List<OrderDetailReadDTO> orderDetails;
     private List<PaymentReadDTO> payments;
+    private List<OrderHistoryDTO> orderHistories;
 
     public OrderReadDTO(Order order) {
         this.id = order.getId();
