@@ -18,6 +18,7 @@ public class UserReadDTO {
     private String phone;
     private boolean isActive;
     private boolean gender;
+    private String role;
 
     public UserReadDTO(User user) {
         this.id = user.getId();
@@ -27,5 +28,6 @@ public class UserReadDTO {
         this.phone = user.getPhone();
         this.isActive = user.isActive();
         this.gender = user.isGender();
+        this.role = user.getRole();
     }
 }
