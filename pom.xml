@@ -197,6 +197,13 @@
 			<version>2.1.3</version>
 		</dependency>
 
+		<!-- Twilio -->
+		<dependency>
+			<groupId>com.twilio.sdk</groupId>
+			<artifactId>twilio</artifactId>
+			<version>10.9.1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

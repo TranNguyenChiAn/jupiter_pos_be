@@ -1,11 +1,14 @@
 package com.jupiter.store.module.notifications.service;
 
+import com.jupiter.store.common.config.TwilioConfig;
 import com.jupiter.store.module.notifications.constant.NotificationType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.repository.NotificationRepository;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -29,6 +32,20 @@ public class NotificationService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private TwilioConfig twilioConfig;
+
+    public void sendSms(String toNumber, Notification notification) {
+        notification.setType(NotificationType.SMS);
+        notificationRepository.save(notification);
+
+        Message.creator(
+                new PhoneNumber(toNumber),
+                new PhoneNumber(twilioConfig.getPhoneNumber()),
+                notification.getBody()
+        ).create();
+    }
+
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     public void createSSEConnection() {
@@ -38,7 +55,6 @@ public class NotificationService {
         emitter.onCompletion(() -> emitters.remove(emitter));
         emitter.onTimeout(() -> emitters.remove(emitter));
         emitter.onError((e) -> emitters.remove(emitter));
-
     }
 
     @Async
@@ -94,13 +110,10 @@ public class NotificationService {
         mailSender.send(message);
         System.out.println("Mail sent successfully!");
     }
-    private void sendSms(Notification msg) {
-        System.out.println("Gửi SMS: " + msg.getType());
-    }
 
     public Notification verifyOtp(Integer otp) {
-        LocalDateTime now = LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
-        return notificationRepository.verifyByEntityId(otp, now)
+        LocalDateTime validTime = LocalDateTime.now().minusMinutes(5);
+        return notificationRepository.verifyByEntityId(otp, validTime)
                 .orElseThrow(() -> new RuntimeException("OTP không hợp lệ hoặc đã hết hạn"));
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.Random;
 
 @Service
@@ -163,9 +164,14 @@ public class UserService {
 
     public void generateOTP(String loginInfo) {
         User currentUser = userRepository.findAccount(loginInfo);
-        if (!currentUser.isActive()) {
+        if (currentUser == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại");
         }
+
+        if (!currentUser.isActive()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng đã bị vô hiệu hóa");
+        }
+
         Integer otpCode = new Random().nextInt(999999);
         Notification notification = new Notification();
         notification.setUserId(currentUser.getId());
@@ -175,9 +181,14 @@ public class UserService {
         notification.setEntityId(otpCode);
         notification.setRead(false);
 
-        notificationService.sendEmail(currentUser.getEmail(), notification);
+        if (loginInfo.matches("\\d+")) {
+            notificationService.sendSms("+84" + currentUser.getPhone().replaceFirst("^0", ""), notification);
+        }else {
+            notificationService.sendEmail(currentUser.getEmail(), notification);
+        }
     }
 
+    @Transactional
     public void verifyOtpAndChangePassword(ChangePasswordDTO changePasswordDTO){
         Integer otp = changePasswordDTO.getOtp();
         try {
@@ -185,6 +196,8 @@ public class UserService {
             User currentUser = userRepository.findById(notification.getUserId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Người dùng không tồn tại"));
             currentUser.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+            currentUser.setLastModifiedBy(currentUser.getId());
+            currentUser.setLastModifiedDate(LocalDateTime.now());
             userRepository.save(currentUser);
             notificationRepository.delete(notification);
         } catch (NumberFormatException e) {
