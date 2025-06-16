@@ -1,16 +1,17 @@
 package com.jupiter.store.module.statistic.service;
 
+import com.jupiter.store.module.statistic.dto.CustomerResponseDTO;
 import com.jupiter.store.module.statistic.dto.DashboardResponseDTO;
 import com.jupiter.store.module.statistic.dto.ProductSalesDTO;
+import com.jupiter.store.module.statistic.repository.CustomerStatisticRepository;
 import com.jupiter.store.module.statistic.repository.ProductStatisticRepository;
 import com.jupiter.store.module.statistic.repository.RevenueStatisticRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,6 +21,9 @@ public class RevenueService {
 
     @Autowired
     private ProductStatisticRepository productStatisticRepository;
+
+    @Autowired
+    private CustomerStatisticRepository customerStatisticRepository;
 
     public DashboardResponseDTO getDashboardData() {
         Object result = revenueStatisticRepository.getMainStats();
@@ -31,11 +35,13 @@ public class RevenueService {
         long lastMonth = row[4] != null ? ((BigDecimal) row[4]).longValue() : 0L;
         long last7Days = row[5] != null ? ((BigDecimal) row[5]).longValue() : 0L;
 
-        Double todayChange = (yesterday == 0) ? null :
-                ((today - (double) yesterday) / yesterday) * 100;
+        Double todayChange = (yesterday == 0)
+                ? null
+                : ((double) (today - yesterday) / yesterday) * 100;
 
-        Double monthChange = (lastMonth == 0) ? null :
-                ((thisMonth - (double) lastMonth) / lastMonth) * 100;
+        Double monthChange = (lastMonth == 0)
+                ? null
+                : ((double) (thisMonth - lastMonth) / lastMonth) * 100;
 
         return new DashboardResponseDTO(
                 today,
@@ -51,6 +57,30 @@ public class RevenueService {
             LocalDateTime startTime,
             LocalDateTime endTime
     ) {
-        return productStatisticRepository.findTopSellingProducts(startTime, endTime);
+        List<ProductSalesDTO> productSales = new ArrayList<>();
+        List<Object[]> results = productStatisticRepository.findTopSellingProducts(startTime, endTime);
+        for (Object[] row : results) {
+            String productName = row[0] != null ? ((String) row[0]) : "";
+            long totalQuantity = row[1] != null ? ((long) row[1]) : 0L;
+            long revenue = row[2] != null ? ((BigDecimal) row[2]).longValue() : 0L;
+            productSales.add(new ProductSalesDTO(productName, totalQuantity, revenue));
+        }
+        return productSales;
+    }
+
+    public List<CustomerResponseDTO> getCustomersData(
+            LocalDateTime startTime,
+            LocalDateTime endTime
+    ) {
+        List<CustomerResponseDTO> customerData = new ArrayList<>();
+        List<Object[]> results = customerStatisticRepository.getCustomerData(startTime, endTime);
+        for(Object[] row : results){
+            String customerName = row[0] != null ? ((String) row[0]) : "";
+            long totalOrder = row[1] != null ? ((long) row[1]) : 0;
+            long totalSpent = row[2] != null ? ((BigDecimal) row[2]).longValue() : 0L;
+            long totalQuantity = row[3] != null ? ((long) row[3]) : 0;
+            customerData.add(new CustomerResponseDTO(customerName, totalOrder, totalSpent, totalQuantity));
+        }
+        return customerData;
     }
 }

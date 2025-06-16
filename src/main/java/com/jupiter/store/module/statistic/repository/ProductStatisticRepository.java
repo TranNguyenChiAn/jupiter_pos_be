@@ -22,8 +22,8 @@ public interface ProductStatisticRepository extends JpaRepository<ProductVariant
                    "WHERE o.order_date BETWEEN :startTime AND :endTime " +
                    "GROUP BY p.product_name " +
                    "LIMIT 10", nativeQuery = true)
-    List<ProductSalesDTO> findTopSellingProducts(
-            @Param("startTime") LocalDateTime startTime,
-            @Param("endTime") LocalDateTime endTime
+    List<Object[]> findTopSellingProducts(
+        @Param("startTime") LocalDateTime startTime,
+        @Param("endTime") LocalDateTime endTime
     );
 }

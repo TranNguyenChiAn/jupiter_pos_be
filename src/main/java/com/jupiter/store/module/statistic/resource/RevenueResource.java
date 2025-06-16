@@ -1,5 +1,6 @@
 package com.jupiter.store.module.statistic.resource;
 
+import com.jupiter.store.module.statistic.dto.CustomerResponseDTO;
 import com.jupiter.store.module.statistic.dto.DashboardResponseDTO;
 import com.jupiter.store.module.statistic.dto.ProductSalesDTO;
 import com.jupiter.store.module.statistic.dto.RequestTimeDTO;
@@ -28,8 +29,11 @@ public class RevenueResource {
         );
     }
 
-    @GetMapping("/customers")
-    public DashboardResponseDTO getCustomerData() {
-        return revenueService.getDashboardData();
+    @PostMapping("/customers")
+    public List<CustomerResponseDTO> getCustomerData(@RequestBody RequestTimeDTO requestTimeDTO) {
+        return revenueService.getCustomersData(
+                requestTimeDTO.getStartTime(),
+                requestTimeDTO.getEndTime()
+        );
     }
 }
