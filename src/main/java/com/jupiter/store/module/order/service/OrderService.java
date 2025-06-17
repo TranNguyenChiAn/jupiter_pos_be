@@ -23,6 +23,7 @@ import com.jupiter.store.module.product.repository.ProductVariantRepository;
 import com.jupiter.store.module.user.dto.UserReadDTO;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
+import com.jupiter.store.module.user.service.UserService;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -62,6 +63,7 @@ public class OrderService {
     private OrderDetailService orderDetailService;
     @Autowired
     private OrderHistoryService orderHistoryService;
+    private UserService userService;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -269,8 +271,15 @@ public class OrderService {
         if (allowedTransitions == null || !allowedTransitions.contains(newOrderStatus)) {
             throw new CustomException("Không thể chuyển từ " + currentStatus.getValue() + " sang " + newOrderStatus.getValue(), HttpStatus.BAD_REQUEST);
         }
+        User user = userService.findById(currentUserId());
+        if (user == null) {
+            throw new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.NOT_FOUND);
+        }
+        if (!user.canUpdateOrder()) {
+            throw new CustomException("Bạn không có quyền cập nhật đơn hàng", HttpStatus.FORBIDDEN);
+        }
         order.setOrderStatus(newOrderStatus);
-        order.setLastModifiedBy(currentUserId());
+        order.setLastModifiedBy(user.getId());
         orderRepository.save(order);
 
         orderHistoryService.createOrderHistory(order.getId(), oldStatus, newOrderStatus);
