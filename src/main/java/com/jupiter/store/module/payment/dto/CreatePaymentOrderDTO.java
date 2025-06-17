@@ -10,4 +10,5 @@ public class CreatePaymentOrderDTO {
     private Integer orderId;
     private Long paid;
     private PaymentMethod paymentMethod;
+    private String note;
 }

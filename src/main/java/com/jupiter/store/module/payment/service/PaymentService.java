@@ -30,7 +30,8 @@ public class PaymentService {
     public void createPayment(
             Integer orderId,
             Long paid,
-            PaymentMethod paymentMethod
+            PaymentMethod paymentMethod,
+            String note
     ) {
         try {
             Order order = orderRepository.findById(orderId)
@@ -43,6 +44,7 @@ public class PaymentService {
             payment.setPaid(paid);
             payment.setRemaining(order.getTotalAmount() - paid);
             payment.setStatus(PaymentStatus.THANH_TOAN_THANH_CONG);
+            payment.setNote(note);
             payment.setCreatedBy(order.getCreatedBy());
             paymentRepository.save(payment);
         } catch (Exception e) {
@@ -71,8 +73,7 @@ public class PaymentService {
                 .collect(Collectors.toList());
     }
 
-
-    public Payment createMorePaymentForOrder(Integer orderId, Long paid, PaymentMethod paymentMethod) {
+    public Payment createMorePaymentForOrder(Integer orderId, Long paid, PaymentMethod paymentMethod, String note) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy đơn hàng"));
 
@@ -85,6 +86,7 @@ public class PaymentService {
         newPayment.setPaymentMethod(paymentMethod);
         newPayment.setRemaining(order.getTotalAmount() - totalPaid - paid);
         newPayment.setStatus(PaymentStatus.THANH_TOAN_THANH_CONG);
+        newPayment.setNote(note);
         newPayment.setCreatedBy(SecurityUtils.getCurrentUserId());
         newPayment.setDate(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")));
 

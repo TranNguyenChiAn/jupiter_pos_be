@@ -187,7 +187,7 @@ public class OrderService {
         orderRepository.save(order);
 
         if (paid != null && paid > 0) {
-            paymentService.createPayment(order.getId(), paid, paymentMethod);
+            paymentService.createPayment(order.getId(), paid, paymentMethod, note);
         }
 
         //them order history create order

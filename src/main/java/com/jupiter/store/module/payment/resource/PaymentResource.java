@@ -29,7 +29,8 @@ public class PaymentResource {
         Payment newPayment = paymentService.createMorePaymentForOrder(
                 createPaymentOrderDTO.getOrderId(),
                 createPaymentOrderDTO.getPaid(),
-                createPaymentOrderDTO.getPaymentMethod()
+                createPaymentOrderDTO.getPaymentMethod(),
+                createPaymentOrderDTO.getNote()
         );
         return ResponseEntity.ok(newPayment);
     }

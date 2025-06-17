@@ -41,4 +41,7 @@ public class Payment extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "date")
     private LocalDateTime date;
+
+    @Column(name = "note")
+    private String note;
 }
