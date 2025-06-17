@@ -1,6 +1,7 @@
 package com.jupiter.store.module.order.dto;
 
 import com.jupiter.store.module.order.constant.OrderStatus;
+import com.jupiter.store.module.order.constant.OrderType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,4 +21,5 @@ public class OrderSearchDTO {
     private List<OrderStatus> orderStatuses;
     private LocalDate startDate;
     private LocalDate endDate;
+    private OrderType orderType;
 }

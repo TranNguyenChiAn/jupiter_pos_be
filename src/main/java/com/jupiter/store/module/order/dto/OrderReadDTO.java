@@ -2,6 +2,7 @@ package com.jupiter.store.module.order.dto;
 
 import com.jupiter.store.module.customer.dto.CustomerDTO;
 import com.jupiter.store.module.order.constant.OrderStatus;
+import com.jupiter.store.module.order.constant.OrderType;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.payment.dto.PaymentReadDTO;
 import com.jupiter.store.module.user.dto.UserReadDTO;
@@ -29,6 +30,7 @@ public class OrderReadDTO {
     private String receiverPhone;
     private String receiverAddress;
     private String note;
+    private OrderType orderType;
     private List<OrderDetailReadDTO> orderDetails;
     private List<PaymentReadDTO> payments;
     private List<OrderHistoryDTO> orderHistories;
@@ -42,5 +44,6 @@ public class OrderReadDTO {
         this.receiverPhone = order.getReceiverPhone();
         this.receiverAddress = order.getReceiverAddress();
         this.note = order.getNote();
+        this.orderType = order.getOrderType();
     }
 }

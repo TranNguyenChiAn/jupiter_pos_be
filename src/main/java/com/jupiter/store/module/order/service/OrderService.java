@@ -9,6 +9,7 @@ import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.order.constant.OrderStatus;
+import com.jupiter.store.module.order.constant.OrderType;
 import com.jupiter.store.module.order.dto.*;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.model.OrderDetail;
@@ -63,23 +64,11 @@ public class OrderService {
     private OrderDetailService orderDetailService;
     @Autowired
     private OrderHistoryService orderHistoryService;
+    @Autowired
     private UserService userService;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
-    }
-
-    /**
-     * Get order by ID
-     */
-    public OrderItemsDTO getOrderDetailById(Integer orderId) {
-        orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
-        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
-        OrderItemsDTO orderItemsDTO = new OrderItemsDTO();
-        orderItemsDTO.setOrderId(orderId);
-        orderItemsDTO.setOrderItems(orderDetails);
-        return orderItemsDTO;
     }
 
     public Page<Order> search(
@@ -135,6 +124,11 @@ public class OrderService {
         return orderRepository.search(search, statuses, startDate, endDate, pageable);
     }
 
+    public Order findById(Integer orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
+    }
+
     public Order createOrder(
             Integer customerId,
             String receiverName,
@@ -143,14 +137,15 @@ public class OrderService {
             String note,
             Long paid,
             PaymentMethod paymentMethod,
-            OrderStatus orderStatus,
-            List<OrderDetailCreateDTO> orderItems
+            List<OrderDetailCreateDTO> orderItems,
+            OrderType orderType
     ) {
         User user = userRepository.findById(currentUserId())
                 .orElseThrow(() -> new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.NOT_FOUND));
 
         Order order = new Order();
         order.setUserId(currentUserId());
+
         Long totalAmount = orderItems.stream().filter(Objects::nonNull)
                 .mapToLong(item -> item.getSoldPrice() * item.getSoldQuantity())
                 .sum();
@@ -158,6 +153,7 @@ public class OrderService {
             throw new CustomException("Tổng số tiền phải lớn hơn 0", HttpStatus.BAD_REQUEST);
         }
         order.setTotalAmount(totalAmount);
+
         Customer customer = null;
         if (customerId != null) {
             customer = customerService.findById(customerId);
@@ -170,16 +166,33 @@ public class OrderService {
             order.setCustomerId(customerId);
             customerService.updateAfterOrder(customerId, totalAmount, 1);
         }
+
         order.setReceiverName(receiverName);
         order.setReceiverPhone(receiverPhone);
         order.setReceiverAddress(receiverAddress);
         order.setNote(note);
-        order.setOrderStatus(orderStatus != null ? orderStatus : OrderStatus.CHO_XAC_NHAN);
+        order.setOrderType(orderType);
+
+        if (paid != null && (totalAmount.equals(paid) || paid > totalAmount )) {
+            if (orderType.equals(OrderType.MUA_TRUC_TIEP)) {
+                order.setOrderStatus(OrderStatus.HOAN_THANH);
+            } else {
+                order.setOrderStatus(OrderStatus.DA_XAC_NHAN);
+            }
+        } else {
+            order.setOrderStatus(OrderStatus.CHO_XAC_NHAN);
+        }
         order.setCreatedBy(currentUserId());
         order.setLastModifiedBy(currentUserId());
         orderRepository.save(order);
 
-        // Save order details if provided
+        if (paid != null && paid > 0) {
+            paymentService.createPayment(order.getId(), paid, paymentMethod);
+        }
+
+        //them order history create order
+
+        // Save order details
         if (!orderItems.isEmpty()) {
             List<OrderDetail> orderDetailList = new ArrayList<>();
             for (OrderDetailCreateDTO orderDetailDTO : orderItems) {
@@ -202,54 +215,12 @@ public class OrderService {
             orderDetailRepository.saveAll(orderDetailList);
         }
 
-        paymentService.createPayment(order.getId(), paid, paymentMethod);
         CompletableFuture.runAsync(() -> {
             NotificationDTO notificationDTO = new NotificationDTO("Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới",
                     NotificationEntityType.ORDER, order.getId());
             notificationService.sendNotification(notificationDTO);
         });
         return order;
-    }
-
-    public OrderItemsDTO addProductToOrder(Integer orderId, Integer productVariantId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
-        ProductVariant productVariant = productVariantRepository.findById(productVariantId)
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
-        OrderDetail existedOrderDetail = orderDetailRepository.findByOrderIdAndProductVariantId(orderId, productVariantId);
-        if (existedOrderDetail != null) {
-            int quantity = existedOrderDetail.getSoldQuantity() + 1;
-            existedOrderDetail.setPrice(productVariant.getCostPrice());
-            existedOrderDetail.setSoldQuantity(quantity);
-            existedOrderDetail.setSoldPrice(productVariant.getPrice());
-            orderDetailRepository.save(existedOrderDetail);
-        } else {
-            OrderDetail orderItem = new OrderDetail();
-            orderItem.setOrder(order);
-            orderItem.setProductVariant(productVariant);
-            orderItem.setPrice(productVariant.getCostPrice());
-            orderItem.setSoldQuantity(1);
-            orderItem.setSoldPrice(productVariant.getPrice());
-            orderDetailRepository.save(orderItem);
-        }
-
-        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
-        OrderItemsDTO orderItemsDTO = new OrderItemsDTO();
-        orderItemsDTO.setOrderId(orderId);
-        orderItemsDTO.setOrderItems(orderDetails);
-        return orderItemsDTO;
-    }
-
-    public ResponseEntity<OrderDetail> updateQuantityItem(Integer orderDetailId, int quantity) {
-        OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId).orElseThrow(() -> new OpenApiResourceNotFoundException("Cart item not found"));
-        ProductVariant productVariant = productVariantRepository.findById(orderDetail.getProductVariant().getId())
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
-        if (productVariant != null) {
-            orderDetail.setSoldQuantity(quantity);
-        } else {
-            throw new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!");
-        }
-        return ResponseEntity.ok(orderDetailRepository.save(orderDetail));
     }
 
     public void updateOrderStatus(Integer orderId, UpdateOrderStatusDTO updateOrderStatusDTO) {
@@ -285,21 +256,31 @@ public class OrderService {
         orderHistoryService.createOrderHistory(order.getId(), oldStatus, newOrderStatus);
     }
 
-    public void updateOrder(UpdateOrderDTO updateOrderDTO) {
-        Order order = orderRepository.findById(updateOrderDTO.getOrderId())
-                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
-        order.setOrderStatus(OrderStatus.DA_XAC_NHAN);
-        order.setLastModifiedBy(currentUserId());
-        orderRepository.save(order);
-    }
-
-    public void deleteOrderItem(Integer orderDetailId) {
-        orderDetailRepository.deleteById(orderDetailId);
-    }
-
     public void cancelOrder(Integer orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
+
+        User user = userRepository.findById(currentUserId()).orElse(null);
+        if (user == null) {
+            throw new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.NOT_FOUND);
+        }
+        List<PaymentReadDTO> payments = paymentService.getPaymentsByOrderId(orderId);
+        if (!user.canUpdateOrder()) {
+            throw new CustomException("Bạn không có quyền hủy đơn hàng", HttpStatus.FORBIDDEN);
+        }
+        // Đã có thanh toán
+        if (payments != null && !payments.isEmpty()) {
+            if (!user.isAdmin()) {
+                throw new CustomException("Bạn không có quyền hủy đơn hàng đã có thanh toán", HttpStatus.FORBIDDEN);
+            }
+        }
+
+        if (List.of(OrderStatus.HOAN_THANH, OrderStatus.DA_GIAO).contains(order.getOrderStatus())) {
+            throw new CustomException("Không thể hủy đơn hàng đã giao hoặc đã hoàn thành", HttpStatus.BAD_REQUEST);
+        }
+        if (order.getOrderStatus() == OrderStatus.DA_HUY) {
+            throw new CustomException("Đơn hàng đã được hủy trước đó", HttpStatus.BAD_REQUEST);
+        }
         order.setOrderStatus(OrderStatus.DA_HUY);
         order.setLastModifiedBy(currentUserId());
         orderRepository.save(order);
@@ -339,5 +320,28 @@ public class OrderService {
     public void setOrderHistory(OrderReadDTO orderReadDTO) {
         List<OrderHistoryDTO> orderHistories = orderHistoryService.getOrderHistoriesByOrderId(orderReadDTO.getId());
         orderReadDTO.setOrderHistories(orderHistories);
+    }
+
+    public void updateStatus(Integer orderId, UpdateOrderDTO updateOrderDTO) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
+
+        if (updateOrderDTO.getReceiverName() != null) {
+            order.setReceiverName(updateOrderDTO.getReceiverName());
+        }
+        if (updateOrderDTO.getReceiverPhone() != null) {
+            order.setReceiverPhone(updateOrderDTO.getReceiverPhone());
+        }
+        if (updateOrderDTO.getReceiverAddress() != null) {
+            order.setReceiverAddress(updateOrderDTO.getReceiverAddress());
+        }
+        if (updateOrderDTO.getNote() != null) {
+            order.setNote(updateOrderDTO.getNote());
+        }
+        if (updateOrderDTO.getOrderType() != null) {
+            order.setOrderType(updateOrderDTO.getOrderType());
+        }
+        order.setLastModifiedBy(currentUserId());
+        orderRepository.save(order);
     }
 }

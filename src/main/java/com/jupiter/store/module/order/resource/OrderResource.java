@@ -2,6 +2,7 @@ package com.jupiter.store.module.order.resource;
 
 import com.jupiter.store.module.order.dto.*;
 import com.jupiter.store.module.order.model.Order;
+import com.jupiter.store.module.order.service.OrderDetailService;
 import com.jupiter.store.module.order.service.OrderService;
 import com.jupiter.store.module.payment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ public class OrderResource {
 
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private OrderDetailService orderDetailService;
 
     @PostMapping("/search")
     public ResponseEntity<Page<Order>> search(@RequestBody OrderSearchDTO orderSearchDTO) {
@@ -44,7 +47,7 @@ public class OrderResource {
 
     @GetMapping("/detail-search/{orderId}")
     public OrderItemsDTO getOrderDetail(@PathVariable Integer orderId) {
-        return orderService.getOrderDetailById(orderId);
+        return orderDetailService.getOrderDetailById(orderId);
     }
 
     @PostMapping("/create")
@@ -57,34 +60,25 @@ public class OrderResource {
                 createOrderDTO.getNote(),
                 createOrderDTO.getPaid(),
                 createOrderDTO.getPaymentMethod(),
-                createOrderDTO.getOrderStatus(),
-                createOrderDTO.getOrderItems()
+                createOrderDTO.getOrderItems(),
+                createOrderDTO.getOrderType()
         );
     }
 
-    @PostMapping("/add-product/{orderId}/{productVariantId}")
-    public OrderItemsDTO addProductToOrder(@PathVariable Integer orderId, @PathVariable Integer productVariantId) {
-        return orderService.addProductToOrder(orderId, productVariantId);
-    }
-
-    @PutMapping("/update-quantity-item")
-    public void updateQuantityItem(@RequestParam Integer orderDetailId, @RequestParam int quantity) {
-        orderService.updateQuantityItem(orderDetailId, quantity);
+    @PutMapping("/{orderId}")
+    public ResponseEntity<Void> updateOrder(@PathVariable Integer orderId, @RequestBody UpdateOrderDTO updateOrderDTO) {
+        orderService.updateStatus(orderId, updateOrderDTO);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{orderId}/status")
-    public ResponseEntity<Void> updateOrder(@PathVariable Integer orderId, @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
+    public ResponseEntity<Void> updateOrderStatus(@PathVariable Integer orderId, @RequestBody UpdateOrderStatusDTO updateOrderStatusDTO) {
         orderService.updateOrderStatus(orderId, updateOrderStatusDTO);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/confirm-order/{orderId}")
     public void confirmOrder(@PathVariable Integer orderId) {
-    }
-
-    @DeleteMapping("/delete-order-item/{orderDetailId}")
-    public void deleteOrderItem(@PathVariable Integer orderDetailId) {
-        orderService.deleteOrderItem(orderDetailId);
     }
 
     @PutMapping("/cancel")

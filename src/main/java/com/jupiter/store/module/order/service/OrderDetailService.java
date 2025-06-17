@@ -1,8 +1,10 @@
 package com.jupiter.store.module.order.service;
 
 import com.jupiter.store.module.order.dto.OrderDetailReadDTO;
+import com.jupiter.store.module.order.dto.OrderItemsDTO;
 import com.jupiter.store.module.order.model.OrderDetail;
 import com.jupiter.store.module.order.repository.OrderDetailRepository;
+import com.jupiter.store.module.order.repository.OrderRepository;
 import com.jupiter.store.module.product.dto.ProductVariantReadDTO;
 import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.service.ProductVariantSearchService;
@@ -16,10 +18,12 @@ public class OrderDetailService {
 
     private final OrderDetailRepository orderDetailRepository;
     private final ProductVariantSearchService productVariantSearchService;
+    private final OrderRepository orderRepository;
 
-    public OrderDetailService(OrderDetailRepository orderDetailRepository, ProductVariantSearchService productVariantSearchService) {
+    public OrderDetailService(OrderDetailRepository orderDetailRepository, ProductVariantSearchService productVariantSearchService, OrderRepository orderRepository) {
         this.orderDetailRepository = orderDetailRepository;
         this.productVariantSearchService = productVariantSearchService;
+        this.orderRepository = orderRepository;
     }
 
     public List<OrderDetail> findByOrderId(Integer id) {
@@ -43,5 +47,14 @@ public class OrderDetailService {
                     return orderDetailReadDTO;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public OrderItemsDTO getOrderDetailById(Integer orderId) {
+        orderRepository.findById(orderId);
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
+        OrderItemsDTO orderItemsDTO = new OrderItemsDTO();
+        orderItemsDTO.setOrderId(orderId);
+        orderItemsDTO.setOrderItems(orderDetails);
+        return orderItemsDTO;
     }
 }

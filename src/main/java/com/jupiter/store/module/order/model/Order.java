@@ -2,6 +2,7 @@ package com.jupiter.store.module.order.model;
 
 import com.jupiter.store.common.model.AbstractAuditingEntity;
 import com.jupiter.store.module.order.constant.OrderStatus;
+import com.jupiter.store.module.order.constant.OrderType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -44,4 +45,7 @@ public class Order extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "note")
     private String note;
+
+    @Column(name= "order_type")
+    private OrderType orderType;
 }
