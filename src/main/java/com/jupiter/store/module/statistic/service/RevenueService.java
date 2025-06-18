@@ -36,11 +36,11 @@ public class RevenueService {
         long last7Days = row[5] != null ? ((BigDecimal) row[5]).longValue() : 0L;
 
         Double todayChange = (yesterday == 0)
-                ? null
+                ? 100.00
                 : ((double) (today - yesterday) / yesterday) * 100;
 
         Double monthChange = (lastMonth == 0)
-                ? null
+                ? 100.00
                 : ((double) (thisMonth - lastMonth) / lastMonth) * 100;
 
         return new DashboardResponseDTO(
