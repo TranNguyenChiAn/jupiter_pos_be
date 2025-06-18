@@ -24,5 +24,5 @@ public class CreateOrderDTO {
     private Long paid;
     private PaymentMethod paymentMethod;
     private List<OrderDetailCreateDTO> orderItems;
-    private OrderType orderType;
+    private OrderType orderType = OrderType.MUA_TRUC_TIEP;
 }
