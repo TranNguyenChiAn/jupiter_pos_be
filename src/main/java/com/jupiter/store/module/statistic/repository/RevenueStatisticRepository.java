@@ -5,8 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import javax.print.attribute.standard.JobKOctets;
-
 @Repository
 public interface RevenueStatisticRepository extends JpaRepository<Payment, Integer> {
     @Query(value = "SELECT " +
@@ -48,7 +46,11 @@ public interface RevenueStatisticRepository extends JpaRepository<Payment, Integ
             "    (SELECT COALESCE(SUM(od.sold_price * od.sold_quantity), 0) " +
             "     FROM order_details od " +
             "             JOIN orders o ON o.id = od.order_id " +
-            "     WHERE o.order_date::date >= CURRENT_DATE - INTERVAL '6 days') AS last_7_days_revenue"
+            "     WHERE o.order_date::date >= CURRENT_DATE - INTERVAL '6 days') AS last_7_days_revenue, " +
+
+            "    -- Tổng số đơn hàng\n " +
+            "    (SELECT COUNT(o.id) FROM orders o " +
+            "     WHERE o.order_date::date = CURRENT_DATE) AS today_total_orders "
             , nativeQuery = true)
     Object getMainStats();
 }

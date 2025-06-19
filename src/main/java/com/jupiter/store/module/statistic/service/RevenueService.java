@@ -34,14 +34,15 @@ public class RevenueService {
         long thisMonth = row[3] != null ? ((BigDecimal) row[3]).longValue() : 0L;
         long lastMonth = row[4] != null ? ((BigDecimal) row[4]).longValue() : 0L;
         long last7Days = row[5] != null ? ((BigDecimal) row[5]).longValue() : 0L;
+        long totalOrder = row[6] != null ? ((Long) row[6]) : 0L;
 
-        Double todayChange = (yesterday == 0)
-                ? 100.00
-                : ((double) (today - yesterday) / yesterday) * 100;
+        double todayChange = (yesterday == 0)
+                    ? 100.00
+                    : Math.round(((double) (today - yesterday) / yesterday) * 10000) / 100.0;
 
-        Double monthChange = (lastMonth == 0)
+        double monthChange = (lastMonth == 0)
                 ? 100.00
-                : ((double) (thisMonth - lastMonth) / lastMonth) * 100;
+                : Math.round(((double) (thisMonth - lastMonth) / lastMonth) * 10000) / 100.0;
 
         return new DashboardResponseDTO(
                 today,
@@ -49,7 +50,8 @@ public class RevenueService {
                 thisMonth,
                 last7Days,
                 todayChange,
-                monthChange
+                monthChange,
+                totalOrder
         );
     }
 

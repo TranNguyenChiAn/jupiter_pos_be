@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,7 +15,8 @@ public class DashboardResponseDTO {
     private long thisMonthRevenue;
     private long last7DaysRevenue;
 
-    private Double todayChangePercent; // % tăng/giảm hôm qua
-    private Double thisMonthChangePercent; // % tăng/giảm tháng trước
+    private double todayChangePercent; // % tăng/giảm hôm qua
+    private double thisMonthChangePercent; // % tăng/giảm tháng trước
+    private long totalOrders; // Tổng số đơn hàng hôm nay
 }
 

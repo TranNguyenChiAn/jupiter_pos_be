@@ -17,7 +17,6 @@ import com.jupiter.store.module.order.repository.OrderDetailRepository;
 import com.jupiter.store.module.order.repository.OrderRepository;
 import com.jupiter.store.module.payment.constant.PaymentMethod;
 import com.jupiter.store.module.payment.dto.PaymentReadDTO;
-import com.jupiter.store.module.payment.model.Payment;
 import com.jupiter.store.module.payment.service.PaymentService;
 import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
@@ -30,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -211,6 +209,15 @@ public class OrderService {
                     throw new CustomException("Giá sản phẩm phải lớn hơn 0", HttpStatus.BAD_REQUEST);
                 }
                 orderDetailList.add(orderDetail);
+
+                // Cập nhật số lượng tồn kho
+                if (productVariant.getQuantity() - orderDetailDTO.getSoldQuantity() > 0) {
+                    Integer remainingQuantity = productVariant.getQuantity() - orderDetailDTO.getSoldQuantity();
+                    productVariant.setQuantity(remainingQuantity);
+                    productVariantRepository.save(productVariant);
+                } else {
+                    throw new CustomException("Số lượng tồn kho không đủ", HttpStatus.BAD_REQUEST);
+                }
             }
             orderDetailRepository.saveAll(orderDetailList);
         }
