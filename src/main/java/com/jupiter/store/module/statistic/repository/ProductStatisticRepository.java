@@ -1,7 +1,6 @@
 package com.jupiter.store.module.statistic.repository;
 
 import com.jupiter.store.module.product.model.ProductVariant;
-import com.jupiter.store.module.statistic.dto.ProductSalesDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,8 +19,7 @@ public interface ProductStatisticRepository extends JpaRepository<ProductVariant
                    "INNER JOIN products p ON p.id = pv.product_id " +
                    "INNER JOIN orders o ON o.id = od.order_id " +
                    "WHERE o.order_date BETWEEN :startTime AND :endTime " +
-                   "GROUP BY p.product_name " +
-                   "LIMIT 10", nativeQuery = true)
+                   "GROUP BY p.product_name ", nativeQuery = true)
     List<Object[]> findTopSellingProducts(
         @Param("startTime") LocalDateTime startTime,
         @Param("endTime") LocalDateTime endTime

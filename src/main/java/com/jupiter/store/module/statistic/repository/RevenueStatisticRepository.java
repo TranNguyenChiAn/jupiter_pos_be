@@ -8,49 +8,54 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RevenueStatisticRepository extends JpaRepository<Payment, Integer> {
     @Query(value = "SELECT " +
-            "    -- Doanh thu hôm nay\n" +
-            "    (SELECT COALESCE(SUM(od.sold_price * od.sold_quantity), 0) " +
-            "     FROM order_details od " +
-            "              JOIN orders o ON o.id = od.order_id " +
-            "     WHERE o.order_date::date = CURRENT_DATE) AS today_revenue, " +
+            "    -- Doanh thu hôm nay (đã thanh toán)\n" +
+            "    (SELECT COALESCE(SUM(p.paid), 0) " +
+            "     FROM payments p " +
+            "     WHERE p.status = 'THANH_TOAN_THANH_CONG' " +
+            "       AND p.date >= CURRENT_DATE " +
+            "       AND p.date < CURRENT_DATE + INTERVAL '1 day') AS today_revenue, " +
 
-            "    -- Lợi nhuận hôm nay\n" +
-            "    (SELECT COALESCE(SUM((od.sold_price - pv.cost_price) * od.sold_quantity), 0) " +
-            "     FROM order_details od " +
-            "              JOIN orders o ON o.id = od.order_id " +
-            "              JOIN product_variants pv ON pv.id = od.product_variant_id " +
-            "     WHERE o.order_date::date = CURRENT_DATE) AS today_profit, " +
+            "    -- Lợi nhuận hôm nay (từ đơn đã thanh toán)\n" +
+            "    (SELECT " +
+            "         SUM(p.paid) - SUM(od.sold_quantity * pv.cost_price) AS profit " +
+            "     FROM payments p " +
+            "              JOIN orders o ON p.order_id = o.id " +
+            "              JOIN order_details od ON o.id = od.order_id " +
+            "              JOIN product_variants pv ON od.product_variant_id = pv.id " +
+            "     WHERE " +
+            "         p.status = 'THANH_TOAN_THANH_CONG' " +
+            "       AND p.date >= CURRENT_DATE " +
+            "       AND p.date < CURRENT_DATE + INTERVAL '1 day') AS today_profit, " +
 
-            "    -- Doanh thu hôm qua\n" +
-            "    (SELECT COALESCE(SUM((od.sold_price - pv.cost_price) * od.sold_quantity), 0) " +
-            "     FROM order_details od " +
-            "              JOIN orders o ON o.id = od.order_id " +
-            "              JOIN product_variants pv ON pv.id = od.product_variant_id " +
-            "     WHERE o.order_date::date = CURRENT_DATE - INTERVAL '1 day') AS yesterday_revenue, " +
+            "    -- Doanh thu hôm qua (đã thanh toán)\n" +
+            "    (SELECT COALESCE(SUM(p.paid), 0) " +
+            "     FROM payments p " +
+            "     WHERE p.status = 'THANH_TOAN_THANH_CONG' " +
+            "       AND p.date::date = CURRENT_DATE - INTERVAL '1 day') AS yesterday_revenue, " +
 
-            "    -- Doanh thu tháng này\n" +
-            "    (SELECT COALESCE(SUM(od.sold_price * od.sold_quantity), 0) " +
-            "     FROM order_details od " +
-            "              JOIN orders o ON o.id = od.order_id " +
-            "     WHERE o.order_date >= DATE_TRUNC('month', CURRENT_DATE)) AS this_month_revenue, " +
+            "    -- Doanh thu tháng này (đã thanh toán)\n" +
+            "    (SELECT COALESCE(SUM(p.paid), 0) " +
+            "     FROM payments p " +
+            "     WHERE p.status = 'THANH_TOAN_THANH_CONG' " +
+            "       AND p.date >= DATE_TRUNC('month', CURRENT_DATE)) AS this_month_revenue, " +
 
-            "    -- Doanh thu thasng truoc\n" +
-            "    (SELECT COALESCE(SUM((od.sold_price - pv.cost_price) * od.sold_quantity), 0) " +
-            "     FROM order_details od " +
-            "              JOIN orders o ON o.id = od.order_id " +
-            "              JOIN product_variants pv ON pv.id = od.product_variant_id " +
-            "     WHERE o.order_date >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month') " +
-            "     AND o.order_date < DATE_TRUNC('month', CURRENT_DATE)) AS last_month_revenue, " +
+            "    -- Doanh thu tháng trước (đã thanh toán) \n " +
+            "    (SELECT COALESCE(SUM(p.paid), 0) " +
+            "     FROM payments p " +
+            "     WHERE p.status = 'THANH_TOAN_THANH_CONG' " +
+            "       AND p.date >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month') " +
+            "       AND p.date < DATE_TRUNC('month', CURRENT_DATE)) AS last_month_revenue, " +
 
-            "    -- Doanh thu trong 7 ngày qua\n" +
-            "    (SELECT COALESCE(SUM(od.sold_price * od.sold_quantity), 0) " +
-            "     FROM order_details od " +
-            "             JOIN orders o ON o.id = od.order_id " +
-            "     WHERE o.order_date::date >= CURRENT_DATE - INTERVAL '6 days') AS last_7_days_revenue, " +
+            "    -- Doanh thu trong 7 ngày qua (đã thanh toán) \n " +
+            "    (SELECT COALESCE(SUM(p.paid), 0) " +
+            "     FROM payments p " +
+            "     WHERE p.status = 'THANH_TOAN_THANH_CONG' " +
+            "       AND p.date::date >= CURRENT_DATE - INTERVAL '6 days') AS last_7_days_revenue, " +
 
-            "    -- Tổng số đơn hàng\n " +
-            "    (SELECT COUNT(o.id) FROM orders o " +
-            "     WHERE o.order_date::date = CURRENT_DATE) AS today_total_orders "
+            "    -- Tổng số đơn hàng hôm nay \n " +
+            "    (SELECT COUNT(o.id) " +
+            "     FROM orders o " +
+            "     WHERE o.order_date::date = CURRENT_DATE) AS today_total_orders"
             , nativeQuery = true)
     Object getMainStats();
 }

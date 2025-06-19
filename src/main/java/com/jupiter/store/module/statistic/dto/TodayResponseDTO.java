@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DashboardResponseDTO {
+public class TodayResponseDTO {
     private long todayRevenue;
     private long todayProfit;
     private long thisMonthRevenue;

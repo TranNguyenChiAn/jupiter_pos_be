@@ -1,7 +1,7 @@
 package com.jupiter.store.module.statistic.service;
 
 import com.jupiter.store.module.statistic.dto.CustomerResponseDTO;
-import com.jupiter.store.module.statistic.dto.DashboardResponseDTO;
+import com.jupiter.store.module.statistic.dto.TodayResponseDTO;
 import com.jupiter.store.module.statistic.dto.ProductSalesDTO;
 import com.jupiter.store.module.statistic.repository.CustomerStatisticRepository;
 import com.jupiter.store.module.statistic.repository.ProductStatisticRepository;
@@ -25,7 +25,7 @@ public class RevenueService {
     @Autowired
     private CustomerStatisticRepository customerStatisticRepository;
 
-    public DashboardResponseDTO getDashboardData() {
+    public TodayResponseDTO getTodayData() {
         Object result = revenueStatisticRepository.getMainStats();
         Object[] row = (Object[]) result;
         long today = row[0] != null ? ((BigDecimal) row[0]).longValue() : 0L;
@@ -44,7 +44,7 @@ public class RevenueService {
                 ? 100.00
                 : Math.round(((double) (thisMonth - lastMonth) / lastMonth) * 10000) / 100.0;
 
-        return new DashboardResponseDTO(
+        return new TodayResponseDTO(
                 today,
                 todayProfit,
                 thisMonth,
@@ -79,9 +79,10 @@ public class RevenueService {
         for(Object[] row : results){
             String customerName = row[0] != null ? ((String) row[0]) : "";
             long totalOrder = row[1] != null ? ((long) row[1]) : 0;
-            long totalSpent = row[2] != null ? ((BigDecimal) row[2]).longValue() : 0L;
-            long totalQuantity = row[3] != null ? ((long) row[3]) : 0;
-            customerData.add(new CustomerResponseDTO(customerName, totalOrder, totalSpent, totalQuantity));
+            long totalSpent = row[2] != null ? ((BigDecimal) row[2]).longValue() : 0;
+            long totalDebt = row[3] != null ? ((BigDecimal) row[3]).longValue() : 0;
+            long totalQuantity = row[4] != null ? ((long) row[4]) : 0;
+            customerData.add(new CustomerResponseDTO(customerName, totalOrder, totalSpent, totalQuantity, totalDebt));
         }
         return customerData;
     }

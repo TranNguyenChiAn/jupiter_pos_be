@@ -14,4 +14,5 @@ public class CustomerResponseDTO {
     private long totalOrders;
     private long totalSpent;
     private long totalQuantity;
+    private long totalDebt;
 }
