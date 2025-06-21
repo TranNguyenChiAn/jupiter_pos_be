@@ -1,8 +1,14 @@
 package com.jupiter.store.module.category.resource;
 
 import com.jupiter.store.module.category.dto.CategoryDTO;
+import com.jupiter.store.module.category.dto.CategorySearchDTO;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.service.CategoryService;
+import com.jupiter.store.module.customer.dto.CustomerSearchDTO;
+import com.jupiter.store.module.customer.model.Customer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,12 +24,23 @@ public class CategoryResource {
 
     @PostMapping("/add")
     public Category addCategory(@RequestBody CategoryDTO createCategoryDTO) {
-        return categoryService.addCategory(createCategoryDTO.getName());
+        return categoryService.addCategory(createCategoryDTO.getCategoryName());
     }
 
-    @GetMapping("/search")
-    public List<Category> search() {
-        return categoryService.search();
+    @PostMapping("/search")
+    public ResponseEntity<Page<Category>> search(@RequestBody CategorySearchDTO request) {
+        Page<Category> result = categoryService.search(
+                request.getPage(),
+                request.getSize(),
+                request.getSortBy(),
+                request.getSortDirection()
+        );
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/get-all")
+    public List<Category> getAll() {
+        return categoryService.findAll();
     }
 
     @GetMapping("/search/{categoryId}")
@@ -36,13 +53,13 @@ public class CategoryResource {
         return categoryService.searchByName(categoryName);
     }
 
-    @PutMapping("/update/{categoryId}")
-    public void updateCategory(@PathVariable Integer categoryId, @RequestParam String name) {
-        categoryService.updateCategory(categoryId, name);
+    @PutMapping("/{categoryId}")
+    public Category updateCategory(@PathVariable Integer categoryId, @RequestBody String categoryName) {
+        return categoryService.updateCategory(categoryId, categoryName.trim());
     }
 
-    @DeleteMapping("/delete")
-    public void deleteCategory(Integer categoryId) {
+    @DeleteMapping("/{categoryId}")
+    public void deleteCategory(@PathVariable Integer categoryId) {
         categoryService.deleteCategory(categoryId);
     }
 }

@@ -22,4 +22,13 @@ public class HelperUtils {
         }
         return snakeCase.toString();
     }
+
+    public void validatePageAndSize(int page, int size) {
+        if (page < 0) {
+            throw new IllegalArgumentException("Page number must be non-negative");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Size must be greater than zero");
+        }
+    }
 }

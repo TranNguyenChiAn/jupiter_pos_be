@@ -1,8 +1,15 @@
 package com.jupiter.store.module.category.service;
 
+import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
+import com.jupiter.store.module.product.model.ProductCategory;
+import com.jupiter.store.module.product.repository.ProductCategoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -12,13 +19,24 @@ import java.util.List;
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
+    private final ProductCategoryRepository productCategoryRepository;
+    private final HelperUtils helperUtils;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, ProductCategoryRepository productCategoryRepository, HelperUtils helperUtils) {
         this.categoryRepository = categoryRepository;
+        this.productCategoryRepository = productCategoryRepository;
+        this.helperUtils = helperUtils;
     }
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
+    }
+
+    public Page<Category> search(Integer page, Integer size, String sortBy, String sortDirection) {
+        helperUtils.validatePageAndSize(page, size);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return categoryRepository.findAll(pageable);
     }
 
     public Category addCategory(String categoryName) {
@@ -30,7 +48,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
-    public List<Category> search() {
+    public List<Category> findAll() {
         return categoryRepository.findAll();
     }
 
@@ -39,19 +57,20 @@ public class CategoryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục"));
     }
 
-    public void updateCategory(Integer categoryId, String name) {
+    public Category updateCategory(Integer categoryId, String categoryName) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục"));
-        if (categoryRepository.existsByCategoryName(name)) {
-            throw new IllegalArgumentException("Tên danh mục " + name + " đã tồn tại!");
+        if (categoryRepository.existsByCategoryName(categoryName)) {
+            throw new IllegalArgumentException("Tên danh mục " + categoryName + " đã tồn tại!");
         }
-        category.setCategoryName(name);
-        categoryRepository.save(category);
+        category.setCategoryName(categoryName);
+        return categoryRepository.save(category);
     }
 
     public void deleteCategory(Integer categoryId) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy danh mục"));
+        productCategoryRepository.deleteByCategoryId(categoryId);
         categoryRepository.delete(category);
     }
 
