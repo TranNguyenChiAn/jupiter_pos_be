@@ -2,8 +2,10 @@ package com.jupiter.store.module.product.repository;
 
 import com.jupiter.store.module.product.model.ProductAttributeValue;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,4 +35,9 @@ public interface ProductVariantAttrValueRepository extends JpaRepository<Product
             "WHERE pav.product_variant_id = :variantId " +
             "ORDER BY pa.id DESC ", nativeQuery = true)
     List<Object[]> findAllAttributesByVariantId(@Param("variantId") Integer variantId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM product_attribute_values pav WHERE pav.attr_id = :attributeId", nativeQuery = true)
+    void deleteByAttributeId(@Param("attributeId") Integer attributeId);
 }

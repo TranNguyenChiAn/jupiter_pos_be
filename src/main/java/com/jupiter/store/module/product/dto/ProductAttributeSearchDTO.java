@@ -5,12 +5,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductAttributeDTO implements Serializable {
-    private String attributeName;
+public class ProductAttributeSearchDTO {
+    private Integer page;
+    private Integer size;
+    private String sortBy = "id";
+    private String sortDirection = "DESC";
 }
