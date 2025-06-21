@@ -1,12 +1,15 @@
 package com.jupiter.store.module.customer.service;
 
+import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.customer.dto.CustomerDTO;
 import com.jupiter.store.module.customer.model.Customer;
 import com.jupiter.store.module.customer.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +18,8 @@ import java.util.List;
 public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private HelperUtils helperUtils;
 
     public List<Customer> findAllCustomer() {
         return customerRepository.findAll();
@@ -43,13 +48,11 @@ public class CustomerService {
     }
 
     public Customer findCustomer(String keyword) {
-        return customerRepository.findByKeyword(keyword)
-                .orElseThrow(() -> new RuntimeException("Khách hàng không tồn tại!"));
+        return customerRepository.findByKeyword(keyword).orElseThrow(() -> new RuntimeException("Khách hàng không tồn tại!"));
     }
 
     public Customer findById(Integer customerId) {
-        return customerRepository.findById(customerId)
-                .orElse(null);
+        return customerRepository.findById(customerId).orElse(null);
     }
 
     public Customer findByPhone(String phone) {
@@ -57,7 +60,7 @@ public class CustomerService {
     }
 
 
-    public Page<Customer> search(Pageable pageable, String search) {
+    public Page<Customer> search(Pageable pageable, String search, String sortBy, String sortDirection) {
         if (search != null) {
             search = search.trim();
             if (search.isBlank()) {
@@ -66,6 +69,19 @@ public class CustomerService {
                 search = search.toLowerCase();
             }
         }
+        if (sortBy != null && !sortBy.isBlank()) {
+            sortBy = helperUtils.convertCamelCaseToSnakeCase(sortBy);
+        } else {
+            sortBy = "last_modified_date";
+        }
+        if (sortDirection == null || sortDirection.isBlank()) {
+            sortDirection = "DESC";
+        } else {
+            sortDirection = sortDirection.toUpperCase();
+        }
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         return customerRepository.search(search, pageable);
     }
 

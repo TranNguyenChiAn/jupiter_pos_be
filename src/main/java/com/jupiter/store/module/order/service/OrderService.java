@@ -194,9 +194,10 @@ public class OrderService {
         if (!orderItems.isEmpty()) {
             List<OrderDetail> orderDetailList = new ArrayList<>();
             for (OrderDetailCreateDTO orderDetailDTO : orderItems) {
-                OrderDetail orderDetail = new OrderDetail();
                 ProductVariant productVariant = productVariantRepository.findById(orderDetailDTO.getProductVariantId())
-                        .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
+                        .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy biến thể sản phẩm có ID: " + orderDetailDTO.getProductVariantId() + "!"));
+
+                OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrder(order);
                 orderDetail.setProductVariant(productVariant);
                 orderDetail.setPrice(productVariant.getCostPrice());
@@ -216,7 +217,7 @@ public class OrderService {
                     productVariant.setQuantity(remainingQuantity);
                     productVariantRepository.save(productVariant);
                 } else {
-                    throw new CustomException("Số lượng tồn kho không đủ", HttpStatus.BAD_REQUEST);
+                    throw new CustomException("Số lượng tồn kho của biến thể " + productVariant.getId() + " không đủ", HttpStatus.BAD_REQUEST);
                 }
             }
             orderDetailRepository.saveAll(orderDetailList);

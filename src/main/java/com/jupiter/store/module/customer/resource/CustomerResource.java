@@ -19,7 +19,10 @@ public class CustomerResource {
     @PostMapping("/search")
     public ResponseEntity<Page<Customer>> findAllCustomer(@RequestBody CustomerSearchDTO request) {
         Page<Customer> result = customerService.search(
-                Pageable.ofSize(request.getSize()).withPage(request.getPage()), request.getSearch()
+                Pageable.ofSize(request.getSize()).withPage(request.getPage()),
+                request.getSearch(),
+                request.getSortBy(),
+                request.getSortDirection()
         );
         return ResponseEntity.ok(result);
     }

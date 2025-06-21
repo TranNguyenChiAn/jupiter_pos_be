@@ -21,21 +21,11 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     Customer findByPhone(@Param("phone") String phone);
 
     @Query(
-            value = "SELECT * FROM ( " +
-                    "  SELECT c.*, " +
-                    "         ts_rank_cd(c.fts, plainto_tsquery('simple', unaccent(:search))) AS rank " +
-                    "  FROM customers c " +
+            value = "  SELECT * FROM customers c " +
                     "  WHERE (:search IS NULL OR unaccent(:search) = '' " +
                     "         OR c.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
                     "         OR c.phone LIKE CONCAT('%', :search, '%') " +
-                    "        ) " +
-                    ") sub " +
-                    "ORDER BY " +
-                    "  CASE " +
-                    "    WHEN (:search IS NULL OR unaccent(:search) = '') THEN NULL " +
-                    "    ELSE COALESCE(sub.rank, 0) " +
-                    "  END DESC, " +
-                    "  sub.last_modified_date DESC nulls last",
+                    "        ) ",
             countQuery = "SELECT COUNT(*) FROM customers c " +
                     "WHERE (:search IS NULL OR unaccent(:search) = '' " +
                     "       OR c.fts @@ plainto_tsquery('simple', unaccent(:search)) " +

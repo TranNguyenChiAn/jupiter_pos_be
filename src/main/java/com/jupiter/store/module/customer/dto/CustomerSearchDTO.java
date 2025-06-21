@@ -13,4 +13,6 @@ public class CustomerSearchDTO {
     private Integer page = 0;
     private Integer size;
     private String search;
+    private String sortBy = "lastModifiedDate";
+    private String sortDirection = "DESC";
 }
