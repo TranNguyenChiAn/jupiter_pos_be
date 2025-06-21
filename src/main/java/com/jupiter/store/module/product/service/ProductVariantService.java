@@ -30,10 +30,6 @@ public class ProductVariantService {
     @Autowired
     private ProductImageRepository productImageRepository;
     @Autowired
-    private AttributeService attributeService;
-    @Autowired
-    private UnitService unitService;
-    @Autowired
     private ProductImageService productImageService;
 
     public ResponseEntity<CreateProductVariantDTO> addProductVariant(Integer productId, CreateProductVariantDTO productVariant) {
@@ -115,9 +111,7 @@ public class ProductVariantService {
                         return value;
                     }).collect(Collectors.toList());
             productVariantAttrValueRepository.saveAll(newValues);
-
         }
-
         return ResponseEntity.ok(newProductVariant);
     }
 

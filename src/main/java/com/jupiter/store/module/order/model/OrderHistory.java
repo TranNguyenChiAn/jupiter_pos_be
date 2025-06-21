@@ -27,6 +27,4 @@ public class OrderHistory extends AbstractAuditingEntity implements Serializable
     @Enumerated(EnumType.STRING)
     @Column(name = "new_status")
     private OrderStatus newStatus;
-
-
 }

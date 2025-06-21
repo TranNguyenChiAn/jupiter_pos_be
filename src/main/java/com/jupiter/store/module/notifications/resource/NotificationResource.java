@@ -4,7 +4,6 @@ import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

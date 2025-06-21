@@ -2,7 +2,6 @@ package com.jupiter.store.module.product.resource;
 
 import com.jupiter.store.common.dto.PageResponse;
 import com.jupiter.store.module.product.dto.CreateProductVariantDTO;
-import com.jupiter.store.module.product.dto.GetAllProductVariantDTO;
 import com.jupiter.store.module.product.dto.ProductVariantReadDTO;
 import com.jupiter.store.module.product.service.ProductVariantSearchService;
 import com.jupiter.store.module.product.service.ProductVariantService;

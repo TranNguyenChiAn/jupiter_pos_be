@@ -8,6 +8,8 @@ import com.jupiter.store.module.customer.model.Customer;
 import com.jupiter.store.module.customer.service.CustomerService;
 import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
+import com.jupiter.store.module.notifications.dto.NotificationMessage;
+import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.order.constant.OrderStatus;
 import com.jupiter.store.module.order.constant.OrderType;
@@ -19,7 +21,11 @@ import com.jupiter.store.module.order.repository.OrderRepository;
 import com.jupiter.store.module.payment.constant.PaymentMethod;
 import com.jupiter.store.module.payment.dto.PaymentReadDTO;
 import com.jupiter.store.module.payment.service.PaymentService;
+import com.jupiter.store.module.product.model.Product;
+import com.jupiter.store.module.product.model.ProductAttributeValue;
 import com.jupiter.store.module.product.model.ProductVariant;
+import com.jupiter.store.module.product.repository.ProductRepository;
+import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
 import com.jupiter.store.module.user.dto.UserReadDTO;
 import com.jupiter.store.module.user.model.User;
@@ -32,6 +38,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -45,16 +52,12 @@ import java.util.concurrent.CompletableFuture;
 public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
-
     @Autowired
     private OrderDetailRepository orderDetailRepository;
-
     @Autowired
     private ProductVariantRepository productVariantRepository;
-
     @Autowired
     private NotificationService notificationService;
-
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -69,6 +72,10 @@ public class OrderService {
     private UserService userService;
     @Autowired
     private HelperUtils helperUtils;
+    @Autowired
+    private ProductVariantAttrValueRepository productVariantAttrValueRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -237,6 +244,22 @@ public class OrderService {
                     productVariantRepository.save(productVariant);
                 } else {
                     throw new CustomException("Số lượng tồn kho của biến thể " + productVariant.getId() + " không đủ", HttpStatus.BAD_REQUEST);
+                }
+
+                if (productVariant.getQuantity() <= 10) {
+                    CompletableFuture.runAsync(() -> {
+                        Product product = productRepository.findById(productVariant.getProductId())
+                                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
+                        List<String> productVariantAttrValue = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId())
+                                .stream().map(ProductAttributeValue::getAttrValue).toList();
+                        NotificationDTO stockAlertNotification = new NotificationDTO(
+                                "Sản phẩm sắp hết hàng!",
+                                "Sản phẩm " + product.getProductName() + " " + productVariantAttrValue + " còn " + productVariant.getQuantity() + " sản phẩm",
+                                NotificationEntityType.PRODUCT_VARIANT,
+                                productVariant.getId()
+                        );
+                        notificationService.sendNotification(stockAlertNotification);
+                    });
                 }
             }
             orderDetailRepository.saveAll(orderDetailList);

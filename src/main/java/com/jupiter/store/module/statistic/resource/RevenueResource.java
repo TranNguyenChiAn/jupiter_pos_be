@@ -18,6 +18,15 @@ public class RevenueResource {
         return revenueService.getTodayData();
     }
 
+    @PostMapping("/net-revenues")
+    public List<NetRevenueDTO> getNetRevenue(@RequestBody RequestTimeDTO requestTimeDTO) {
+        return revenueService.getNetRevenue(
+                requestTimeDTO.getLabel(),
+                requestTimeDTO.getStartTime(),
+                requestTimeDTO.getEndTime()
+        );
+    }
+
     @PostMapping("/products")
     public List<ProductSalesDTO> getProductData(@RequestBody RequestTimeDTO requestTimeDTO) {
         return revenueService.getProductData(

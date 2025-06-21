@@ -3,6 +3,7 @@ package com.jupiter.store.module.notifications.service;
 import com.jupiter.store.common.config.TwilioConfig;
 import com.jupiter.store.module.notifications.constant.NotificationType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
+import com.jupiter.store.module.notifications.dto.NotificationMessage;
 import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.repository.NotificationRepository;
 import com.jupiter.store.module.user.model.User;
@@ -12,28 +13,26 @@ import com.twilio.type.PhoneNumber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private JavaMailSender mailSender;
-
     @Autowired
     private TwilioConfig twilioConfig;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     public void sendSms(String toNumber, Notification notification) {
         notification.setType(NotificationType.SMS);
@@ -46,33 +45,15 @@ public class NotificationService {
         ).create();
     }
 
-    private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
-
-    public void createSSEConnection() {
-        SseEmitter emitter = new SseEmitter(0L);
-        emitters.add(emitter);
-
-        emitter.onCompletion(() -> emitters.remove(emitter));
-        emitter.onTimeout(() -> emitters.remove(emitter));
-        emitter.onError((e) -> emitters.remove(emitter));
-    }
-
     @Async
-    public void sendWebNotification(Notification notification) {
-        Notification msg = new Notification(notification);
-        msg.setType(NotificationType.WEB);
-        notificationRepository.save(msg);
+    public void sendWebNotification(Notification stockAlertNotification) {
+        stockAlertNotification.setType(NotificationType.WEB);
+        notificationRepository.save(stockAlertNotification);
 
-        createSSEConnection();
-        List<SseEmitter> deadEmitters = new java.util.ArrayList<>();
-        for (SseEmitter emitter : emitters) {
-            try {
-                emitter.send(SseEmitter.event().name(msg.getTitle()).data(msg.getBody()));
-            } catch (IOException e) {
-                deadEmitters.add(emitter);
-            }
-        }
-        emitters.removeAll(deadEmitters);
+        messagingTemplate.convertAndSend("/topic/stock-alert", new NotificationMessage(
+                stockAlertNotification.getTitle(),
+                stockAlertNotification.getBody()
+        ));
     }
 
     public List<Notification> getNotificationsByUserId(Integer userId, Integer page) {
@@ -92,8 +73,12 @@ public class NotificationService {
             notification.setRead(false);
             notificationRepository.save(notification);
 
-            sendEmail(user.getEmail(), notification);
-            sendWebNotification(notification);
+            CompletableFuture.runAsync(() -> {
+                sendEmail(user.getEmail(), notification);
+            });
+            CompletableFuture.runAsync(() -> {
+                sendWebNotification(notification);
+            });
         }
     }
 
