@@ -32,7 +32,9 @@ public class OrderResource {
                         orderSearchDTO.getSearch(),
                         orderSearchDTO.getOrderStatuses(),
                         orderSearchDTO.getStartDate(),
-                        orderSearchDTO.getEndDate()
+                        orderSearchDTO.getEndDate(),
+                        orderSearchDTO.getSortBy(),
+                        orderSearchDTO.getSortDirection()
                 ));
     }
 

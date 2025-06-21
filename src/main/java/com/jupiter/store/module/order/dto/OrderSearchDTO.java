@@ -22,4 +22,6 @@ public class OrderSearchDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private OrderType orderType;
+    private String sortBy = "orderDate";
+    private String sortDirection = "DESC";
 }

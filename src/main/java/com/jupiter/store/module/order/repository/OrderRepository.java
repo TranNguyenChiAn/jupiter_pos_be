@@ -18,10 +18,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     @Query(
             value =
-                    "WITH filtered_orders AS ( " +
-                            "  SELECT o.*, " +
-                            "         ts_rank_cd(o.fts, plainto_tsquery('simple', unaccent(:search))) AS rank " +
-                            "  FROM orders o " +
+                    "  SELECT * FROM orders o " +
                             "  WHERE ( " +
                             "    (:search IS NULL OR unaccent(:search) = '') " +
                             "    OR (o.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
@@ -29,16 +26,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
                             "  ) " +
                             "  AND (o.order_date >= :startDate) " +
                             "  AND (o.order_date < :endDate) " +
-                            "  AND (o.order_status IN :orderStatuses) " +
-                            ") " +
-                            "SELECT * FROM filtered_orders " +
-                            "ORDER BY " +
-                            "  CASE " +
-                            "    WHEN (:search IS NULL OR unaccent(:search) = '') THEN NULL " +
-                            "    ELSE COALESCE(rank, 0) " +
-                            "  END DESC, " +
-                            "  last_modified_date DESC NULLS LAST",
-
+                            "  AND (o.order_status IN :orderStatuses)",
             countQuery =
                     "SELECT COUNT(*) FROM orders o " +
                             "WHERE ( " +
@@ -49,7 +37,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
                             "  AND (o.order_date >= :startDate) " +
                             "  AND (o.order_date < :endDate) " +
                             " AND (o.order_status IN :orderStatuses) ",
-
             nativeQuery = true
     )
     Page<Order> search(

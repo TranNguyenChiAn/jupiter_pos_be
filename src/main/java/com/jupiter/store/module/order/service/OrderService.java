@@ -1,6 +1,7 @@
 package com.jupiter.store.module.order.service;
 
 import com.jupiter.store.common.exception.CustomException;
+import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.customer.dto.CustomerDTO;
 import com.jupiter.store.module.customer.model.Customer;
@@ -27,7 +28,9 @@ import com.jupiter.store.module.user.service.UserService;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -64,6 +67,8 @@ public class OrderService {
     private OrderHistoryService orderHistoryService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private HelperUtils helperUtils;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -75,7 +80,9 @@ public class OrderService {
             String search,
             List<OrderStatus> orderStatuses,
             LocalDate startDate,
-            LocalDate endDate
+            LocalDate endDate,
+            String sortBy,
+            String sortDirection
     ) {
         Integer currentUserId = currentUserId();
         if (currentUserId == null) {
@@ -88,8 +95,6 @@ public class OrderService {
         if (user.getRole() == null || !user.canViewOrder()) {
             throw new CustomException("Bạn không có quyền xem đơn hàng", HttpStatus.FORBIDDEN);
         }
-
-        Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNumber);
 
         if (search != null) {
             search = search.trim();
@@ -118,6 +123,20 @@ public class OrderService {
         } else {
             statuses = OrderStatus.getAllStatuses();
         }
+
+        if (sortBy != null && !sortBy.isBlank()) {
+            sortBy = helperUtils.convertCamelCaseToSnakeCase(sortBy);
+        } else {
+            sortBy = "order_date";
+        }
+        if (sortDirection == null || sortDirection.isBlank()) {
+            sortDirection = "DESC";
+        } else {
+            sortDirection = sortDirection.toUpperCase();
+        }
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         return orderRepository.search(search, statuses, startDate, endDate, pageable);
     }
