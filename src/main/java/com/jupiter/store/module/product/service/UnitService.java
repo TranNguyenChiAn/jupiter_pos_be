@@ -47,7 +47,10 @@ public class UnitService {
     }
 
     public List<Unit> findAllUnit() {
-        return unitRepository.findAll();
+        Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "id");
+        Pageable pageable = PageRequest.of(0, 99999, sort);
+        Page<Unit> page = unitRepository.findAll(pageable);
+        return page.getContent();
     }
 
     public Unit findById(Integer unitId) {

@@ -1,6 +1,7 @@
 package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.HelperUtils;
+import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.product.dto.ProductVariantAttrValueSimpleReadDTO;
 import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.repository.AttributeRepository;
@@ -43,7 +44,10 @@ public class AttributeService {
     }
 
     public List<ProductAttribute> findAll() {
-        return attributeRepository.findAll();
+        Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "id");
+        Pageable pageable = PageRequest.of(0, 999999, sort);
+        Page<ProductAttribute> page = attributeRepository.findAll(pageable);
+        return page.getContent();
     }
 
     public ProductAttribute searchById(Integer id) {

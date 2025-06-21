@@ -49,7 +49,10 @@ public class CategoryService {
     }
 
     public List<Category> findAll() {
-        return categoryRepository.findAll();
+        Sort sort = Sort.by(Sort.Direction.fromString("DESC"), "id");
+        Pageable pageable = PageRequest.of(0, 99999, sort);
+        Page<Category> page = categoryRepository.findAll(pageable);
+        return page.getContent();
     }
 
     public Category searchById(Integer id) {
