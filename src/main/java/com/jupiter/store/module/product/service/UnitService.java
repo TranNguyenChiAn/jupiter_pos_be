@@ -1,9 +1,17 @@
 package com.jupiter.store.module.product.service;
 
+import com.jupiter.store.common.utils.HelperUtils;
+import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.model.Unit;
+import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
+import com.jupiter.store.module.product.repository.ProductVariantRepository;
 import com.jupiter.store.module.product.repository.UnitRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,6 +23,12 @@ import java.util.List;
 public class UnitService {
     @Autowired
     private UnitRepository unitRepository;
+    @Autowired
+    private ProductVariantAttrValueRepository productVariantAttrValueRepository;
+    @Autowired
+    private ProductVariantRepository productVariantRepository;
+    @Autowired
+    private HelperUtils helperUtils;
 
     public Unit createUnit(String unitName) {
         if (unitRepository.existsByUnitName(unitName.toLowerCase())) {
@@ -23,6 +37,13 @@ public class UnitService {
         Unit unit = new Unit();
         unit.setName(unitName);
         return unitRepository.save(unit);
+    }
+
+    public Page<Unit> search(int page, int size, String sortBy, String sortDirection) {
+        helperUtils.validatePageAndSize(page, size);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return unitRepository.findAll(pageable);
     }
 
     public List<Unit> findAllUnit() {
@@ -61,6 +82,8 @@ public class UnitService {
     public void deleteUnit(Integer unitId) {
         Unit unit = unitRepository.findById(unitId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn vị!"));
+        productVariantAttrValueRepository.updateUnitIdNull(unitId);
+        productVariantRepository.updateUnitIdNull(unitId);
         unitRepository.delete(unit);
     }
 }

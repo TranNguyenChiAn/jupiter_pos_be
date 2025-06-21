@@ -81,14 +81,14 @@ public class AttributeService {
                 .collect(Collectors.toList());
     }
 
-    public void updateAttribute(Integer attributeId, String attributeName) {
+    public ProductAttribute updateAttribute(Integer attributeId, String attributeName) {
         ProductAttribute productAttribute = attributeRepository.findById(attributeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy thuộc tính!"));
         if (attributeRepository.existsByAttributeName(attributeName)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tên thuộc tính " + attributeName + " đã tồn tại!");
         }
         productAttribute.setAttributeName(attributeName);
-        attributeRepository.save(productAttribute);
+        return attributeRepository.save(productAttribute);
     }
 
     public void deleteAttribute(Integer attributeId) {

@@ -40,4 +40,9 @@ public interface ProductVariantAttrValueRepository extends JpaRepository<Product
     @Transactional
     @Query(value = "DELETE FROM product_attribute_values pav WHERE pav.attr_id = :attributeId", nativeQuery = true)
     void deleteByAttributeId(@Param("attributeId") Integer attributeId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE product_attribute_values SET unit_id = NULL WHERE unit_id = :unitId", nativeQuery = true)
+    void updateUnitIdNull(@Param("unitId") Integer unitId);
 }

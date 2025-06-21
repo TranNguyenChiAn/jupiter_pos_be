@@ -1,9 +1,14 @@
 package com.jupiter.store.module.product.resource;
 
+import com.jupiter.store.module.product.dto.ProductAttributeSearchDTO;
 import com.jupiter.store.module.product.dto.UnitDTO;
+import com.jupiter.store.module.product.dto.UnitSearchDTO;
+import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.model.Unit;
 import com.jupiter.store.module.product.service.UnitService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,22 +24,33 @@ public class UnitResource {
         return unitService.createUnit(unitDTO.getName());
     }
 
-    @GetMapping("/search")
+    @PostMapping("/search")
+    public ResponseEntity<Page<Unit>> search(@RequestBody UnitSearchDTO request) {
+        Page<Unit> result = unitService.search(
+                request.getPage(),
+                request.getSize(),
+                request.getSortBy(),
+                request.getSortDirection()
+        );
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/get-all")
     public List<Unit> findAllUnit() {
         return unitService.findAllUnit();
     }
 
     @GetMapping("/find-by-name")
-    public List<Unit> findUnitByName(@RequestParam String unitName) {
-        return unitService.findUnitByName(unitName);
+    public List<Unit> findUnitByName(@RequestParam String name) {
+        return unitService.findUnitByName(name);
     }
 
-    @PutMapping("/update/{unitId}")
-    public Unit updateUnit(@PathVariable Integer unitId, String name) {
+    @PutMapping("/{unitId}")
+    public Unit updateUnit(@PathVariable Integer unitId, @RequestBody String name) {
         return unitService.updateUnit(unitId, name);
     }
 
-    @DeleteMapping("/delete/{unitId}")
+    @DeleteMapping("/{unitId}")
     public void deleteUnit(@PathVariable Integer unitId) {
         unitService.deleteUnit(unitId);
     }

@@ -53,8 +53,8 @@ public class AttributeResource {
     }
 
     @PutMapping("/{attributeId}")
-    public void updateAttribute(@PathVariable Integer attributeId, @RequestBody String attributeName) {
-        attributeService.updateAttribute(attributeId, attributeName);
+    public ProductAttribute updateAttribute(@PathVariable Integer attributeId, @RequestBody String attributeName) {
+        return attributeService.updateAttribute(attributeId, attributeName);
     }
 
     @DeleteMapping("/{attributeId}")

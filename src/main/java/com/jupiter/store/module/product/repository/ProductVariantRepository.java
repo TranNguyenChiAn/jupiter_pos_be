@@ -4,9 +4,11 @@ import com.jupiter.store.module.product.model.ProductVariant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -55,4 +57,9 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
                     ") sub ",
             nativeQuery = true)
     Page<ProductVariant> search(@Param("search") String search, Pageable pageable);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE product_variants SET unit_id = NULL WHERE unit_id = :unitId", nativeQuery = true)
+    void updateUnitIdNull(@Param("unitId") Integer unitId);
 }
