@@ -32,11 +32,12 @@ public class CategoryService {
         return SecurityUtils.getCurrentUserId();
     }
 
-    public Page<Category> search(Integer page, Integer size, String sortBy, String sortDirection) {
+    public Page<Category> search(String search, Integer page, Integer size, String sortBy, String sortDirection) {
         helperUtils.validatePageAndSize(page, size);
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return categoryRepository.findAll(pageable);
+        search = helperUtils.normalizeSearch(search);
+        return categoryRepository.search(search, pageable);
     }
 
     public Category addCategory(String categoryName) {

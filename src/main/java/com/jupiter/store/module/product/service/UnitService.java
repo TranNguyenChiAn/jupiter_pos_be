@@ -39,11 +39,12 @@ public class UnitService {
         return unitRepository.save(unit);
     }
 
-    public Page<Unit> search(int page, int size, String sortBy, String sortDirection) {
+    public Page<Unit> search(String search, int page, int size, String sortBy, String sortDirection) {
         helperUtils.validatePageAndSize(page, size);
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return unitRepository.findAll(pageable);
+        search = helperUtils.normalizeSearch(search);
+        return unitRepository.search(search, pageable);
     }
 
     public List<Unit> findAllUnit() {

@@ -29,6 +29,7 @@ public class AttributeResource {
     @PostMapping("/search")
     public ResponseEntity<Page<ProductAttribute>> search(@RequestBody ProductAttributeSearchDTO request) {
         Page<ProductAttribute> result = attributeService.search(
+                request.getSearch(),
                 request.getPage(),
                 request.getSize(),
                 request.getSortBy(),

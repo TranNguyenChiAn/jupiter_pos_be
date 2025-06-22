@@ -36,11 +36,12 @@ public class AttributeService {
         return attributeRepository.save(productAttribute);
     }
 
-    public Page<ProductAttribute> search(int page, int size, String sortBy, String sortDirection) {
+    public Page<ProductAttribute> search(String search, int page, int size, String sortBy, String sortDirection) {
         helperUtils.validatePageAndSize(page, size);
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return attributeRepository.findAll(pageable);
+        search = helperUtils.normalizeSearch(search);
+        return attributeRepository.search(search, pageable);
     }
 
     public List<ProductAttribute> findAll() {

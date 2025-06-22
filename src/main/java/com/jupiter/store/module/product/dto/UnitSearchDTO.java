@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UnitSearchDTO {
+    private String search;
     private Integer page;
     private Integer size;
     private String sortBy = "id";

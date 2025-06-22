@@ -30,6 +30,7 @@ public class CategoryResource {
     @PostMapping("/search")
     public ResponseEntity<Page<Category>> search(@RequestBody CategorySearchDTO request) {
         Page<Category> result = categoryService.search(
+                request.getSearch(),
                 request.getPage(),
                 request.getSize(),
                 request.getSortBy(),

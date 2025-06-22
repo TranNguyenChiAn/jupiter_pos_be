@@ -27,6 +27,7 @@ public class UnitResource {
     @PostMapping("/search")
     public ResponseEntity<Page<Unit>> search(@RequestBody UnitSearchDTO request) {
         Page<Unit> result = unitService.search(
+                request.getSearch(),
                 request.getPage(),
                 request.getSize(),
                 request.getSortBy(),
