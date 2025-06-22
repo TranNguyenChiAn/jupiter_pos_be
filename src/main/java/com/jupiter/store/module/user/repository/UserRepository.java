@@ -37,8 +37,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                     "  WHERE (:search IS NULL OR unaccent(:search) = '' " +
                     "         OR u.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
                     "         OR u.phone LIKE CONCAT('%', :search, '%') " +
-                    "         OR u.username LIKE CONCAT('%', :search, '%') " +
-                    "         OR u.email LIKE CONCAT('%', :search, '%') " +
+                    "         OR LOWER(u.username) LIKE CONCAT('%', :search, '%') " +
+                    "         OR LOWER(unaccent(u.fullname)) LIKE CONCAT('%', unaccent(:search), '%') " +
+                    "         OR LOWER(u.email) LIKE CONCAT('%', :search, '%') " +
                     "        ) " +
                     ") sub " +
                     "ORDER BY " +
@@ -51,8 +52,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                     "WHERE (:search IS NULL OR unaccent(:search) = '' " +
                     "       OR u.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
                     "         OR u.phone LIKE CONCAT('%', :search, '%') " +
-                    "         OR u.username LIKE CONCAT('%', :search, '%') " +
-                    "         OR u.email LIKE CONCAT('%', :search, '%') " +
+                    "         OR LOWER(u.username) LIKE CONCAT('%', :search, '%') " +
+                    "         OR LOWER(unaccent(u.fullname)) LIKE CONCAT('%', unaccent(:search), '%') " +
+                    "         OR LOWER(u.email) LIKE CONCAT('%', :search, '%') " +
                     "      )",
             nativeQuery = true)
     Page<User> search(@Param("search") String search, Pageable pageable);

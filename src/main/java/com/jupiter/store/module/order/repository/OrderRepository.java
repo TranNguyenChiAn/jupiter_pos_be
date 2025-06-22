@@ -22,7 +22,11 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
                             "  WHERE ( " +
                             "    (:search IS NULL OR unaccent(:search) = '') " +
                             "    OR (o.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
-                            "        OR o.receiver_phone ILIKE CONCAT('%', :search, '%')) " +
+                            "        OR o.receiver_phone ILIKE CONCAT('%', :search, '%')" +
+                            "        OR LOWER(unaccent(o.receiver_name)) LIKE CONCAT('%', unaccent(:search), '%')" +
+                            "        OR LOWER(unaccent(o.receiver_address)) LIKE CONCAT('%', unaccent(:search), '%')" +
+                            "        OR LOWER(unaccent(o.note)) LIKE CONCAT('%', unaccent(:search), '%')" +
+                            ") " +
                             "  ) " +
                             "  AND (o.order_date >= :startDate) " +
                             "  AND (o.order_date < :endDate) " +
@@ -32,7 +36,11 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
                             "WHERE ( " +
                             "  (:search IS NULL OR unaccent(:search) = '') " +
                             "  OR (o.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
-                            "      OR o.receiver_phone ILIKE CONCAT('%', :search, '%')) " +
+                            "        OR o.receiver_phone ILIKE CONCAT('%', :search, '%')" +
+                            "        OR LOWER(unaccent(o.receiver_name)) LIKE CONCAT('%', unaccent(:search), '%')" +
+                            "        OR LOWER(unaccent(o.receiver_address)) LIKE CONCAT('%', unaccent(:search), '%')" +
+                            "        OR LOWER(unaccent(o.note)) LIKE CONCAT('%', unaccent(:search), '%')" +
+                            ") " +
                             ") " +
                             "  AND (o.order_date >= :startDate) " +
                             "  AND (o.order_date < :endDate) " +

@@ -35,6 +35,10 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
                     "  WHERE (COALESCE(unaccent(:search), '') = '' " +
                     "    OR p.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
                     "    OR pv.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
+                    "    OR LOWER(unaccent(p.product_name)) LIKE CONCAT('%', unaccent(:search), '%') " +
+                    "    OR LOWER(unaccent(p.description)) LIKE CONCAT('%', unaccent(:search), '%') " +
+                    "    OR LOWER(pv.sku) LIKE CONCAT('%', :search, '%') " +
+                    "    OR LOWER(pv.barcode) LIKE CONCAT('%', unaccent(:search), '%') " +
                     "        ) " +
                     ") sub " +
                     "ORDER BY " +
@@ -53,6 +57,10 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
                     "  WHERE (COALESCE(unaccent(:search), '') = '' " +
                     "    OR p.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
                     "    OR pv.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
+                    "    OR LOWER(unaccent(p.product_name)) LIKE CONCAT('%', unaccent(:search), '%') " +
+                    "    OR LOWER(unaccent(p.description)) LIKE CONCAT('%', unaccent(:search), '%') " +
+                    "    OR LOWER(pv.sku) LIKE CONCAT('%', :search, '%') " +
+                    "    OR LOWER(pv.barcode) LIKE CONCAT('%', unaccent(:search), '%') " +
                     "        ) " +
                     ") sub ",
             nativeQuery = true)

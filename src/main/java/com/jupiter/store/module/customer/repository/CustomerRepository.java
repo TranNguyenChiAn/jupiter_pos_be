@@ -25,11 +25,13 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
                     "  WHERE (:search IS NULL OR unaccent(:search) = '' " +
                     "         OR c.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
                     "         OR c.phone LIKE CONCAT('%', :search, '%') " +
+                    "         OR LOWER(unaccent(c.customer_name)) LIKE CONCAT('%', unaccent(:search), '%') " +
                     "        ) ",
             countQuery = "SELECT COUNT(*) FROM customers c " +
                     "WHERE (:search IS NULL OR unaccent(:search) = '' " +
                     "       OR c.fts @@ plainto_tsquery('simple', unaccent(:search)) " +
                     "         OR c.phone LIKE CONCAT('%', :search, '%') " +
+                    "         OR LOWER(unaccent(c.customer_name)) LIKE CONCAT('%', unaccent(:search), '%') " +
                     "      )",
             nativeQuery = true)
     Page<Customer> search(@Param("search") String search, Pageable pageable);
