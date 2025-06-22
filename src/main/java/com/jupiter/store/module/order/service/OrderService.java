@@ -102,15 +102,7 @@ public class OrderService {
         if (user.getRole() == null || !user.canViewOrder()) {
             throw new CustomException("Bạn không có quyền xem đơn hàng", HttpStatus.FORBIDDEN);
         }
-
-        if (search != null) {
-            search = search.trim();
-            if (search.isBlank()) {
-                search = null;
-            } else {
-                search = search.toLowerCase();
-            }
-        }
+        search = helperUtils.normalizeSearch(search);
         if (startDate == null) {
             startDate = LocalDate.of(1900, 1, 1);
         }

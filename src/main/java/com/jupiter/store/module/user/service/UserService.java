@@ -1,5 +1,6 @@
 package com.jupiter.store.module.user.service;
 
+import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.model.Notification;
@@ -35,6 +36,8 @@ public class UserService {
     private NotificationService notificationService;
     @Autowired
     private NotificationRepository notificationRepository;
+    @Autowired
+    private HelperUtils helperUtils;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -43,14 +46,7 @@ public class UserService {
 
     public Page<UserReadDTO> searchUsers(String search, Pageable pageable) {
         Page<User> usersPage;
-        if (search != null) {
-            search = search.trim();
-            if (search.isBlank()) {
-                search = null;
-            } else {
-                search = search.toLowerCase();
-            }
-        }
+        search = helperUtils.normalizeSearch(search);
         usersPage = userRepository.search(search, pageable);
         return usersPage.map(UserReadDTO::new);
     }

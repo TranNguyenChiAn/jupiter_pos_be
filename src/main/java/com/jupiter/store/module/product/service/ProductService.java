@@ -1,5 +1,6 @@
 package com.jupiter.store.module.product.service;
 
+import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.dto.CategoryDTO;
 import com.jupiter.store.module.category.dto.IProductCategoryQueryDTO;
@@ -37,10 +38,11 @@ public class ProductService {
     private final AttributeService attributeService;
     private final ProductVariantService productVariantService;
     private final ProductVariantSearchService productVariantSearchService;
+    private final HelperUtils helperUtils;
 
     public ProductService(ProductRepository productRepository, ProductCategoryRepository productCategoryRepository,
                           CategoryRepository categoryRepository, ProductVariantRepository productVariantRepository,
-                          AttributeService attributeService, ProductVariantService productVariantService, ProductVariantSearchService productVariantSearchService) {
+                          AttributeService attributeService, ProductVariantService productVariantService, ProductVariantSearchService productVariantSearchService, HelperUtils helperUtils) {
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
         this.categoryRepository = categoryRepository;
@@ -48,6 +50,7 @@ public class ProductService {
         this.attributeService = attributeService;
         this.productVariantService = productVariantService;
         this.productVariantSearchService = productVariantSearchService;
+        this.helperUtils = helperUtils;
     }
 
     public static Integer currentUserId() {
@@ -149,14 +152,7 @@ public class ProductService {
                         Sort.by(sort));
             }
         }
-        if (search != null) {
-            search = search.trim();
-            if (search.isBlank()) {
-                search = null;
-            } else {
-                search = search.toLowerCase();
-            }
-        }
+        search = helperUtils.normalizeSearch(search);
 
         Integer categoryId = null;
         String status = null;

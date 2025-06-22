@@ -31,4 +31,16 @@ public class HelperUtils {
             throw new IllegalArgumentException("Size must be greater than zero");
         }
     }
+
+    public String normalizeSearch (String search) {
+        if (search != null) {
+            search = search.trim();
+            if (search.isBlank()) {
+                search = null;
+            } else {
+                search = search.toLowerCase();
+            }
+        }
+        return search;
+    }
 }

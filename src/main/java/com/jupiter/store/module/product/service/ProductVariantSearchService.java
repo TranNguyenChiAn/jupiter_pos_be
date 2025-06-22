@@ -1,5 +1,6 @@
 package com.jupiter.store.module.product.service;
 
+import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
@@ -40,6 +41,8 @@ public class ProductVariantSearchService {
     private AttributeService attributeService;
     @Autowired
     private ProductImageService productImageService;
+    @Autowired
+    private HelperUtils helperUtils;
 
     public static Integer currentUserId() {
         return SecurityUtils.getCurrentUserId();
@@ -47,14 +50,7 @@ public class ProductVariantSearchService {
 
     public Page<ProductVariantReadDTO> search(Pageable pageable, String search, String sort) {
         Page<ProductVariant> productVariants;
-        if (search != null) {
-            search = search.trim();
-            if (search.isBlank()) {
-                search = null;
-            } else {
-                search = search.toLowerCase();
-            }
-        }
+        search = helperUtils.normalizeSearch(search);
         productVariants = productVariantRepository.search(search, pageable);
 
         // Process each variant in parallel using CompletableFuture.

@@ -61,14 +61,7 @@ public class CustomerService {
 
 
     public Page<Customer> search(Pageable pageable, String search, String sortBy, String sortDirection) {
-        if (search != null) {
-            search = search.trim();
-            if (search.isBlank()) {
-                search = null;
-            } else {
-                search = search.toLowerCase();
-            }
-        }
+        search = helperUtils.normalizeSearch(search);
         if (sortBy != null && !sortBy.isBlank()) {
             sortBy = helperUtils.convertCamelCaseToSnakeCase(sortBy);
         } else {
