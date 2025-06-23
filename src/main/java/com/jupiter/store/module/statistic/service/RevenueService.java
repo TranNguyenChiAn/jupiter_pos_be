@@ -68,53 +68,54 @@ public class RevenueService {
             LocalDateTime endTime
     ) {
         List<NetRevenueDTO> netRevenueData = new ArrayList<>();
-        String groupByExpr;
         String labelExpr;
-        String groupBySortExpr;
+        String groupByExpr;
+        String sortTimeExpr;
+
         switch (groupByLabel.toLowerCase()) {
             case "day" -> {
                 labelExpr = "TO_CHAR(p.date, 'DD/MM')";
                 groupByExpr = labelExpr;
-                groupBySortExpr = "MIN(p.date)";
+                sortTimeExpr = "MIN(DATE_TRUNC('day', p.date))";
             }
             case "hour" -> {
                 labelExpr = "TO_CHAR(DATE_TRUNC('hour', p.date), 'HH24:00')";
-                groupByExpr = "DATE_TRUNC('hour', p.date)";
-                groupBySortExpr = "MIN(p.date)";
+                groupByExpr = labelExpr;
+                sortTimeExpr = "MIN(DATE_TRUNC('hour', p.date))";
             }
             case "weekday" -> {
                 labelExpr = """
-                    CASE EXTRACT(DOW FROM p.date)::int
-                        WHEN 0 THEN 'Chủ nhật'
-                        WHEN 1 THEN 'Thứ 2'
-                        WHEN 2 THEN 'Thứ 3'
-                        WHEN 3 THEN 'Thứ 4'
-                        WHEN 4 THEN 'Thứ 5'
-                        WHEN 5 THEN 'Thứ 6'
-                        WHEN 6 THEN 'Thứ 7'
-                    END
-                    """;
-                groupByExpr = "EXTRACT(DOW FROM p.date)";
-                groupBySortExpr = "MIN(p.date)";
+                CASE EXTRACT(DOW FROM p.date)::int
+                    WHEN 0 THEN 'Chủ nhật'
+                    WHEN 1 THEN 'Thứ 2'
+                    WHEN 2 THEN 'Thứ 3'
+                    WHEN 3 THEN 'Thứ 4'
+                    WHEN 4 THEN 'Thứ 5'
+                    WHEN 5 THEN 'Thứ 6'
+                    WHEN 6 THEN 'Thứ 7'
+                END
+                """;
+                groupByExpr = labelExpr;
+                sortTimeExpr = "MIN(EXTRACT(DOW FROM p.date))";
             }
             default -> throw new IllegalArgumentException("Invalid groupByLabel: " + groupByLabel);
         }
 
         String sql = String.format("""
-            WITH revenue_data AS (
-                SELECT
-                    %s AS label,
-                    %s AS sort_time,
-                    SUM(p.paid) AS revenue
-                FROM payments p
-                WHERE p.status = 'THANH_TOAN_THANH_CONG'
-                  AND p.date BETWEEN :startTime AND :endTime
-                GROUP BY %s
-            )
-            SELECT label, revenue
-            FROM revenue_data
-            ORDER BY sort_time
-            """, labelExpr, groupBySortExpr, groupByExpr);
+        WITH revenue_data AS (
+            SELECT
+                %s AS label,
+                %s AS sort_time,
+                SUM(p.paid) AS revenue
+            FROM payments p
+            WHERE p.status = 'THANH_TOAN_THANH_CONG'
+              AND p.date BETWEEN :startTime AND :endTime
+            GROUP BY %s
+        )
+        SELECT label, revenue
+        FROM revenue_data
+        ORDER BY sort_time
+        """, labelExpr, sortTimeExpr, groupByExpr);
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("startTime", startTime);
@@ -122,10 +123,11 @@ public class RevenueService {
 
         List<Object[]> results = query.getResultList();
         for (Object[] row : results) {
-            String dataLabel = row[0] != null ? ((String) row[0]) : "";
+            String label = row[0] != null ? row[0].toString() : "";
             long revenue = row[1] != null ? ((BigDecimal) row[1]).longValue() : 0L;
-            netRevenueData.add(new NetRevenueDTO(dataLabel, revenue));
+            netRevenueData.add(new NetRevenueDTO(label, revenue));
         }
+
         return netRevenueData;
     }
 
