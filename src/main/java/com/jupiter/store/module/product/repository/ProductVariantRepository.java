@@ -40,6 +40,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
                     "    OR LOWER(pv.sku) LIKE CONCAT('%', :search, '%') " +
                     "    OR LOWER(pv.barcode) LIKE CONCAT('%', unaccent(:search), '%') " +
                     "        ) " +
+                    "    AND (:status IS NULL OR pv.status = :status) " +
                     ") sub " +
                     "ORDER BY " +
                     "  CASE " +
@@ -62,9 +63,10 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
                     "    OR LOWER(pv.sku) LIKE CONCAT('%', :search, '%') " +
                     "    OR LOWER(pv.barcode) LIKE CONCAT('%', unaccent(:search), '%') " +
                     "        ) " +
+                    "    AND (:status IS NULL OR pv.status = :status) " +
                     ") sub ",
             nativeQuery = true)
-    Page<ProductVariant> search(@Param("search") String search, Pageable pageable);
+    Page<ProductVariant> search(@Param("search") String search, @Param("status") String status, Pageable pageable);
 
     @Modifying
     @Transactional

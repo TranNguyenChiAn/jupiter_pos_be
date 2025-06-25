@@ -62,4 +62,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("status") String status,
             Pageable pageable
     );
+
+    @Query(value = "SELECT * FROM products p WHERE p.id = :id AND (:status IS NULL OR p.status = :status)", nativeQuery = true)
+    Product findByIdAndStatus(@Param("id") Integer id, @Param("status") String status);
 }

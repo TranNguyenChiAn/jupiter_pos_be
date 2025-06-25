@@ -4,6 +4,7 @@ import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
+import com.jupiter.store.module.product.constant.ProductStatus;
 import com.jupiter.store.module.product.dto.ProductReadDTO;
 import com.jupiter.store.module.product.dto.ProductVariantAttrValueSimpleReadDTO;
 import com.jupiter.store.module.product.dto.ProductVariantReadDTO;
@@ -18,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -48,18 +51,28 @@ public class ProductVariantSearchService {
         return SecurityUtils.getCurrentUserId();
     }
 
-    public Page<ProductVariantReadDTO> search(Pageable pageable, String search, String sort) {
+    public Page<ProductVariantReadDTO> search(Pageable pageable, String search, String sort, ProductStatus status) {
         Page<ProductVariant> productVariants;
         search = helperUtils.normalizeSearch(search);
-        productVariants = productVariantRepository.search(search, pageable);
+        String productStatus = status != null ? status.toString() : null;
+        productVariants = productVariantRepository.search(search, productStatus, pageable);
 
-        // Process each variant in parallel using CompletableFuture.
+        List<Integer> invalidIds = new ArrayList<>();
         List<CompletableFuture<ProductVariantReadDTO>> futureList = productVariants.getContent().stream()
                 .map(variant -> {
                     CompletableFuture<ProductReadDTO> productFuture = CompletableFuture.supplyAsync(() -> {
-                        Product product = productRepository.findById(variant.getProductId()).orElse(null);
-                        List<Category> categories = product != null ? categoryRepository.findByProductId(product.getId()) : List.of();
-                        return product != null ? new ProductReadDTO(product, categories) : null;
+                        Product product = null;
+                        if (status != null && status.equals(ProductStatus.DANG_BAN)) {
+                            product = productRepository.findByIdAndStatus(variant.getProductId(), productStatus);
+                        } else {
+                            product = productRepository.findById(variant.getProductId()).orElse(null);
+                        }
+                        if (product == null) {
+                            invalidIds.add(variant.getId());
+                            return null;
+                        }
+                        List<Category> categories = categoryRepository.findByProductId(product.getId());
+                        return new ProductReadDTO(product, categories);
                     });
                     CompletableFuture<List<ProductVariantAttrValueSimpleReadDTO>> attrFuture = CompletableFuture.supplyAsync(() ->
                             attributeService.findByVariantId(variant.getId(), 3)
@@ -70,6 +83,9 @@ public class ProductVariantSearchService {
 
                     return CompletableFuture.allOf(productFuture, attrFuture, imageFuture)
                             .thenApply(v -> {
+                                if (productFuture.join() == null) {
+                                    return null;
+                                }
                                 ProductReadDTO productDTO = productFuture.join();
                                 List<ProductVariantAttrValueSimpleReadDTO> attrValues = attrFuture.join();
                                 List<String> imagePaths = imageFuture.join();
@@ -88,9 +104,10 @@ public class ProductVariantSearchService {
 
         List<ProductVariantReadDTO> dtos = futureList.stream()
                 .map(CompletableFuture::join)
-                .toList();
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
-        return new PageImpl<>(dtos, pageable, productVariants.getTotalElements());
+        return new PageImpl<>(dtos, pageable, productVariants.getTotalElements() - invalidIds.size());
     }
 
     public ProductVariantReadDTO searchById(Integer variantId) {

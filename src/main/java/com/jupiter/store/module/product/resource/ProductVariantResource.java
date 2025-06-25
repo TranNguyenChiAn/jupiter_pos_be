@@ -1,6 +1,7 @@
 package com.jupiter.store.module.product.resource;
 
 import com.jupiter.store.common.dto.PageResponse;
+import com.jupiter.store.module.product.constant.ProductStatus;
 import com.jupiter.store.module.product.dto.CreateProductVariantDTO;
 import com.jupiter.store.module.product.dto.ProductVariantReadDTO;
 import com.jupiter.store.module.product.service.ProductVariantSearchService;
@@ -26,10 +27,12 @@ public class ProductVariantResource {
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "30") Integer size,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) String sort) {
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) ProductStatus status
+            ) {
         Page<ProductVariantReadDTO> result = productVariantSearchService.search(
                 Pageable.ofSize(size).withPage(page),
-                search, sort);
+                search, sort, status);
         return ResponseEntity.ok(new PageResponse<>(result));
     }
 
