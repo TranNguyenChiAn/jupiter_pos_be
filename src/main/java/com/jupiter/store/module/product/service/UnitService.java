@@ -1,7 +1,6 @@
 package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.HelperUtils;
-import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.model.Unit;
 import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;

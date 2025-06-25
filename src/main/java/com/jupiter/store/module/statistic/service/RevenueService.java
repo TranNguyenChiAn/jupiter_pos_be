@@ -2,8 +2,8 @@ package com.jupiter.store.module.statistic.service;
 
 import com.jupiter.store.module.statistic.dto.CustomerResponseDTO;
 import com.jupiter.store.module.statistic.dto.NetRevenueDTO;
-import com.jupiter.store.module.statistic.dto.TodayResponseDTO;
 import com.jupiter.store.module.statistic.dto.ProductSalesDTO;
+import com.jupiter.store.module.statistic.dto.TodayResponseDTO;
 import com.jupiter.store.module.statistic.repository.CustomerStatisticRepository;
 import com.jupiter.store.module.statistic.repository.ProductStatisticRepository;
 import com.jupiter.store.module.statistic.repository.RevenueStatisticRepository;
@@ -44,8 +44,8 @@ public class RevenueService {
         long totalOrder = row[6] != null ? ((Long) row[6]) : 0L;
 
         double todayChange = (yesterday == 0)
-                    ? 100.00
-                    : Math.round(((double) (today - yesterday) / yesterday) * 10000) / 100.0;
+                ? 100.00
+                : Math.round(((double) (today - yesterday) / yesterday) * 10000) / 100.0;
 
         double monthChange = (lastMonth == 0)
                 ? 100.00
@@ -85,16 +85,16 @@ public class RevenueService {
             }
             case "weekday" -> {
                 labelExpr = """
-                CASE EXTRACT(DOW FROM p.date)::int
-                    WHEN 0 THEN 'Chủ nhật'
-                    WHEN 1 THEN 'Thứ 2'
-                    WHEN 2 THEN 'Thứ 3'
-                    WHEN 3 THEN 'Thứ 4'
-                    WHEN 4 THEN 'Thứ 5'
-                    WHEN 5 THEN 'Thứ 6'
-                    WHEN 6 THEN 'Thứ 7'
-                END
-                """;
+                        CASE EXTRACT(DOW FROM p.date)::int
+                            WHEN 0 THEN 'Chủ nhật'
+                            WHEN 1 THEN 'Thứ 2'
+                            WHEN 2 THEN 'Thứ 3'
+                            WHEN 3 THEN 'Thứ 4'
+                            WHEN 4 THEN 'Thứ 5'
+                            WHEN 5 THEN 'Thứ 6'
+                            WHEN 6 THEN 'Thứ 7'
+                        END
+                        """;
                 groupByExpr = labelExpr;
                 sortTimeExpr = "MIN(EXTRACT(DOW FROM p.date))";
             }
@@ -102,20 +102,20 @@ public class RevenueService {
         }
 
         String sql = String.format("""
-        WITH revenue_data AS (
-            SELECT
-                %s AS label,
-                %s AS sort_time,
-                SUM(p.paid) AS revenue
-            FROM payments p
-            WHERE p.status = 'THANH_TOAN_THANH_CONG'
-              AND p.date BETWEEN :startTime AND :endTime
-            GROUP BY %s
-        )
-        SELECT label, revenue
-        FROM revenue_data
-        ORDER BY sort_time
-        """, labelExpr, sortTimeExpr, groupByExpr);
+                WITH revenue_data AS (
+                    SELECT
+                        %s AS label,
+                        %s AS sort_time,
+                        SUM(p.paid) AS revenue
+                    FROM payments p
+                    WHERE p.status = 'THANH_TOAN_THANH_CONG'
+                      AND p.date BETWEEN :startTime AND :endTime
+                    GROUP BY %s
+                )
+                SELECT label, revenue
+                FROM revenue_data
+                ORDER BY sort_time
+                """, labelExpr, sortTimeExpr, groupByExpr);
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("startTime", startTime);
@@ -152,7 +152,7 @@ public class RevenueService {
     ) {
         List<CustomerResponseDTO> customerData = new ArrayList<>();
         List<Object[]> results = customerStatisticRepository.getCustomerData(startTime, endTime);
-        for(Object[] row : results){
+        for (Object[] row : results) {
             String customerName = row[0] != null ? ((String) row[0]) : "";
             long totalOrder = row[1] != null ? ((long) row[1]) : 0;
             long totalSpent = row[2] != null ? ((BigDecimal) row[2]).longValue() : 0;

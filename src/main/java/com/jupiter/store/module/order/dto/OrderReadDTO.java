@@ -6,7 +6,6 @@ import com.jupiter.store.module.order.constant.OrderType;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.payment.dto.PaymentReadDTO;
 import com.jupiter.store.module.user.dto.UserReadDTO;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

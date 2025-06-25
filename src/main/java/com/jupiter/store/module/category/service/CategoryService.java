@@ -4,7 +4,6 @@ import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.common.utils.SecurityUtils;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
-import com.jupiter.store.module.product.model.ProductCategory;
 import com.jupiter.store.module.product.repository.ProductCategoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

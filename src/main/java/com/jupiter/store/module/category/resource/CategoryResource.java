@@ -4,10 +4,7 @@ import com.jupiter.store.module.category.dto.CategoryDTO;
 import com.jupiter.store.module.category.dto.CategorySearchDTO;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.service.CategoryService;
-import com.jupiter.store.module.customer.dto.CustomerSearchDTO;
-import com.jupiter.store.module.customer.model.Customer;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

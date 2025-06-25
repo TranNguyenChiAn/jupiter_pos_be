@@ -1,9 +1,7 @@
 package com.jupiter.store.module.product.resource;
 
-import com.jupiter.store.module.product.dto.ProductAttributeSearchDTO;
 import com.jupiter.store.module.product.dto.UnitDTO;
 import com.jupiter.store.module.product.dto.UnitSearchDTO;
-import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.model.Unit;
 import com.jupiter.store.module.product.service.UnitService;
 import org.springframework.beans.factory.annotation.Autowired;

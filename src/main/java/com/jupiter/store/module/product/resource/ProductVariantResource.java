@@ -29,7 +29,7 @@ public class ProductVariantResource {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) ProductStatus status
-            ) {
+    ) {
         Page<ProductVariantReadDTO> result = productVariantSearchService.search(
                 Pageable.ofSize(size).withPage(page),
                 search, sort, status);

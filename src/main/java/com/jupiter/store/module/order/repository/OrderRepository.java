@@ -1,6 +1,5 @@
 package com.jupiter.store.module.order.repository;
 
-import com.jupiter.store.module.order.constant.OrderStatus;
 import com.jupiter.store.module.order.model.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

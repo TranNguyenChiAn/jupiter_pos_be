@@ -10,10 +10,9 @@ import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 public class HomeController {
+    private final FakeDataGenerator fakeDataGenerator;
     @Autowired
     private NotificationService notificationService;
-
-    private final FakeDataGenerator fakeDataGenerator;
 
     public HomeController(FakeDataGenerator fakeDataGenerator) {
         this.fakeDataGenerator = fakeDataGenerator;

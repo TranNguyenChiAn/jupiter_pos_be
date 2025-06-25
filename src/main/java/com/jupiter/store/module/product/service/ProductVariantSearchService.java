@@ -16,7 +16,9 @@ import com.jupiter.store.module.product.repository.ProductVariantAttrValueReposi
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,8 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
-import static com.jupiter.store.module.product.constant.SearchParam.PRODUCT_NAME;
 
 @Service
 public class ProductVariantSearchService {

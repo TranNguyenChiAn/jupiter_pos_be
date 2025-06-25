@@ -53,7 +53,7 @@ public interface CustomerStatisticRepository extends JpaRepository<Customer, Int
             "LEFT JOIN detail d ON d.customer_id = b.customer_id " +
             "ORDER BY total_debt DESC ", nativeQuery = true)
     List<Object[]> getCustomerData(
-        @Param("startTime") LocalDateTime startTime,
-        @Param("endTime") LocalDateTime endTime
+            @Param("startTime") LocalDateTime startTime,
+            @Param("endTime") LocalDateTime endTime
     );
 }

@@ -1,6 +1,5 @@
 package com.jupiter.store.module.payment.dto;
 
-import com.jupiter.store.module.order.constant.PaymentStatus;
 import com.jupiter.store.module.payment.constant.PaymentMethod;
 import lombok.Getter;
 import lombok.Setter;

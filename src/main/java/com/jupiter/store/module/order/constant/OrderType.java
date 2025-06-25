@@ -5,6 +5,7 @@ public enum OrderType {
     MUA_ONLINE("Mua online");
 
     private final String name;
+
     OrderType(String name) {
         this.name = name;
     }

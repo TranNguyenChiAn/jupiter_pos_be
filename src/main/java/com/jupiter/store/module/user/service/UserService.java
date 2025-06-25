@@ -180,13 +180,13 @@ public class UserService {
 
         if (loginInfo.matches("\\d+")) {
             notificationService.sendSms("+84" + currentUser.getPhone().replaceFirst("^0", ""), notification);
-        }else {
+        } else {
             notificationService.sendEmail(currentUser.getEmail(), notification);
         }
     }
 
     @Transactional
-    public void verifyOtpAndChangePassword(ChangePasswordDTO changePasswordDTO){
+    public void verifyOtpAndChangePassword(ChangePasswordDTO changePasswordDTO) {
         Integer otp = changePasswordDTO.getOtp();
         try {
             Notification notification = notificationService.verifyOtp(otp);

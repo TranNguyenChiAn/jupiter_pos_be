@@ -1,6 +1,5 @@
 package com.jupiter.store.module.category.repository;
 
-import com.jupiter.store.module.category.dto.IProductCategoryQueryDTO;
 import com.jupiter.store.module.category.model.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,8 +33,8 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
             "  WHERE (:search IS NULL OR unaccent(:search) = '') " +
             "   OR LOWER(unaccent(c.category_name)) LIKE CONCAT('%', unaccent(:search), '%')",
             countQuery = "SELECT count(id) FROM categories c " +
-            "  WHERE (:search IS NULL OR unaccent(:search) = '') " +
-            "   OR LOWER(unaccent(c.category_name)) LIKE CONCAT('%', unaccent(:search), '%')",
+                    "  WHERE (:search IS NULL OR unaccent(:search) = '') " +
+                    "   OR LOWER(unaccent(c.category_name)) LIKE CONCAT('%', unaccent(:search), '%')",
             nativeQuery = true)
     Page<Category> search(@Param("search") String search, Pageable pageable);
 }

@@ -1,16 +1,12 @@
 package com.jupiter.store.module.product.resource;
 
-import com.jupiter.store.module.category.dto.CategorySearchDTO;
-import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.product.dto.ProductAttributeDTO;
 import com.jupiter.store.module.product.dto.ProductAttributeSearchDTO;
 import com.jupiter.store.module.product.model.ProductAttribute;
 import com.jupiter.store.module.product.service.AttributeService;
-import com.jupiter.store.module.role.constant.RoleBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

@@ -1,8 +1,11 @@
 package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.SecurityUtils;
-import com.jupiter.store.module.product.dto.*;
-import com.jupiter.store.module.product.model.*;
+import com.jupiter.store.module.product.dto.CreateProductVariantDTO;
+import com.jupiter.store.module.product.model.Product;
+import com.jupiter.store.module.product.model.ProductAttributeValue;
+import com.jupiter.store.module.product.model.ProductImage;
+import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductImageRepository;
 import com.jupiter.store.module.product.repository.ProductRepository;
 import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
@@ -13,10 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

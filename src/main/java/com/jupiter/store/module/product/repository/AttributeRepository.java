@@ -1,7 +1,6 @@
 package com.jupiter.store.module.product.repository;
 
 import com.jupiter.store.module.product.model.ProductAttribute;
-import com.jupiter.store.module.product.model.Unit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

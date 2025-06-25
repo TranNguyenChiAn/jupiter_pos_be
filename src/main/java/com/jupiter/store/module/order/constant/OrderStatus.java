@@ -13,13 +13,22 @@ public enum OrderStatus {
     HOAN_THANH(value = "Hoàn thành"),
     DA_HUY(value = "Đã hủy");
 
+    public static final Map<OrderStatus, Set<OrderStatus>> validTransitions;
     private static String value = "";
 
-    OrderStatus(String s) {
+    static {
+        validTransitions = Map.of(
+                DON_NHAP, Set.of(CHO_XAC_NHAN, HOAN_THANH, DA_HUY),
+                CHO_XAC_NHAN, Set.of(DA_XAC_NHAN, HOAN_THANH, DA_HUY),
+                DA_XAC_NHAN, Set.of(DANG_VAN_CHUYEN, HOAN_THANH, DA_HUY),
+                DANG_VAN_CHUYEN, Set.of(DA_GIAO, HOAN_THANH, DA_HUY),
+                DA_GIAO, Set.of(HOAN_THANH),
+                HOAN_THANH, Set.of(), // Cannot change state further
+                DA_HUY, Set.of()    // Cannot recover
+        );
     }
 
-    public String getValue() {
-        return value;
+    OrderStatus(String s) {
     }
 
     public static List<String> getAllStatuses() {
@@ -34,17 +43,7 @@ public enum OrderStatus {
         );
     }
 
-    public static final Map<OrderStatus, Set<OrderStatus>> validTransitions;
-
-    static {
-        validTransitions = Map.of(
-                DON_NHAP, Set.of(CHO_XAC_NHAN, HOAN_THANH, DA_HUY),
-                CHO_XAC_NHAN, Set.of(DA_XAC_NHAN, HOAN_THANH, DA_HUY),
-                DA_XAC_NHAN, Set.of(DANG_VAN_CHUYEN, HOAN_THANH, DA_HUY),
-                DANG_VAN_CHUYEN, Set.of(DA_GIAO, HOAN_THANH, DA_HUY),
-                DA_GIAO, Set.of(HOAN_THANH),
-                HOAN_THANH, Set.of(), // Cannot change state further
-                DA_HUY, Set.of()    // Cannot recover
-        );
+    public String getValue() {
+        return value;
     }
 }

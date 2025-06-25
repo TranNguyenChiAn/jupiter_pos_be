@@ -8,7 +8,7 @@ import java.util.TimeZone;
 @Component
 public class SetVietnamTimezone {
     @PostConstruct
-    public void init(){
+    public void init() {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
     }
 }

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 
 public class AccountStatusFilter extends OncePerRequestFilter {
@@ -19,7 +20,7 @@ public class AccountStatusFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null &&  authentication.getPrincipal() instanceof CustomUserDetails springSecurityUser) {
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails springSecurityUser) {
             if (!springSecurityUser.isActive()) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Tài khoản của bạn đã bị khóa");

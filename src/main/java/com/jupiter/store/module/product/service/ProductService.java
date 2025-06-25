@@ -2,8 +2,6 @@ package com.jupiter.store.module.product.service;
 
 import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.common.utils.SecurityUtils;
-import com.jupiter.store.module.category.dto.CategoryDTO;
-import com.jupiter.store.module.category.dto.IProductCategoryQueryDTO;
 import com.jupiter.store.module.category.dto.ProductCategoryQueryDTO;
 import com.jupiter.store.module.category.model.Category;
 import com.jupiter.store.module.category.repository.CategoryRepository;
@@ -11,7 +9,6 @@ import com.jupiter.store.module.product.constant.ProductStatus;
 import com.jupiter.store.module.product.dto.*;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.model.ProductCategory;
-import com.jupiter.store.module.product.model.ProductVariant;
 import com.jupiter.store.module.product.repository.ProductCategoryRepository;
 import com.jupiter.store.module.product.repository.ProductRepository;
 import com.jupiter.store.module.product.repository.ProductVariantRepository;
@@ -185,7 +182,7 @@ public class ProductService {
 
         // Launch asynchronous batch queries
         CompletableFuture<List<ProductCategoryQueryDTO>> categoriesFuture = CompletableFuture.supplyAsync(() -> {
-            return getProductsCategoriesFromObjects(categoryRepository.findByProductIdIn(productIds));
+                    return getProductsCategoriesFromObjects(categoryRepository.findByProductIdIn(productIds));
                 }
         );
         CompletableFuture<List<ProductVariantReadDTO>> variantsFuture = CompletableFuture.supplyAsync(() ->

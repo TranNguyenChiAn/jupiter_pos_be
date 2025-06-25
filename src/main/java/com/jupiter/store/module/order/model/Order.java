@@ -46,6 +46,6 @@ public class Order extends AbstractAuditingEntity implements Serializable {
     @Column(name = "note")
     private String note;
 
-    @Column(name= "order_type")
+    @Column(name = "order_type")
     private OrderType orderType;
 }

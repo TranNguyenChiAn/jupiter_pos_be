@@ -32,7 +32,7 @@ public class HelperUtils {
         }
     }
 
-    public String normalizeSearch (String search) {
+    public String normalizeSearch(String search) {
         if (search != null) {
             search = search.trim();
             if (search.isBlank()) {
