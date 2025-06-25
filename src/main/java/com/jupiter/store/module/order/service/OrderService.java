@@ -315,6 +315,18 @@ public class OrderService {
         if (!user.canUpdateOrder()) {
             throw new CustomException("Bạn không có quyền cập nhật đơn hàng", HttpStatus.FORBIDDEN);
         }
+        if (newOrderStatus == OrderStatus.DA_HUY) {
+            List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
+            List<ProductVariant> variantsToUpdate = new ArrayList<>();
+            for (OrderDetail orderDetail : orderDetails) {
+                ProductVariant variant = orderDetail.getProductVariant();
+                if (variant != null) {
+                    variant.setQuantity(variant.getQuantity() + orderDetail.getSoldQuantity());
+                    variantsToUpdate.add(variant);
+                }
+            }
+            productVariantRepository.saveAll(variantsToUpdate);
+        }
         order.setOrderStatus(newOrderStatus);
         order.setLastModifiedBy(user.getId());
         orderRepository.save(order);
