@@ -2,6 +2,7 @@ package com.jupiter.store.module.payment.service;
 
 import com.jupiter.store.common.config.VietQRConfig;
 import com.jupiter.store.common.utils.SecurityUtils;
+import com.jupiter.store.module.order.constant.OrderStatus;
 import com.jupiter.store.module.order.constant.PaymentStatus;
 import com.jupiter.store.module.order.model.Order;
 import com.jupiter.store.module.order.repository.OrderRepository;
@@ -84,13 +85,22 @@ public class PaymentService {
         newPayment.setOrderId(orderId);
         newPayment.setPaid(paid);
         newPayment.setPaymentMethod(paymentMethod);
-        newPayment.setRemaining(order.getTotalAmount() - totalPaid - paid);
+        Long remaining = order.getTotalAmount() - totalPaid - paid;
+        newPayment.setRemaining(remaining);
         newPayment.setStatus(PaymentStatus.THANH_TOAN_THANH_CONG);
         newPayment.setNote(note);
         newPayment.setCreatedBy(SecurityUtils.getCurrentUserId());
         newPayment.setDate(LocalDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh")));
+        Payment payment = paymentRepository.save(newPayment);
 
-        return paymentRepository.save(newPayment);
+        // Cập nhật trạng thái đơn hàng nếu cần
+        if (order.getOrderStatus().equals(OrderStatus.CHO_XAC_NHAN) && remaining <= 0) {
+            order.setOrderStatus(OrderStatus.DA_XAC_NHAN);
+            order.setLastModifiedBy(SecurityUtils.getCurrentUserId());
+            orderRepository.save(order);
+        }
+
+        return payment;
     }
 
     public Payment updatePayment(Integer paymentId, PaymentMethod paymentMethod) {
