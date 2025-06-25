@@ -6,6 +6,7 @@ import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.repository.NotificationRepository;
 import com.jupiter.store.module.notifications.service.NotificationService;
+import com.jupiter.store.module.order.service.OrderHelperService;
 import com.jupiter.store.module.role.constant.RoleBase;
 import com.jupiter.store.module.user.dto.ChangePasswordDTO;
 import com.jupiter.store.module.user.dto.RegisterUserDTO;
@@ -14,11 +15,9 @@ import com.jupiter.store.module.user.dto.UserReadDTO;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +37,8 @@ public class UserService {
     private NotificationRepository notificationRepository;
     @Autowired
     private HelperUtils helperUtils;
+    @Autowired
+    private OrderHelperService orderHelperService;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -214,6 +215,8 @@ public class UserService {
         if (user.getRole().equals(RoleBase.ADMIN.toString())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không thể xóa người dùng!");
         }
+        orderHelperService.updateUserToNull(userId);
+        notificationService.updateUserToNull(userId);
         userRepository.delete(user);
     }
 }

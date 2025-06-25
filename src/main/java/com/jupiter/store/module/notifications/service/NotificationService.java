@@ -101,4 +101,8 @@ public class NotificationService {
         return notificationRepository.verifyByEntityId(otp, validTime)
                 .orElseThrow(() -> new RuntimeException("OTP không hợp lệ hoặc đã hết hạn"));
     }
+
+    public void updateUserToNull(Integer userId) {
+        notificationRepository.updateUserToNull(userId);
+    }
 }
