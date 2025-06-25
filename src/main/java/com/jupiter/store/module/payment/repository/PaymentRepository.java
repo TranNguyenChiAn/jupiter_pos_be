@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface PaymentRepository extends JpaRepository<Payment, Integer> {
-    @Query(value = "SELECT * FROM payments p WHERE p.order_id = :orderId order by p.id desc", nativeQuery = true)
+    @Query(value = "SELECT * FROM payments p WHERE p.order_id = :orderId order by p.id ASC", nativeQuery = true)
     List<Payment> findByOrderId(@Param("orderId") Integer orderId);
 
 }
