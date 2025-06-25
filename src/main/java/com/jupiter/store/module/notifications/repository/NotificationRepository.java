@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    @Query(value = "SELECT * FROM notifications n WHERE n.user_id = :userId AND n.entity_type != 'PASSWORD_RESET' " +
+    @Query(value = "SELECT * FROM notifications n WHERE (:userId IS NULL OR n.user_id = :userId) AND n.entity_type != 'PASSWORD_RESET' " +
                     "ORDER BY n.date DESC " +
                     "OFFSET :page * 10 LIMIT 10 ", nativeQuery = true)
     List<Notification> findByUserId(@Param("userId") Integer userId, @Param("page") Integer page);

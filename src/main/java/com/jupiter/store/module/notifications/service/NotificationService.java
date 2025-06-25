@@ -6,6 +6,7 @@ import com.jupiter.store.module.notifications.dto.NotificationDTO;
 import com.jupiter.store.module.notifications.dto.NotificationMessage;
 import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.repository.NotificationRepository;
+import com.jupiter.store.module.role.constant.RoleBase;
 import com.jupiter.store.module.user.model.User;
 import com.jupiter.store.module.user.repository.UserRepository;
 import com.twilio.rest.api.v2010.account.Message;
@@ -18,6 +19,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -46,14 +48,19 @@ public class NotificationService {
     }
 
     @Async
-    public void sendWebNotification(Notification stockAlertNotification) {
-        stockAlertNotification.setType(NotificationType.WEB);
-        notificationRepository.save(stockAlertNotification);
+    public void sendWebNotification(List<Notification> stockAlertNotificationList) {
+        if (stockAlertNotificationList.isEmpty()) {
+            return;
+        }
+        stockAlertNotificationList.forEach(n -> n.setType(NotificationType.WEB));
+        notificationRepository.saveAll(stockAlertNotificationList);
 
-        messagingTemplate.convertAndSend("/topic/stock-alert", new NotificationMessage(
-                stockAlertNotification.getTitle(),
-                stockAlertNotification.getBody()
-        ));
+        for (Notification stockAlertNotification : stockAlertNotificationList) {
+            messagingTemplate.convertAndSend("/topic/stock-alert", new NotificationMessage(
+                    stockAlertNotification.getTitle(),
+                    stockAlertNotification.getBody()
+            ));
+        }
     }
 
     public List<Notification> getNotificationsByUserId(Integer userId, Integer page) {
@@ -61,25 +68,28 @@ public class NotificationService {
     }
 
     @Async
-    public void sendNotification(NotificationDTO message) {
-        List<User> users = userRepository.findAll();
-        for (User user : users) {
-            Notification notification = new Notification();
-            notification.setUserId(user.getId());
-            notification.setTitle(message.getTitle());
-            notification.setBody(message.getBody());
-            notification.setEntityType(message.getEntityType());
-            notification.setEntityId(message.getEntityId());
-            notification.setRead(false);
-            notificationRepository.save(notification);
+    public void sendNotificationToAllUsers(NotificationDTO message, boolean sendMail) {
+        List<Notification> notificationList = new ArrayList<>();
+        Notification notification = new Notification();
+        notification.setUserId(null);
+        notification.setTitle(message.getTitle());
+        notification.setBody(message.getBody());
+        notification.setEntityType(message.getEntityType());
+        notification.setEntityId(message.getEntityId());
+        notification.setRead(false);
+        notificationRepository.save(notification);
 
+        notificationList.add(notification);
+
+        User admin = userRepository.findOneByRole(RoleBase.ADMIN);
+        if (sendMail && admin != null) {
             CompletableFuture.runAsync(() -> {
-                sendEmail(user.getEmail(), notification);
-            });
-            CompletableFuture.runAsync(() -> {
-                sendWebNotification(notification);
+                sendEmail(admin.getEmail(), notification);
             });
         }
+        CompletableFuture.runAsync(() -> {
+            sendWebNotification(notificationList);
+        });
     }
 
     @Async

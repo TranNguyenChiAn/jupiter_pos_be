@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(value = "SELECT * FROM users u WHERE u.username = :username", nativeQuery = true)
@@ -58,4 +60,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                     "      )",
             nativeQuery = true)
     Page<User> search(@Param("search") String search, Pageable pageable);
+
+    @Query(value = "SELECT * FROM users u WHERE u.is_active = true AND u.role = :role AND created_date IS NOT NULL ORDER BY created_date LIMIT 1", nativeQuery = true)
+    User findOneByRole(@Param("role") String role);
 }

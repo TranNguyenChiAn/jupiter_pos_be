@@ -8,8 +8,6 @@ import com.jupiter.store.module.customer.model.Customer;
 import com.jupiter.store.module.customer.service.CustomerService;
 import com.jupiter.store.module.notifications.constant.NotificationEntityType;
 import com.jupiter.store.module.notifications.dto.NotificationDTO;
-import com.jupiter.store.module.notifications.dto.NotificationMessage;
-import com.jupiter.store.module.notifications.model.Notification;
 import com.jupiter.store.module.notifications.service.NotificationService;
 import com.jupiter.store.module.order.constant.OrderStatus;
 import com.jupiter.store.module.order.constant.OrderType;
@@ -38,8 +36,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -49,6 +48,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
@@ -145,6 +145,7 @@ public class OrderService {
                 .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
     }
 
+    @Transactional
     public Order createOrder(
             Integer customerId,
             String receiverName,
@@ -161,6 +162,8 @@ public class OrderService {
 
         Order order = new Order();
         order.setUserId(currentUserId());
+
+        validateOrderItems(orderItems);
 
         Long totalAmount = orderItems.stream().filter(Objects::nonNull)
                 .mapToLong(item -> item.getSoldPrice() * item.getSoldQuantity())
@@ -189,7 +192,7 @@ public class OrderService {
         order.setNote(note);
         order.setOrderType(orderType);
 
-        if (paid != null && (totalAmount.equals(paid) || paid > totalAmount )) {
+        if (paid != null && (totalAmount.equals(paid) || paid > totalAmount)) {
             if (orderType.equals(OrderType.MUA_TRUC_TIEP)) {
                 order.setOrderStatus(OrderStatus.HOAN_THANH);
             } else {
@@ -200,69 +203,90 @@ public class OrderService {
         }
         order.setCreatedBy(currentUserId());
         order.setLastModifiedBy(currentUserId());
+
+        // order details
+        List<OrderDetail> orderDetailList = new ArrayList<>();
+        for (OrderDetailCreateDTO orderDetailDTO : orderItems) {
+            ProductVariant productVariant = productVariantRepository.findById(orderDetailDTO.getProductVariantId())
+                    .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy biến thể sản phẩm có ID: " + orderDetailDTO.getProductVariantId() + "!"));
+
+            if (productVariant.getQuantity() - orderDetailDTO.getSoldQuantity() < 0) {
+                throw new CustomException("Số lượng tồn kho của biến thể " + productVariant.getId() + " không đủ", HttpStatus.BAD_REQUEST);
+            }
+
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(order);
+            orderDetail.setProductVariant(productVariant);
+            orderDetail.setPrice(productVariant.getCostPrice());
+            orderDetail.setSoldQuantity(orderDetailDTO.getSoldQuantity());
+            orderDetail.setSoldPrice(productVariant.getPrice());
+            orderDetailList.add(orderDetail);
+        }
+
         orderRepository.save(order);
+
+        for (OrderDetail orderDetail : orderDetailList) {
+            ProductVariant productVariant = orderDetail.getProductVariant();
+            Integer remainingQuantity = productVariant.getQuantity() - orderDetail.getSoldQuantity();
+            productVariant.setQuantity(remainingQuantity);
+            // Cập nhật số lượng tồn kho
+            productVariantRepository.save(productVariant);
+
+            if (productVariant.getQuantity() <= 10) {
+                CompletableFuture.runAsync(() -> {
+                    Product product = productRepository.findById(productVariant.getProductId())
+                            .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
+                    List<String> productVariantAttrValue = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId())
+                            .stream().map(ProductAttributeValue::getAttrValue).toList();
+                    NotificationDTO stockAlertNotification = new NotificationDTO(
+                            "Sản phẩm sắp hết hàng!",
+                            "Sản phẩm " + product.getProductName() + " " + productVariantAttrValue + " còn " + productVariant.getQuantity() + " sản phẩm",
+                            NotificationEntityType.PRODUCT_VARIANT,
+                            productVariant.getId()
+                    );
+                    notificationService.sendNotificationToAllUsers(stockAlertNotification, false);
+                });
+            }
+        }
+
+        orderDetailRepository.saveAll(orderDetailList);
 
         if (paid != null && paid > 0) {
             paymentService.createPayment(order.getId(), paid, paymentMethod, note);
         }
 
-        //them order history create order
+        orderHistoryService.createOrderHistory(order.getId(), null, order.getOrderStatus());
+        sendNotification(order, user);
+        return order;
+    }
 
-        // Save order details
-        if (!orderItems.isEmpty()) {
-            List<OrderDetail> orderDetailList = new ArrayList<>();
-            for (OrderDetailCreateDTO orderDetailDTO : orderItems) {
-                ProductVariant productVariant = productVariantRepository.findById(orderDetailDTO.getProductVariantId())
-                        .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy biến thể sản phẩm có ID: " + orderDetailDTO.getProductVariantId() + "!"));
-
-                OrderDetail orderDetail = new OrderDetail();
-                orderDetail.setOrder(order);
-                orderDetail.setProductVariant(productVariant);
-                orderDetail.setPrice(productVariant.getCostPrice());
-                orderDetail.setSoldQuantity(orderDetailDTO.getSoldQuantity());
-                orderDetail.setSoldPrice(productVariant.getPrice());
-                if (orderDetail.getSoldQuantity() < 0) {
-                    throw new CustomException("Số lượng sản phẩm phải lớn hơn 0", HttpStatus.BAD_REQUEST);
-                }
-                if (orderDetail.getSoldPrice() < 0) {
-                    throw new CustomException("Giá sản phẩm phải lớn hơn 0", HttpStatus.BAD_REQUEST);
-                }
-                orderDetailList.add(orderDetail);
-
-                // Cập nhật số lượng tồn kho
-                if (productVariant.getQuantity() - orderDetailDTO.getSoldQuantity() > 0) {
-                    Integer remainingQuantity = productVariant.getQuantity() - orderDetailDTO.getSoldQuantity();
-                    productVariant.setQuantity(remainingQuantity);
-                    productVariantRepository.save(productVariant);
-                } else {
-                    throw new CustomException("Số lượng tồn kho của biến thể " + productVariant.getId() + " không đủ", HttpStatus.BAD_REQUEST);
-                }
-
-                if (productVariant.getQuantity() <= 10) {
-                    CompletableFuture.runAsync(() -> {
-                        Product product = productRepository.findById(productVariant.getProductId())
-                                .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
-                        List<String> productVariantAttrValue = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId())
-                                .stream().map(ProductAttributeValue::getAttrValue).toList();
-                        NotificationDTO stockAlertNotification = new NotificationDTO(
-                                "Sản phẩm sắp hết hàng!",
-                                "Sản phẩm " + product.getProductName() + " " + productVariantAttrValue + " còn " + productVariant.getQuantity() + " sản phẩm",
-                                NotificationEntityType.PRODUCT_VARIANT,
-                                productVariant.getId()
-                        );
-                        notificationService.sendNotification(stockAlertNotification);
-                    });
-                }
-            }
-            orderDetailRepository.saveAll(orderDetailList);
-        }
-
+    @Async
+    protected void sendNotification(Order order, User user) {
         CompletableFuture.runAsync(() -> {
             NotificationDTO notificationDTO = new NotificationDTO("Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới",
                     NotificationEntityType.ORDER, order.getId());
-            notificationService.sendNotification(notificationDTO);
+            notificationService.sendNotificationToAllUsers(notificationDTO, true);
         });
-        return order;
+    }
+
+    private void validateOrderItems(List<OrderDetailCreateDTO> orderItems) {
+        if (orderItems == null || orderItems.isEmpty()) {
+            throw new CustomException("Danh sách sản phẩm không được để trống", HttpStatus.BAD_REQUEST);
+        }
+        for (OrderDetailCreateDTO item : orderItems) {
+            if (item.getProductVariantId() == null || item.getSoldQuantity() == null || item.getSoldPrice() == null || item.getPrice() == null) {
+                throw new CustomException("Mỗi sản phẩm phải có ID và số lượng", HttpStatus.BAD_REQUEST);
+            }
+            if (item.getSoldQuantity() <= 0) {
+                throw new CustomException("Số lượng sản phẩm phải lớn hơn 0", HttpStatus.BAD_REQUEST);
+            }
+            if (item.getPrice() < 0) {
+                throw new CustomException("Sản phẩm phải có giá lớn hơn 0", HttpStatus.BAD_REQUEST);
+            }
+            if (item.getSoldPrice() < 0) {
+                throw new CustomException("Sản phẩm phải có giá bán lớn hơn 0", HttpStatus.BAD_REQUEST);
+            }
+        }
     }
 
     public void updateOrderStatus(Integer orderId, UpdateOrderStatusDTO updateOrderStatusDTO) {
