@@ -82,6 +82,9 @@ public class PaymentService {
                 .mapToLong(Payment::getPaid)
                 .sum();
         Payment newPayment = new Payment();
+        if (paid <= 0) {
+            throw new IllegalArgumentException("Số tiền thanh toán phải lớn hơn 0");
+        }
         newPayment.setOrderId(orderId);
         newPayment.setPaid(paid);
         newPayment.setPaymentMethod(paymentMethod);
