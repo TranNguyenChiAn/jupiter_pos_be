@@ -23,7 +23,8 @@ public class SecurityConfig {
             "/v3/api-docs/**", "/swagger-resources", "/swagger-resources/**", "/configuration/ui",
             "/configuration/security", "/swagger-ui/**", "/swagger-ui.html", "/api/auth/**",
             "/api/test/**", "/authenticate", "/login", "/api/users/register", "/error", "/", "/api/ping",
-            "/api/product-variants/get-all-ids", "/api/users/generate-otp", "/api/users/change-password", };
+            "/api/product-variants/get-all-ids", "/api/users/generate-otp", "/api/users/change-password",
+            "/ws/**"};
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
