@@ -89,6 +89,9 @@ public class PaymentService {
         newPayment.setPaid(paid);
         newPayment.setPaymentMethod(paymentMethod);
         Long remaining = order.getTotalAmount() - totalPaid - paid;
+        if (remaining < 0) {
+            throw new IllegalArgumentException("Số tiền thanh toán vượt quá tổng số tiền của đơn hàng");
+        }
         newPayment.setRemaining(remaining);
         newPayment.setStatus(PaymentStatus.THANH_TOAN_THANH_CONG);
         newPayment.setNote(note);
