@@ -130,13 +130,24 @@ public class UserService {
         if (userByPhone != null && !userByPhone.getId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số điện thoại này đã tồn tại!");
         }
-
-        user.setUsername(updateUserDTO.getUsername() == null ? "" : updateUserDTO.getUsername());
-        user.setFullName(updateUserDTO.getFullName() == null ? "" : updateUserDTO.getFullName());
-        user.setEmail(updateUserDTO.getEmail() == null ? "" : updateUserDTO.getEmail());
-        user.setPhone(updateUserDTO.getPhone() == null ? "" : updateUserDTO.getPhone());
-        user.setGender(updateUserDTO.isGender());
-        user.setActive(updateUserDTO.isActive());
+        if (updateUserDTO.getUsername() != null) {
+            user.setUsername(updateUserDTO.getUsername());
+        }
+        if (updateUserDTO.getFullName() != null) {
+            user.setFullName(updateUserDTO.getFullName());
+        }
+        if (updateUserDTO.getEmail() != null) {
+            user.setEmail(updateUserDTO.getEmail());
+        }
+        if (updateUserDTO.getPhone() != null) {
+            user.setPhone(updateUserDTO.getPhone());
+        }
+        if (updateUserDTO.isGender() != user.isGender()) {
+            user.setGender(updateUserDTO.isGender());
+        }
+        if (updateUserDTO.isActive() != user.isActive()) {
+            user.setActive(updateUserDTO.isActive());
+        }
         userRepository.save(user);
     }
 
