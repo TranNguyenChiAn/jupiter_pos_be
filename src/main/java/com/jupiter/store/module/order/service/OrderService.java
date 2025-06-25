@@ -403,7 +403,9 @@ public class OrderService {
     public void updateStatus(Integer orderId, UpdateOrderDTO updateOrderDTO) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
-
+        if (List.of(OrderStatus.DA_GIAO, OrderStatus.HOAN_THANH, OrderStatus.DA_GIAO).contains(order.getOrderStatus())) {
+            throw new CustomException("Không thể cập nhật đơn hàng đã hoàn thành hoặc đã hủy", HttpStatus.BAD_REQUEST);
+        }
         if (updateOrderDTO.getReceiverName() != null) {
             order.setReceiverName(updateOrderDTO.getReceiverName());
         }
