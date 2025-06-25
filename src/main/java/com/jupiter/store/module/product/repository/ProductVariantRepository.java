@@ -47,7 +47,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
                     "    WHEN (:search IS NULL OR unaccent(:search) = '') THEN NULL " +
                     "    ELSE COALESCE(sub.rank, 0) " +
                     "  END DESC, " +
-                    "  sub.pv_last_modified_date DESC nulls last",
+                    "  sub.pv_last_modified_date, sub.quantity DESC nulls last",
             countQuery = "SELECT COUNT(*) FROM ( " +
                     "  SELECT DISTINCT pv.*, pv.last_modified_date as pv_last_modified_date, " +
                     "         ts_rank_cd( to_tsvector('simple', " +
