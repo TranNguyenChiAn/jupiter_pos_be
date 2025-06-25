@@ -15,9 +15,11 @@ public class WebConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(
                                 "http://localhost:3000",
+                                "http://localhost:8080",
                                 "https://jupiterpos.vercel.app",
                                 "https://jupiter-pos-dev.vercel.app",
-                                "https://upload.uploadcare.com"
+                                "https://upload.uploadcare.com",
+                                "https://jupiterstore.onrender.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
