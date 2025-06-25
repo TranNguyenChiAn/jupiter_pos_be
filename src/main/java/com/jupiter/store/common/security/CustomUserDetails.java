@@ -19,6 +19,7 @@ public class CustomUserDetails implements UserDetails {
     private Integer userId;
     private String username;
     private String password;
+    private boolean active;
     private Set<SimpleGrantedAuthority> authority;
 
     @Override

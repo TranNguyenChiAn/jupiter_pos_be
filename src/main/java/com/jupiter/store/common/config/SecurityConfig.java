@@ -1,5 +1,6 @@
 package com.jupiter.store.common.config;
 
+import com.jupiter.store.common.security.jwt.AccountStatusFilter;
 import com.jupiter.store.common.security.jwt.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AccountStatusFilter accountStatusFilter() {
+        return new AccountStatusFilter();
+    }
+
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
@@ -45,7 +51,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(accountStatusFilter(), JwtAuthenticationFilter.class);
 
         // Enable CORS using the WebMvcConfigurer bean
         http.setSharedObject(WebMvcConfigurer.class, new WebConfig().corsConfigurer());

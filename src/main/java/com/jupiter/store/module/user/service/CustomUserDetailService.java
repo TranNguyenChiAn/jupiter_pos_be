@@ -28,6 +28,7 @@ public class CustomUserDetailService implements UserDetailsService {
                 user.getId(),            // Truyền userId
                 user.getPhone(),          // Truyền phone
                 user.getPassword(),          // Truyền password
+                user.isActive(),         // Truyền active
                 authorities            // Truyền quyền (authorities)
         );
     }

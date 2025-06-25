@@ -28,6 +28,7 @@ public final class SecurityUtils {
         if (authentication == null) {
             return null;
         } else if (authentication.getPrincipal() instanceof CustomUserDetails springSecurityUser) {
+            if (!springSecurityUser.isActive()) return null;
             return springSecurityUser.getUserId();
         }
         if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
