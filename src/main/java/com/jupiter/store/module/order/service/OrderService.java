@@ -81,23 +81,13 @@ public class OrderService {
         return SecurityUtils.getCurrentUserId();
     }
 
-    public Page<Order> search(
-            Integer pageSize,
-            Integer pageNumber,
-            String search,
-            List<OrderStatus> orderStatuses,
-            LocalDate startDate,
-            LocalDate endDate,
-            String sortBy,
-            String sortDirection
-    ) {
+    public Page<Order> search(Integer pageSize, Integer pageNumber, String search, List<OrderStatus> orderStatuses, LocalDate startDate, LocalDate endDate, String sortBy, String sortDirection) {
         Integer currentUserId = currentUserId();
         if (currentUserId == null) {
             throw new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.UNAUTHORIZED);
         }
 
-        User user = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.NOT_FOUND));
+        User user = userRepository.findById(currentUserId).orElseThrow(() -> new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.NOT_FOUND));
 
         if (user.getRole() == null || !user.canViewOrder()) {
             throw new CustomException("Bạn không có quyền xem đơn hàng", HttpStatus.FORBIDDEN);
@@ -141,33 +131,19 @@ public class OrderService {
     }
 
     public Order findById(Integer orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
+        return orderRepository.findById(orderId).orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
     }
 
     @Transactional
-    public Order createOrder(
-            Integer customerId,
-            String receiverName,
-            String receiverPhone,
-            String receiverAddress,
-            String note,
-            Long paid,
-            PaymentMethod paymentMethod,
-            List<OrderDetailCreateDTO> orderItems,
-            OrderType orderType
-    ) {
-        User user = userRepository.findById(currentUserId())
-                .orElseThrow(() -> new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.NOT_FOUND));
+    public Order createOrder(Integer customerId, String receiverName, String receiverPhone, String receiverAddress, String note, Long paid, PaymentMethod paymentMethod, List<OrderDetailCreateDTO> orderItems, OrderType orderType) {
+        User user = userRepository.findById(currentUserId()).orElseThrow(() -> new CustomException("Không tìm thấy người dùng hiện tại", HttpStatus.NOT_FOUND));
 
         Order order = new Order();
         order.setUserId(currentUserId());
 
         validateOrderItems(orderItems);
 
-        Long totalAmount = orderItems.stream().filter(Objects::nonNull)
-                .mapToLong(item -> item.getSoldPrice() * item.getSoldQuantity())
-                .sum();
+        Long totalAmount = orderItems.stream().filter(Objects::nonNull).mapToLong(item -> item.getSoldPrice() * item.getSoldQuantity()).sum();
         if (totalAmount < 0) {
             throw new CustomException("Tổng số tiền phải lớn hơn 0", HttpStatus.BAD_REQUEST);
         }
@@ -207,8 +183,7 @@ public class OrderService {
         // order details
         List<OrderDetail> orderDetailList = new ArrayList<>();
         for (OrderDetailCreateDTO orderDetailDTO : orderItems) {
-            ProductVariant productVariant = productVariantRepository.findById(orderDetailDTO.getProductVariantId())
-                    .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy biến thể sản phẩm có ID: " + orderDetailDTO.getProductVariantId() + "!"));
+            ProductVariant productVariant = productVariantRepository.findById(orderDetailDTO.getProductVariantId()).orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy biến thể sản phẩm có ID: " + orderDetailDTO.getProductVariantId() + "!"));
 
             if (productVariant.getQuantity() - orderDetailDTO.getSoldQuantity() < 0) {
                 throw new CustomException("Số lượng tồn kho của biến thể " + productVariant.getId() + " không đủ", HttpStatus.BAD_REQUEST);
@@ -234,16 +209,9 @@ public class OrderService {
 
             if (productVariant.getQuantity() <= 10) {
                 CompletableFuture.runAsync(() -> {
-                    Product product = productRepository.findById(productVariant.getProductId())
-                            .orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
-                    List<String> productVariantAttrValue = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId())
-                            .stream().map(ProductAttributeValue::getAttrValue).toList();
-                    NotificationDTO stockAlertNotification = new NotificationDTO(
-                            "Sản phẩm sắp hết hàng!",
-                            "Sản phẩm " + product.getProductName() + " " + productVariantAttrValue + " còn " + productVariant.getQuantity() + " sản phẩm",
-                            NotificationEntityType.PRODUCT_VARIANT,
-                            productVariant.getId()
-                    );
+                    Product product = productRepository.findById(productVariant.getProductId()).orElseThrow(() -> new OpenApiResourceNotFoundException("Không tìm thấy sản phẩm!"));
+                    List<String> productVariantAttrValue = productVariantAttrValueRepository.findByProductVariantId(productVariant.getId()).stream().map(ProductAttributeValue::getAttrValue).toList();
+                    NotificationDTO stockAlertNotification = new NotificationDTO("Sản phẩm sắp hết hàng!", "Sản phẩm " + product.getProductName() + " " + productVariantAttrValue + " còn " + productVariant.getQuantity() + " sản phẩm", NotificationEntityType.PRODUCT_VARIANT, productVariant.getId());
                     notificationService.sendNotificationToAllUsers(stockAlertNotification, false);
                 });
             }
@@ -263,8 +231,7 @@ public class OrderService {
     @Async
     protected void sendNotification(Order order, User user) {
         CompletableFuture.runAsync(() -> {
-            NotificationDTO notificationDTO = new NotificationDTO("Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới",
-                    NotificationEntityType.ORDER, order.getId());
+            NotificationDTO notificationDTO = new NotificationDTO("Đơn hàng mới", user.getFullName() + " đã tạo một đơn hàng mới", NotificationEntityType.ORDER, order.getId());
             notificationService.sendNotificationToAllUsers(notificationDTO, true);
         });
     }
@@ -290,8 +257,7 @@ public class OrderService {
     }
 
     public void updateOrderStatus(Integer orderId, UpdateOrderStatusDTO updateOrderStatusDTO) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
         OrderStatus currentStatus = order.getOrderStatus();
         OrderStatus oldStatus = updateOrderStatusDTO.getOldOrderStatus();
         if (currentStatus == OrderStatus.DA_HUY) {
@@ -335,8 +301,7 @@ public class OrderService {
     }
 
     public void cancelOrder(Integer orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
 
         User user = userRepository.findById(currentUserId()).orElse(null);
         if (user == null) {
@@ -365,8 +330,7 @@ public class OrderService {
     }
 
     public OrderReadDTO getOrderById(Integer orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
 
         OrderReadDTO orderReadDTO = new OrderReadDTO(order);
 
@@ -401,26 +365,33 @@ public class OrderService {
     }
 
     public void updateStatus(Integer orderId, UpdateOrderDTO updateOrderDTO) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
-        if (List.of(OrderStatus.DA_GIAO, OrderStatus.HOAN_THANH, OrderStatus.DA_GIAO).contains(order.getOrderStatus())) {
-            throw new CustomException("Không thể cập nhật đơn hàng đã hoàn thành hoặc đã hủy", HttpStatus.BAD_REQUEST);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new CustomException("Không tìm thấy đơn hàng", HttpStatus.NOT_FOUND));
+        OrderStatus currentStatus = order.getOrderStatus();
+
+        if (currentStatus != null) {
+            if (List.of(OrderStatus.HOAN_THANH, OrderStatus.DA_HUY).contains(currentStatus)) {
+                throw new CustomException("Không thể cập nhật đơn hàng đã hoàn thành hoặc đã hủy", HttpStatus.BAD_REQUEST);
+            }
+
+            if (updateOrderDTO.getNote() != null) {
+                order.setNote(updateOrderDTO.getNote());
+            }
+            if (List.of(OrderStatus.DON_NHAP, OrderStatus.CHO_XAC_NHAN).contains(currentStatus)) {
+                if (updateOrderDTO.getReceiverName() != null) {
+                    order.setReceiverName(updateOrderDTO.getReceiverName());
+                }
+                if (updateOrderDTO.getReceiverPhone() != null) {
+                    order.setReceiverPhone(updateOrderDTO.getReceiverPhone());
+                }
+                if (updateOrderDTO.getReceiverAddress() != null) {
+                    order.setReceiverAddress(updateOrderDTO.getReceiverAddress());
+                }
+                if (updateOrderDTO.getOrderType() != null) {
+                    order.setOrderType(updateOrderDTO.getOrderType());
+                }
+            }
         }
-        if (updateOrderDTO.getReceiverName() != null) {
-            order.setReceiverName(updateOrderDTO.getReceiverName());
-        }
-        if (updateOrderDTO.getReceiverPhone() != null) {
-            order.setReceiverPhone(updateOrderDTO.getReceiverPhone());
-        }
-        if (updateOrderDTO.getReceiverAddress() != null) {
-            order.setReceiverAddress(updateOrderDTO.getReceiverAddress());
-        }
-        if (updateOrderDTO.getNote() != null) {
-            order.setNote(updateOrderDTO.getNote());
-        }
-        if (updateOrderDTO.getOrderType() != null) {
-            order.setOrderType(updateOrderDTO.getOrderType());
-        }
+
         order.setLastModifiedBy(currentUserId());
         orderRepository.save(order);
     }
