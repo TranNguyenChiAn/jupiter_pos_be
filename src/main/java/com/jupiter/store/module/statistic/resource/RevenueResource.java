@@ -59,4 +59,16 @@ public class RevenueResource {
     ) {
         return revenueService.getNewCustomers(startDate, endDate);
     }
+
+    @PostMapping("/orders/status")
+    public List<OrderStatusResponseDTO> getOrderStatusData(@RequestBody RequestTimeDTO requestTimeDTO) {
+        return revenueService.getOrderStatusStatistics(
+                requestTimeDTO.getStartTime(),
+                requestTimeDTO.getEndTime()
+        );
+    }
+    @GetMapping("/products/low-stock")
+    public List<ProductInventoryDTO> getProductInventoryData() {
+        return revenueService.getProductInventoryData();
+    }
 }

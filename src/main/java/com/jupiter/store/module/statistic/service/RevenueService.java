@@ -1,8 +1,13 @@
 package com.jupiter.store.module.statistic.service;
 
 import com.jupiter.store.common.utils.HelperUtils;
+import com.jupiter.store.module.product.model.Product;
+import com.jupiter.store.module.product.model.ProductAttributeValue;
+import com.jupiter.store.module.product.repository.ProductRepository;
+import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
 import com.jupiter.store.module.statistic.dto.*;
 import com.jupiter.store.module.statistic.repository.CustomerStatisticRepository;
+import com.jupiter.store.module.statistic.repository.OrderStatisticRepository;
 import com.jupiter.store.module.statistic.repository.ProductStatisticRepository;
 import com.jupiter.store.module.statistic.repository.RevenueStatisticRepository;
 import jakarta.persistence.EntityManager;
@@ -17,22 +22,26 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RevenueService {
     @Autowired
     private RevenueStatisticRepository revenueStatisticRepository;
-
     @Autowired
     private ProductStatisticRepository productStatisticRepository;
-
     @Autowired
     private CustomerStatisticRepository customerStatisticRepository;
-
+    @Autowired
+    private OrderStatisticRepository orderStatisticRepository;
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
     private HelperUtils helperUtils;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private ProductVariantAttrValueRepository productVariantAttrValueRepository;
 
     public TodayResponseDTO getTodayData() {
         Object result = revenueStatisticRepository.getMainStats();
@@ -254,5 +263,30 @@ public class RevenueService {
         }
 
         return newCustomers;
+    }
+
+    public List<OrderStatusResponseDTO> getOrderStatusStatistics(LocalDateTime startTime, LocalDateTime endTime) {
+        List<OrderStatusResponseDTO> orderStatusStatistics = new ArrayList<>();
+        List<Object[]> result = orderStatisticRepository.getOrderStatusStatistics(startTime, endTime);
+        for (Object[] row : result) {
+            String orderStatus = row[0] != null ? ((String) row[0]) : "";
+            long totalOrders = row[1] != null ? ((long) row[1]) : 0L;
+            orderStatusStatistics.add(new OrderStatusResponseDTO(orderStatus, totalOrders));
+        }
+
+        return orderStatusStatistics;
+    }
+
+    public List<ProductInventoryDTO> getProductInventoryData() {
+        List<ProductInventoryDTO> productInventoryData = new ArrayList<>();
+        List<Object[]> results = productStatisticRepository.getProductInventoryData();
+
+        for (Object[] row : results) {
+            String productName = row[0] != null ? ((String)row[0]) : "";
+            int inventoryCount = row[1] != null ? ((Integer) row[1]) : 0;
+            productInventoryData.add(new ProductInventoryDTO(productName, inventoryCount));
+        }
+
+        return productInventoryData;
     }
 }
