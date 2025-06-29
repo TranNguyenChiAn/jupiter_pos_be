@@ -42,4 +42,12 @@ public class RevenueResource {
                 requestTimeDTO.getEndTime()
         );
     }
+
+    @GetMapping("/inactive-customers")
+    public List<InactiveCustomerDTO> getInactiveCustomers(
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDirection
+    ) {
+        return revenueService.getInactiveCustomers(sortBy, sortDirection);
+    }
 }

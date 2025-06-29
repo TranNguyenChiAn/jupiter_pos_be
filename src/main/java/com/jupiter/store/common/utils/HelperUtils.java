@@ -43,4 +43,28 @@ public class HelperUtils {
         }
         return search;
     }
+
+    public String normalizeSort(String sort) {
+        if (sort != null) {
+            sort = sort.trim();
+            if (sort.isBlank()) {
+                sort = null;
+            } else {
+                sort = convertCamelCaseToSnakeCase(sort);
+            }
+        }
+        return sort;
+    }
+
+    public String normalizeSortDirection(String sortDirection) {
+        if (sortDirection != null) {
+            sortDirection = sortDirection.trim().toLowerCase();
+            if (!sortDirection.equals("asc") && !sortDirection.equals("desc")) {
+                throw new IllegalArgumentException("Sort direction must be 'asc' or 'desc'");
+            }
+        } else {
+            sortDirection = "desc";
+        }
+        return sortDirection;
+    }
 }

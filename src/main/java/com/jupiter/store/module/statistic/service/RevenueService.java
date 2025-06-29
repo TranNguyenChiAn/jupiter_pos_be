@@ -1,9 +1,7 @@
 package com.jupiter.store.module.statistic.service;
 
-import com.jupiter.store.module.statistic.dto.CustomerResponseDTO;
-import com.jupiter.store.module.statistic.dto.NetRevenueDTO;
-import com.jupiter.store.module.statistic.dto.ProductSalesDTO;
-import com.jupiter.store.module.statistic.dto.TodayResponseDTO;
+import com.jupiter.store.common.utils.HelperUtils;
+import com.jupiter.store.module.statistic.dto.*;
 import com.jupiter.store.module.statistic.repository.CustomerStatisticRepository;
 import com.jupiter.store.module.statistic.repository.ProductStatisticRepository;
 import com.jupiter.store.module.statistic.repository.RevenueStatisticRepository;
@@ -31,6 +29,8 @@ public class RevenueService {
 
     @PersistenceContext
     private EntityManager entityManager;
+    @Autowired
+    private HelperUtils helperUtils;
 
     public TodayResponseDTO getTodayData() {
         Object result = revenueStatisticRepository.getMainStats();
@@ -162,5 +162,58 @@ public class RevenueService {
             customerData.add(new CustomerResponseDTO(customerName, totalOrder, totalSpent, totalQuantity, totalOrderAmount, totalDebt));
         }
         return customerData;
+    }
+
+    public List<InactiveCustomerDTO> getInactiveCustomers(String sortBy, String sortDirection) {
+        sortBy = helperUtils.normalizeSort(sortBy);
+        sortDirection = helperUtils.normalizeSortDirection(sortDirection);
+
+        List<InactiveCustomerDTO> inactiveCustomers = new ArrayList<>();
+
+        if (sortBy == null || sortBy.isBlank()) {
+            sortBy = "DAYS_SINCE_LAST_ORDER";
+        }
+        String sortExpr = sortBy + " " + sortDirection;
+
+        String sql = String.format("""
+                SELECT
+                    C.ID,
+                    C.CUSTOMER_NAME,
+                    C.PHONE,
+                    MAX(O.CREATED_DATE) AS LAST_ORDER_DATE,
+                    C.TOTAL_ORDERS,
+                    C.TOTAL_SPENT,
+                    CAST(
+                        DATE_PART('day', CURRENT_TIMESTAMP - MAX(O.CREATED_DATE)) AS INTEGER
+                    ) AS DAYS_SINCE_LAST_ORDER
+                FROM
+                    CUSTOMERS C
+                LEFT JOIN
+                    ORDERS O ON O.CUSTOMER_ID = C.ID
+                GROUP BY
+                    C.ID, C.CUSTOMER_NAME, C.PHONE
+                HAVING
+                	MAX(O.CREATED_DATE) IS NOT NULL
+                ORDER BY
+                    %s NULLS LAST
+                LIMIT 10;
+                """, sortExpr);
+
+        Query query = entityManager.createNativeQuery(sql);
+        List<Object[]> results = query.getResultList();
+
+        for (Object[] row : results) {
+            String customerId = row[0] != null ? row[0].toString() : "";
+            String customerName = row[1] != null ? row[1].toString() : "";
+            String phone = row[2] != null ? row[2].toString() : "";
+            String lastOrderDate = row[3] != null ? row[3].toString() : "";
+            int totalOrders = row[4] != null ? ((Integer) row[4]) : 0;
+            Long totalSpent = row[5] != null ? ((Long) row[5]) : 0L;
+            int daysSinceLastOrder = row[6] != null ? ((Integer) row[6]) : 0;
+
+            inactiveCustomers.add(new InactiveCustomerDTO(customerId, customerName, phone, lastOrderDate, totalOrders, totalSpent, daysSinceLastOrder));
+        }
+
+        return inactiveCustomers;
     }
 }
