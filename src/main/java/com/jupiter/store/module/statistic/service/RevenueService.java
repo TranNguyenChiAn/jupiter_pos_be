@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -215,5 +217,42 @@ public class RevenueService {
         }
 
         return inactiveCustomers;
+    }
+
+    public List<NewCustomerDTO> getNewCustomers(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null) {
+            startDate = LocalDate.of(1970, 1, 1);
+        }
+        if (endDate == null) {
+            endDate = LocalDate.now();
+        }
+
+        List<NewCustomerDTO> newCustomers = new ArrayList<>();
+        String sql = """
+                SELECT
+                	COUNT(*) AS CUSTOMER_COUNT,
+                	CAST(DATE_TRUNC('day', CREATED_DATE) AS DATE) AS DATE
+                FROM
+                	CUSTOMERS
+                WHERE
+                	CAST(CREATED_DATE AS DATE) BETWEEN :startDate AND :endDate
+                GROUP BY
+                	CAST(DATE_TRUNC('day', CREATED_DATE) AS DATE)
+                ORDER BY
+                	CAST(DATE_TRUNC('day', CREATED_DATE) AS DATE);
+                """;
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("startDate", startDate);
+        query.setParameter("endDate", endDate);
+
+        List<Object[]> results = query.getResultList();
+        for (Object[] row : results) {
+            Integer customerCount = row[0] != null ? ((Long) row[0]).intValue() : 0;
+            LocalDate date = row[1] != null ? ((Date) row[1]).toLocalDate() : LocalDate.now();
+            newCustomers.add(new NewCustomerDTO(customerCount, date));
+        }
+
+        return newCustomers;
     }
 }

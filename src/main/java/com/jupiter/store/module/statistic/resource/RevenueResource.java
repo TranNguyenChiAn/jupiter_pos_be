@@ -5,6 +5,7 @@ import com.jupiter.store.module.statistic.service.RevenueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -49,5 +50,13 @@ public class RevenueResource {
             @RequestParam(required = false) String sortDirection
     ) {
         return revenueService.getInactiveCustomers(sortBy, sortDirection);
+    }
+
+    @GetMapping("/new-customers")
+    public List<NewCustomerDTO> getNewCustomers(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate
+    ) {
+        return revenueService.getNewCustomers(startDate, endDate);
     }
 }
