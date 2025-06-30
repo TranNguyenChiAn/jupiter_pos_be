@@ -31,18 +31,19 @@ public class RevenueResource {
     @PostMapping("/products")
     public List<ProductSalesDTO> getProductData(@RequestBody RequestTimeDTO requestTimeDTO) {
         return revenueService.getProductData(
+                requestTimeDTO.getLabel(),
                 requestTimeDTO.getStartTime(),
                 requestTimeDTO.getEndTime()
         );
     }
 
-    @GetMapping("/products/low-stock")
+    @GetMapping("/products/low-inventory")
     public List<ProductInventoryDTO> getProductInventoryData() {
-        return revenueService.getProductInventoryData();
+        return revenueService.getLowInventoryProduct();
     }
 
     @GetMapping("/products/dead-stock")
-    public List<DeadStockProductDTO>  getDeadStockData() {
+    public List<DeadStockProductDTO> getDeadStockData() {
         return revenueService.getDeadStockData();
     }
 

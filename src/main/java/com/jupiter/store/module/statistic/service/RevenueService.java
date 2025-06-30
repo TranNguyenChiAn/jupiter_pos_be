@@ -2,8 +2,6 @@ package com.jupiter.store.module.statistic.service;
 
 import com.jupiter.store.common.utils.HelperUtils;
 import com.jupiter.store.module.payment.constant.PaymentMethod;
-import com.jupiter.store.module.product.model.Product;
-import com.jupiter.store.module.product.model.ProductAttributeValue;
 import com.jupiter.store.module.product.repository.ProductRepository;
 import com.jupiter.store.module.product.repository.ProductVariantAttrValueRepository;
 import com.jupiter.store.module.statistic.dto.*;
@@ -23,7 +21,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RevenueService {
@@ -144,18 +141,82 @@ public class RevenueService {
     }
 
     public List<ProductSalesDTO> getProductData(
+            String sortOrder,
             LocalDateTime startTime,
             LocalDateTime endTime
     ) {
+        if(sortOrder == null || sortOrder.isBlank()) {
+            sortOrder = "DESC";
+        }
+
+        String sql = String.format("""
+        WITH variant_attrs AS (
+            SELECT
+                pav.product_variant_id,
+                STRING_AGG(pav.attr_value, ', ') AS attr_values
+            FROM product_attribute_values pav
+            GROUP BY pav.product_variant_id
+        )
+        SELECT
+            p.product_name ||
+            CASE
+                WHEN va.attr_values IS NOT NULL THEN ' - ' || va.attr_values
+                ELSE ''
+            END AS product_name,
+            SUM(od.sold_quantity) AS total_quantity_sold,
+            SUM(od.sold_price * od.sold_quantity) AS total_revenue
+        FROM product_variants pv
+        INNER JOIN order_details od ON pv.id = od.product_variant_id
+        INNER JOIN products p ON p.id = pv.product_id
+        LEFT JOIN variant_attrs va ON va.product_variant_id = pv.id
+        INNER JOIN orders o ON o.id = od.order_id
+        WHERE o.order_date BETWEEN :startTime AND :endTime
+        GROUP BY pv.id, p.product_name, va.attr_values
+        ORDER BY total_revenue %s
+        LIMIT 10
+        """, sortOrder);
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("startTime", startTime);
+        query.setParameter("endTime", endTime);
+
+        List<Object[]> results = query.getResultList();
+        if (results.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<ProductSalesDTO> productSales = new ArrayList<>();
-        List<Object[]> results = productStatisticRepository.findTopSellingProducts(startTime, endTime);
         for (Object[] row : results) {
             String productName = row[0] != null ? ((String) row[0]) : "";
-            long totalQuantity = row[1] != null ? ((long) row[1]) : 0L;
+            long totalQuantity = row[1] != null ? ((Long) row[1]) : 0L;
             long revenue = row[2] != null ? ((BigDecimal) row[2]).longValue() : 0L;
             productSales.add(new ProductSalesDTO(productName, totalQuantity, revenue));
         }
         return productSales;
+    }
+
+    public List<DeadStockProductDTO> getDeadStockData() {
+        List<DeadStockProductDTO> deadStockData = new ArrayList<>();
+        List<Object[]> results = productStatisticRepository.getDeadStockData();
+        for (Object[] row : results) {
+            String productName = row[0] != null ? ((String) row[0]) : "";
+            int dayCount = row[1] != null ? ((Integer) row[1]) : 0;
+            deadStockData.add(new DeadStockProductDTO(productName, dayCount));
+        }
+
+        return deadStockData;
+    }
+
+    public List<ProductInventoryDTO> getLowInventoryProduct() {
+        List<ProductInventoryDTO> productInventoryData = new ArrayList<>();
+        List<Object[]> results = productStatisticRepository.getLowInventoryProduct();
+
+        for (Object[] row : results) {
+            String productName = row[0] != null ? ((String)row[0]) : "";
+            int inventoryCount = row[1] != null ? ((Integer) row[1]) : 0;
+            productInventoryData.add(new ProductInventoryDTO(productName, inventoryCount));
+        }
+
+        return productInventoryData;
     }
 
     public List<CustomerResponseDTO> getCustomersData(
@@ -278,19 +339,6 @@ public class RevenueService {
         return orderStatusStatistics;
     }
 
-    public List<ProductInventoryDTO> getProductInventoryData() {
-        List<ProductInventoryDTO> productInventoryData = new ArrayList<>();
-        List<Object[]> results = productStatisticRepository.getProductInventoryData();
-
-        for (Object[] row : results) {
-            String productName = row[0] != null ? ((String)row[0]) : "";
-            int inventoryCount = row[1] != null ? ((Integer) row[1]) : 0;
-            productInventoryData.add(new ProductInventoryDTO(productName, inventoryCount));
-        }
-
-        return productInventoryData;
-    }
-
     public List<PaymentMethodStatisticDTO> getPaymentMethodsData(LocalDate startDate, LocalDate endDate) {
         List<PaymentMethodStatisticDTO> paymentMethodsData = new ArrayList<>();
         List<Object[]> results = revenueStatisticRepository.getPaymentMethodsData(startDate, endDate);
@@ -303,17 +351,5 @@ public class RevenueService {
         }
 
         return paymentMethodsData;
-    }
-
-    public List<DeadStockProductDTO> getDeadStockData() {
-        List<DeadStockProductDTO> deadStockData = new ArrayList<>();
-        List<Object[]> results = productStatisticRepository.getDeadStockData();
-        for (Object[] row : results) {
-            String productName = row[0] != null ? ((String) row[0]) : "";
-            int dayCount = row[1] != null ? ((Integer) row[1]) : 0;
-            deadStockData.add(new DeadStockProductDTO(productName, dayCount));
-        }
-
-        return deadStockData;
     }
 }
