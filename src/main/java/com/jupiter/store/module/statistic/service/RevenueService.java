@@ -1,6 +1,7 @@
 package com.jupiter.store.module.statistic.service;
 
 import com.jupiter.store.common.utils.HelperUtils;
+import com.jupiter.store.module.payment.constant.PaymentMethod;
 import com.jupiter.store.module.product.model.Product;
 import com.jupiter.store.module.product.model.ProductAttributeValue;
 import com.jupiter.store.module.product.repository.ProductRepository;
@@ -288,5 +289,19 @@ public class RevenueService {
         }
 
         return productInventoryData;
+    }
+
+    public List<PaymentMethodStatisticDTO> getPaymentMethodsData(LocalDate startDate, LocalDate endDate) {
+        List<PaymentMethodStatisticDTO> paymentMethodsData = new ArrayList<>();
+        List<Object[]> results = revenueStatisticRepository.getPaymentMethodsData(startDate, endDate);
+
+        for (Object[] row : results) {
+            PaymentMethod paymentMethod = row[0] != null ? PaymentMethod.fromString((String) row[0]) : null;
+            Integer totalOrders = row[1] != null ? ((Integer) row[1]) : 0;
+            Long totalRevenue = row[2] != null ? ((BigDecimal) row[2]).longValue() : 0L;
+            paymentMethodsData.add(new PaymentMethodStatisticDTO(paymentMethod, totalOrders, totalRevenue));
+        }
+
+        return paymentMethodsData;
     }
 }

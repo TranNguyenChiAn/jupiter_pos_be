@@ -3,7 +3,11 @@ package com.jupiter.store.module.statistic.repository;
 import com.jupiter.store.module.payment.model.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface RevenueStatisticRepository extends JpaRepository<Payment, Integer> {
@@ -58,4 +62,13 @@ public interface RevenueStatisticRepository extends JpaRepository<Payment, Integ
             "     WHERE o.order_date::date = CURRENT_DATE) AS today_total_orders"
             , nativeQuery = true)
     Object getMainStats();
+
+    @Query(value = "SELECT " +
+            "    p.payment_method AS paymentMethod, " +
+            "    CAST(COUNT(p.id) AS INTEGER) AS transactionCount, " +
+            "    SUM(p.paid) AS totalAmount " +
+            "FROM payments p " +
+            "WHERE p.status = 'THANH_TOAN_THANH_CONG' AND CAST(p.CREATED_DATE AS DATE) BETWEEN :startDate AND :endDate " +
+            "GROUP BY p.payment_method", nativeQuery = true)
+    List<Object[]> getPaymentMethodsData(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

@@ -71,4 +71,12 @@ public class RevenueResource {
     public List<ProductInventoryDTO> getProductInventoryData() {
         return revenueService.getProductInventoryData();
     }
+
+    @GetMapping("/payment-methods")
+    public List<PaymentMethodStatisticDTO> getPaymentMethodsData(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate
+    ) {
+        return revenueService.getPaymentMethodsData(startDate, endDate);
+    }
 }
