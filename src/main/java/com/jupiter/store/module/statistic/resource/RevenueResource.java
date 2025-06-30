@@ -36,6 +36,16 @@ public class RevenueResource {
         );
     }
 
+    @GetMapping("/products/low-stock")
+    public List<ProductInventoryDTO> getProductInventoryData() {
+        return revenueService.getProductInventoryData();
+    }
+
+    @GetMapping("/products/dead-stock")
+    public List<DeadStockProductDTO>  getDeadStockData() {
+        return revenueService.getDeadStockData();
+    }
+
     @PostMapping("/customers")
     public List<CustomerResponseDTO> getCustomerData(@RequestBody RequestTimeDTO requestTimeDTO) {
         return revenueService.getCustomersData(
@@ -67,11 +77,6 @@ public class RevenueResource {
                 requestTimeDTO.getEndTime()
         );
     }
-    @GetMapping("/products/low-stock")
-    public List<ProductInventoryDTO> getProductInventoryData() {
-        return revenueService.getProductInventoryData();
-    }
-
     @GetMapping("/payment-methods")
     public List<PaymentMethodStatisticDTO> getPaymentMethodsData(
             @RequestParam(required = false) LocalDate startDate,

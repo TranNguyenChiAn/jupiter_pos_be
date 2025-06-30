@@ -304,4 +304,16 @@ public class RevenueService {
 
         return paymentMethodsData;
     }
+
+    public List<DeadStockProductDTO> getDeadStockData() {
+        List<DeadStockProductDTO> deadStockData = new ArrayList<>();
+        List<Object[]> results = productStatisticRepository.getDeadStockData();
+        for (Object[] row : results) {
+            String productName = row[0] != null ? ((String) row[0]) : "";
+            int dayCount = row[1] != null ? ((Integer) row[1]) : 0;
+            deadStockData.add(new DeadStockProductDTO(productName, dayCount));
+        }
+
+        return deadStockData;
+    }
 }
