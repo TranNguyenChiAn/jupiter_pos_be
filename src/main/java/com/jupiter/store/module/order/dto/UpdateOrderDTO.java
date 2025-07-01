@@ -11,6 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateOrderDTO {
+    private Integer customerId;
     private String receiverName;
     private String receiverPhone;
     private String receiverAddress;

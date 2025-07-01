@@ -3,6 +3,7 @@ package com.jupiter.store.module.statistic.resource;
 import com.jupiter.store.module.statistic.dto.*;
 import com.jupiter.store.module.statistic.service.RevenueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/statistic")
+@PreAuthorize("hasRole('ADMIN')")
 public class RevenueResource {
     @Autowired
     private RevenueService revenueService;

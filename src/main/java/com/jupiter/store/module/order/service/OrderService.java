@@ -377,6 +377,13 @@ public class OrderService {
                 order.setNote(updateOrderDTO.getNote());
             }
             if (List.of(OrderStatus.DON_NHAP, OrderStatus.CHO_XAC_NHAN).contains(currentStatus)) {
+                if( updateOrderDTO.getCustomerId() != null) {
+                    Customer customer = customerService.findById(updateOrderDTO.getCustomerId());
+                    if (customer == null) {
+                        throw new CustomException("Không tìm thấy khách hàng", HttpStatus.NOT_FOUND);
+                    }
+                    order.setCustomerId(customer.getId());
+                }
                 if (updateOrderDTO.getReceiverName() != null) {
                     order.setReceiverName(updateOrderDTO.getReceiverName());
                 }
