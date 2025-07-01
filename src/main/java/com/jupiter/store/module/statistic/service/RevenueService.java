@@ -346,10 +346,22 @@ public class RevenueService {
         for (Object[] row : results) {
             PaymentMethod paymentMethod = row[0] != null ? PaymentMethod.fromString((String) row[0]) : null;
             Integer totalOrders = row[1] != null ? ((Integer) row[1]) : 0;
-            Long totalRevenue = row[2] != null ? ((BigDecimal) row[2]).longValue() : 0L;
+            Long totalRevenue = row[2] != null ? ((Long) row[2]) : 0L;
             paymentMethodsData.add(new PaymentMethodStatisticDTO(paymentMethod, totalOrders, totalRevenue));
         }
 
         return paymentMethodsData;
+    }
+
+    public RevenueDTO getRevenueByDate(LocalDate startDate, LocalDate endDate) {
+        RevenueDTO revenueData = new RevenueDTO(0L, 0);
+        List<Object[]> results = revenueStatisticRepository.getRevenueByDate(startDate, endDate);
+
+        for (Object[] row : results) {
+            Long totalRevenue = row[0] != null ? (Long) row[0] : 0L;
+            Integer totalOrders = row[1] != null ? (Integer) row[1] : 0;
+            revenueData = new RevenueDTO(totalRevenue, totalOrders);
+        }
+        return revenueData;
     }
 }

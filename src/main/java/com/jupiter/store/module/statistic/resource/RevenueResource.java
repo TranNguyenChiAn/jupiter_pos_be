@@ -85,4 +85,12 @@ public class RevenueResource {
     ) {
         return revenueService.getPaymentMethodsData(startDate, endDate);
     }
+
+    @GetMapping("/get-revenue-by-dates")
+    public RevenueDTO getRevenueByDate(
+            @RequestParam(required = true) LocalDate startDate,
+            @RequestParam(required = true) LocalDate endDate
+    ) {
+        return revenueService.getRevenueByDate(startDate, endDate);
+    }
 }
