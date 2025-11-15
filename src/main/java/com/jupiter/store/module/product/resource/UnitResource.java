@@ -4,6 +4,7 @@ import com.jupiter.store.module.product.dto.UnitDTO;
 import com.jupiter.store.module.product.dto.UnitSearchDTO;
 import com.jupiter.store.module.product.model.Unit;
 import com.jupiter.store.module.product.service.UnitService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ public class UnitResource {
     @Autowired
     private UnitService unitService;
 
+    @Operation(summary = "Tạo đơn vị mới cho sản phẩm")
     @PostMapping("/create")
     public Unit createUnit(@RequestBody UnitDTO unitDTO) {
         return unitService.createUnit(unitDTO.getName());
